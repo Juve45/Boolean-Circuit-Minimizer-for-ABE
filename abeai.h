@@ -6,22 +6,15 @@ enum NodeType {
 };
 
 struct Node {
-    static int nodeCount;
     int id;
     NodeType type;
     std::set<Node*> top, bottom;
-    Node(NodeType type) : type(type) {
-        // id = nodeCount++;
-    }
+    Node(int id, NodeType type) : id(id), type(type) { }
 };
 
 struct Edge {
-    static int edgeCount;
     int id;
     Node *top, *bottom;
-    Edge() {
-        id = edgeCount++;
-    }
 };
 
 class SubCircuit {
@@ -33,26 +26,24 @@ class Circuit {
     std::vector<Node*> leaves;
 
 public:
-    Circuit(Node* root, std::vector<Node*>& leaves) :
+    Circuit(Node* root, const std::vector<Node*>& leaves) :
         root(root), leaves(leaves) { }
-
+    void print(); // debugging
     int eval(); // using cost function (number of paths)
-    void swapSubCircuit(
-		const SubCircuit& current,
-        const SubCircuit& newCircuit
-	);
+    void replaceSubCircuit(const SubCircuit& circuit1, const SubCircuit& circuit2);
 };
 
 class CircuitBuilder {
     int height; // length of maximum path from root to some leaf
-    int nodeCount; // number of internal nodes
+    int nodeCount; // total number of nodes
     int leafCount; // number of leaves
 
 public:
-    CircuitBuilder(int height, int nodeCount, int leafCount);
+    CircuitBuilder(int height, int nodeCount, int leafCount) :
+        height(height), nodeCount(nodeCount), leafCount(leafCount) { }
     Circuit& build();
 };
 
 class PatternFinder {
-    SubCircuit& findPattern(Circuit& circuit, const SubCircuit& patternCircuit);
+    SubCircuit& findPattern(Circuit& circuit, const SubCircuit& pattern);
 };
