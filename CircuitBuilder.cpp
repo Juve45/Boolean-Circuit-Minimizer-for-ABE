@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "abeai.h"
 
-int Node::node_count = 0;
+int Node::nodeCount = 0;
 std::map<int, Node*> Node::fromId = std::map<int, Node*>();
 
 
@@ -19,6 +19,7 @@ std::vector<int> randomPartition(int value, int parts) {
     return partition;
 }
 
+// TODO
 Circuit& CircuitBuilder::build() {
     std::vector<int> sizeOfLevel(height + 1);
     sizeOfLevel[0] = 1;

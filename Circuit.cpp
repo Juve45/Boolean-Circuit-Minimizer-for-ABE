@@ -6,6 +6,20 @@
 #include <assert.h>
 #include "abeai.h"
 
+Circuit& Circuit::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges) {
+    std::vector<Node*> nodes;
+    for (const NodeType type : types)
+        nodes.push_back(new Node(type));
+    for (const auto& [node1, node2] : edges) {
+        nodes[node1]->bottom.insert(nodes[node2]);
+        nodes[node2]->top.insert(nodes[node1]);
+    }
+    std::vector<Node*> leaves;
+    for (Node* node : nodes)
+        leaves.push_back(node);
+    return *(new Circuit(nodes[0], leaves));
+}
+
 // https://csacademy.com/app/graph_editor/
 void Circuit::print() {
     auto stringify = [&](NodeType type) {

@@ -9,13 +9,13 @@ enum NodeType {
 };
 
 struct Node {
-    static int node_count;
+    static int nodeCount;
     static std::map<int, Node*> fromId;
     int id;
     NodeType type;
     std::set<Node*> top, bottom;
     Node(NodeType type) : type(type) {
-        id = node_count++;
+        id = nodeCount++;
         fromId[id] = this;
     }
 
@@ -49,6 +49,7 @@ public:
     Circuit& copy();
     int eval(); // using cost function (number of paths)
     void replaceSubCircuit(const SubCircuit& found, const SubCircuit& toReplace);
+    static Circuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges);
 };
 
 class CircuitBuilder {
