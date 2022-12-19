@@ -3,6 +3,7 @@
 #include <queue>
 #include <map>
 #include <algorithm>
+#include <assert.h>
 #include "abeai.h"
 
 // https://csacademy.com/app/graph_editor/
@@ -56,9 +57,64 @@ int Circuit::eval() {
     return ans;
 }
 
-void replaceSubCircuit(const SubCircuit& subCircuit) {
-    for (Edge* edge : subCircuit.topEdges) {
+void replaceSubCircuit(const SubCircuit& found, const SubCircuit& toReplace) {
+    assert(found.topEdges.size() == toReplace.topEdges.size());
+    assert(found.bottomEdges.size() == toReplace.bottomEdges.size());
 
+    std::set<Node*> toDelete;
+    std::set<Node*> deleteEndNode;
+
+    // Replace top nodes
+    for (int i=0; i<found.topEdges.size();i++) {
+        // TO DO if root
+        Edge* foundEdge = found.topEdges[i];
+        Edge* toReplaceEdge = toReplace.topEdges[i];
+        Node* outsideOldNode = foundEdge->top;
+        Node* insideOldNode = foundEdge->bottom;
+        toDelete.insert(insideOldNode);
+
+        Node* insideNewNode = toReplaceEdge->bottom;
+        outsideOldNode->bottom.erase(insideOldNode);
+        outsideOldNode->bottom.insert(insideNewNode);
+        insideNewNode->top.insert(outsideOldNode);
+    }
+
+    // Replace bottom nodes
+    for (int i=0; i<found.bottomEdges.size();i++) {
+        Edge* foundEdge = found.bottomEdges[i];
+        Edge* toReplaceEdge = toReplace.bottomEdges[i];
+        Node* outsideOldNode = foundEdge->bottom;
+        Node* insideOldNode = foundEdge->top;
+        deleteEndNode.insert(insideOldNode);
+
+        Node* insideNewNode = toReplaceEdge->top;
+        outsideOldNode->top.erase(insideOldNode);
+        outsideOldNode->top.insert(insideNewNode);
+        insideNewNode->bottom.insert(outsideOldNode);
+    }
+
+    // delete old nodes
+    std::queue<Node*> toDeleteQueue;
+    std::set<Node*> visitedNodes;
+
+    for (Node* node : toDelete) {
+        visitedNodes.insert(node);
+        toDeleteQueue.push(node);
+    }
+
+    while (!toDeleteQueue.empty()) {
+        Node* node = toDeleteQueue.front();
+        toDeleteQueue.pop();
+        if (!deleteEndNode.count(node)) {
+            for (Node* nextNode : node->bottom) {
+                if (visitedNodes.count(nextNode)) {
+                    continue;
+                }
+                visitedNodes.insert(nextNode);
+                toDeleteQueue.push(nextNode);
+            }
+        }
+        delete node;
     }
 }
 
