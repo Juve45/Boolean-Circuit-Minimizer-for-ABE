@@ -3,6 +3,7 @@
 #include <cassert>
 #include <chrono>
 #include <random>
+#include <iostream>
 #include "abeai.h"
 
 using std::vector;
@@ -18,6 +19,7 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
 
     std::unordered_set<int> checked;
     mapping.clear();
+
 
     for(int i = 0; i < list_circuit.size(); i++) {
         // if(list_circuit[i]->type != list_pattern[i]->type)
@@ -105,11 +107,17 @@ vector<int> getNodes(const Circuit &circuit) {
 
 vector<int> getNodes(const SubCircuit &sub_circuit) {
 
+    std::cerr << "ok" << std::endl;
     set <int> used; 
     vector <int> ret;
 
-    for(auto i : sub_circuit.bottomEdges)
+    for(auto i : sub_circuit.bottomEdges) {
+
+        std::cerr << "ok = " << i << std::endl;
         used.insert(i->top->id);
+    }
+
+    std::cerr << "ok" << std::endl;
 
     for(auto i : sub_circuit.topEdges)
         dfs(i->bottom, used);
@@ -164,7 +172,12 @@ SubCircuit PatternFinder::createSubFromNodes(vector<int> node_list, const SubCir
 SubCircuit PatternFinder::findPattern(Circuit& circuit, 
     const SubCircuit& pattern) {
 
+
+    std::cerr << "ok1" << std::endl;
+
     vector <int> pattern_node_list = getNodes(pattern);
+
+    std::cerr << "ok" << std::endl;
     vector <int> node_list = getNodes(circuit);
 
     for(int i = 1; i <= 100; i++) {

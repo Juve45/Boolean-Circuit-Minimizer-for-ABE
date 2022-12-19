@@ -8,6 +8,8 @@ int main() {
     
     std::vector<std::pair<SubCircuit, SubCircuit>> to_replace;
 
+    to_replace.push_back();
+
     std::cout << "Circuit value: " << circuit.eval() << '\n';
 
     PatternFinder pf;
