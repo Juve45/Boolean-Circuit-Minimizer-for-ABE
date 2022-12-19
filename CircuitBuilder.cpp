@@ -3,6 +3,10 @@
 #include <algorithm>
 #include "abeai.h"
 
+int Node::node_count = 0;
+std::map<int, Node*> Node::fromId = std::map<int, Node*>();
+
+
 std::vector<int> randomPartition(int value, int parts) {
     std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
     std::vector<int> partition(parts);

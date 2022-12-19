@@ -24,8 +24,6 @@ struct Node {
     }
 };
 
-int Node::node_count = 0;
-std::map<int, Node*> Node::fromId = std::map<int, Node*>();
 
 struct Edge {
     Node *top, *bottom;
