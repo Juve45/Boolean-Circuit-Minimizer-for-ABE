@@ -128,9 +128,27 @@ vector<int> getRandomArrangement(vector<int> source, int k) {
 SubCircuit createSubFromNodes(vector<int> node_list, const SubCircuit& pattern) {
 
     SubCircuit original;
+    map<int, std::set<Node*>::iterator> last_edge;
 
-    for(auto j : pattern.topEdges) 
-        original.push_back({NULL, nodeMapping[mapping[j.bottom->id]]});
+    for(auto j : pattern.topEdges) {
+        if(last_edge.find(j.bottom->id) == last_edge.end())
+            last_edge[j.bottom->id] = j.bottom->top.begin();
+        
+        original.push_back({last_edge[j.bottom->id]++, 
+            nodeMapping[mapping[j.bottom->id]]});
+        // original.push_back({NULL, nodeMapping[mapping[j.bottom->id]]});
+    }
+
+    last_edge.clear();
+
+    for(auto j : pattern.bottomEdges) {
+        if(last_edge.find(j.top->id) == last_edge.end())
+            last_edge[j.top->id] = j.top->bottom.begin();
+        
+        original.push_back({nodeMapping[mapping[j.top->id]], 
+            last_edge[j.top->id]++});
+        // original.push_back({NULL, nodeMapping[mapping[j.top->id]]});
+    }
     
     for(auto j : pattern.bottomEdges) 
         original.push_back({nodeMapping[mapping[j.top->id]], NULL});
