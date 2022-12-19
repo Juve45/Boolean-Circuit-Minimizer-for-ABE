@@ -44,7 +44,7 @@ public:
         root(root), leaves(leaves) { }
     void print(); // debugging
     int eval(); // using cost function (number of paths)
-    void replaceSubCircuit(const SubCircuit& circuit);
+    void replaceSubCircuit(const SubCircuit& found, const SubCircuit& toReplace);
 };
 
 class CircuitBuilder {
