@@ -1,5 +1,8 @@
 #include <functional>
 #include <iostream>
+#include <queue>
+#include <map>
+#include <algorithm>
 #include "abeai.h"
 
 // https://csacademy.com/app/graph_editor/
@@ -24,7 +27,38 @@ void Circuit::print() {
     dfs(root);
 }
 
+int Circuit::eval() {
+    std::map<int, int> node_top_visited = std::map<int, int>(); 
+    std::map<int, int> node_value = std::map<int, int>(); 
+
+    std::queue<std::pair<Node*, int> > nodes;
+    nodes.push({this->root, 1});
+
+    int ans = 0;
+
+    while (!nodes.empty()){
+        auto &[node, value] = nodes.front();
+        nodes.pop();
+
+        for (Node* next_node : node->bottom) {
+            node_top_visited[next_node->id]++;
+            node_value[next_node->id] += value;
+            if (node_top_visited[next_node->id] == next_node->top.size()) {
+                nodes.push({next_node, node_value[next_node->id]});
+            }
+        }
+
+        if (node->type == NodeType::INPUT) {
+            ans += value;
+        }
+    }
+
+    return ans;
+}
+
 int main() {
-    CircuitBuilder(4, 7, 3).build().print();
+    Circuit circuit = CircuitBuilder(4, 7, 3).build();
+    circuit.print();
+    std::cout << "Circuit value: " << circuit.eval() << '\n';
     return 0;
 }
