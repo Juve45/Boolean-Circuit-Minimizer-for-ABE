@@ -27,20 +27,20 @@ struct Edge {
     Node *top, *bottom;
 };
 
-class SubCircuit {
+struct SubCircuit {
     std::vector<Edge*> topEdges, bottomEdges;
 };
 
 class Circuit {
+public:
     Node *root;
     std::vector<Node*> leaves;
 
-public:
     Circuit(Node* root, const std::vector<Node*>& leaves) :
         root(root), leaves(leaves) { }
     void print(); // debugging
     int eval(); // using cost function (number of paths)
-    void replaceSubCircuit(const SubCircuit& circuit1, const SubCircuit& circuit2);
+    void replaceSubCircuit(const SubCircuit& circuit);
 };
 
 class CircuitBuilder {

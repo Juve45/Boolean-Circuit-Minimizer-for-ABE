@@ -28,8 +28,8 @@ void Circuit::print() {
 }
 
 int Circuit::eval() {
-    std::map<int, int> node_top_visited = std::map<int, int>(); 
-    std::map<int, int> node_value = std::map<int, int>(); 
+    std::map<int, int> nodeTopCisited = std::map<int, int>(); 
+    std::map<int, int> nodeValue = std::map<int, int>(); 
 
     std::queue<std::pair<Node*, int> > nodes;
     nodes.push({this->root, 1});
@@ -40,11 +40,11 @@ int Circuit::eval() {
         auto &[node, value] = nodes.front();
         nodes.pop();
 
-        for (Node* next_node : node->bottom) {
-            node_top_visited[next_node->id]++;
-            node_value[next_node->id] += value;
-            if (node_top_visited[next_node->id] == next_node->top.size()) {
-                nodes.push({next_node, node_value[next_node->id]});
+        for (Node* nextNode : node->bottom) {
+            nodeTopCisited[nextNode->id]++;
+            nodeValue[nextNode->id] += value;
+            if (nodeTopCisited[nextNode->id] == nextNode->top.size()) {
+                nodes.push({nextNode, nodeValue[nextNode->id]});
             }
         }
 
@@ -56,11 +56,17 @@ int Circuit::eval() {
     return ans;
 }
 
+void replaceSubCircuit(const SubCircuit& subCircuit) {
+    for (Edge* edge : subCircuit.topEdges) {
+
+    }
+}
+
 int main() {
     Circuit circuit = CircuitBuilder(4, 7, 3).build();
     circuit.print();
     
-    vector <pair<SubCircuit, SubCricuit>> to_replace;
+    std::vector<std::pair<SubCircuit, SubCircuit>> to_replace;
 
     std::cout << "Circuit value: " << circuit.eval() << '\n';
 
