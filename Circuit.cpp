@@ -8,7 +8,6 @@
 
 // https://csacademy.com/app/graph_editor/
 void Circuit::print() {
-    std::set<Node*> visited;
     auto stringify = [&](NodeType type) {
         if (type == AND) return "AND";
         if (type == OR) return "OR";
@@ -16,6 +15,7 @@ void Circuit::print() {
         if (type == INPUT) return "INPUT";
         return "";
     };
+    std::set<Node*> visited;
     std::function<void(Node*)> dfs = [&](Node* node) {
         visited.insert(node);
         for (Node* bottomNode : node->bottom) {
@@ -26,6 +26,27 @@ void Circuit::print() {
         }
     };
     dfs(root);
+}
+
+Circuit& Circuit::copy() {
+    std::vector<Node*> newLeaves;
+    std::map<Node*, Node*> oldToNew;
+    std::function<void(Node*)> dfs = [&](Node* node) {
+        oldToNew[node] = new Node(node->type);
+        for (Node* bottomNode : node->bottom)
+            if (!oldToNew.count(bottomNode))
+                dfs(bottomNode);
+        if (node->bottom.empty())
+            newLeaves.push_back(oldToNew[node]);
+    };
+    dfs(root);
+    for (const auto& [oldNode, newNode] : oldToNew) {
+        for (Node* topNode : oldNode->top)
+            newNode->top.insert(oldToNew[topNode]);
+        for (Node* bottomNode : oldNode->bottom)
+            newNode->bottom.insert(oldToNew[bottomNode]);
+    }
+    return *(new Circuit(oldToNew[root], newLeaves));
 }
 
 int Circuit::eval() {
@@ -121,6 +142,7 @@ void replaceSubCircuit(const SubCircuit& found, const SubCircuit& toReplace) {
 int main() {
     Circuit circuit = CircuitBuilder(4, 7, 3).build();
     circuit.print();
+    circuit.copy().print();
     
     std::vector<std::pair<SubCircuit, SubCircuit>> to_replace;
 

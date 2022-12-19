@@ -30,7 +30,7 @@ Circuit& CircuitBuilder::build() {
     for (int i = 0; i <= height; i++)
         for (int j = 0; j < sizeOfLevel[i]; j++) {
             const NodeType type = i == height ? INPUT : nodeTypes[rand() % (i ? 3 : 2)];
-            nodesOnLevel[i].push_back(new Node(id++, type));
+            nodesOnLevel[i].push_back(new Node(type));
         }
 
     // making sure the final number of levels is actually going to be `height + 1`

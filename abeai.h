@@ -43,6 +43,7 @@ public:
     Circuit(Node* root, const std::vector<Node*>& leaves) :
         root(root), leaves(leaves) { }
     void print(); // debugging
+    Circuit& copy();
     int eval(); // using cost function (number of paths)
     void replaceSubCircuit(const SubCircuit& found, const SubCircuit& toReplace);
 };
