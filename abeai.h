@@ -1,3 +1,5 @@
+#ifndef ABEAI_H
+#define ABEAI_H
 #include <set>
 #include <vector>
 #include <map>
@@ -21,6 +23,9 @@ struct Node {
         fromId.erase(this->id);
     }
 };
+
+int Node::node_count = 0;
+std::map<int, Node*> Node::fromId = std::map<int, Node*>();
 
 struct Edge {
     Node *top, *bottom;
@@ -60,10 +65,15 @@ public:
 };
 
 class PatternFinder {
-    std::map<int, int> mapping;
+public:
     SubCircuit findPattern(Circuit& circuit, const SubCircuit& pattern);
+private:
+    std::map<int, int> mapping;
     SubCircuit createSubFromNodes(std::vector<int> node_list, 
         const SubCircuit& pattern);
     bool isomorph(const std::vector<int> &list_circuit, 
     const std::vector <int> &list_pattern, const SubCircuit& pattern);
 };
+
+
+#endif
