@@ -73,7 +73,7 @@ bool PatternFinder::isomorph(const vector<Node*> &list_circuit,
     return 1;
 }
 
-void dfs(Node * node, set<int> &used) {
+void PatternFinder::dfs(Node * node, set<int> &used) {
     if(used.count(node->id)) 
         return;
 
@@ -86,7 +86,7 @@ void dfs(Node * node, set<int> &used) {
 }
 
 
-void getNodes(const Circuit &circuit) {
+void PatternFinder::getNodes(const Circuit &circuit) {
 
     set <int> used; 
     vector <int> ret;
@@ -97,7 +97,7 @@ void getNodes(const Circuit &circuit) {
     return ret;
 }
 
-void getNodes(const SubCircuit &sub_circuit) {
+void PatternFinder::getNodes(const SubCircuit &sub_circuit) {
 
     set <int> used; 
     vector <int> ret;
@@ -115,40 +115,40 @@ void getNodes(const SubCircuit &sub_circuit) {
 }
 
 vector<int> getRandomArrangement(vector<int> source, int k) {
-random_shuffle(source.begin(), source.end());
-return source.resize(k);
+    random_shuffle(source.begin(), source.end());
+    return source.resize(k);
 }
 
 
 SubCircuit createSubFromNodes(vector<int> node_list, const SubCircuit& pattern) {
 
-SubCircuit original;
-map<int, std::set<Node*>::iterator> last_edge;
+    SubCircuit original;
+    map<int, std::set<Node*>::iterator> last_edge;
 
-for(auto j : pattern.topEdges) {
-    if(last_edge.find(j.bottom->id) == last_edge.end())
-        last_edge[j.bottom->id] = j.bottom->top.begin();
-    
-    original.push_back({last_edge[j.bottom->id]++, 
-        nodeMapping[mapping[j.bottom->id]]});
-    // original.push_back({NULL, nodeMapping[mapping[j.bottom->id]]});
-}
+    for(auto j : pattern.topEdges) {
+        if(last_edge.find(j.bottom->id) == last_edge.end())
+            last_edge[j.bottom->id] = j.bottom->top.begin();
+        
+        original.push_back({last_edge[j.bottom->id]++, 
+            nodeMapping[mapping[j.bottom->id]]});
+        // original.push_back({NULL, nodeMapping[mapping[j.bottom->id]]});
+    }
 
-last_edge.clear();
+    last_edge.clear();
 
-for(auto j : pattern.bottomEdges) {
-    if(last_edge.find(j.top->id) == last_edge.end())
-        last_edge[j.top->id] = j.top->bottom.begin();
-    
-    original.push_back({nodeMapping[mapping[j.top->id]], 
-        last_edge[j.top->id]++});
-    // original.push_back({NULL, nodeMapping[mapping[j.top->id]]});
-}
+    for(auto j : pattern.bottomEdges) {
+        if(last_edge.find(j.top->id) == last_edge.end())
+            last_edge[j.top->id] = j.top->bottom.begin();
+        
+        original.push_back({nodeMapping[mapping[j.top->id]], 
+            last_edge[j.top->id]++});
+        // original.push_back({NULL, nodeMapping[mapping[j.top->id]]});
+    }
 
-for(auto j : pattern.bottomEdges) 
-    original.push_back({nodeMapping[mapping[j.top->id]], NULL});
+    for(auto j : pattern.bottomEdges) 
+        original.push_back({nodeMapping[mapping[j.top->id]], NULL});
 
-return original;
+    return original;
 }
 
 
@@ -166,5 +166,5 @@ SubCircuit& findPattern(Circuit& circuit,
         if (isomorph(candidate, pattern))
             return createSubFromNodes(candidate, pattern);
     }
-    }
+}
 

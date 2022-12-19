@@ -1,6 +1,6 @@
-#pragma once
 #include <set>
 #include <vector>
+#include <map>
 
 enum NodeType {
     AND, OR, FAN_OUT, INPUT
@@ -8,12 +8,12 @@ enum NodeType {
 
 struct Node {
     static int node_count;
-    static map<int, Node*> fromId;
+    static std::map<int, Node*> fromId;
     int id;
     NodeType type;
     std::set<Node*> top, bottom;
     Node(NodeType type) : type(type) {
-        id = nodeCount++;
+        id = node_count++;
         fromId[id] = this;
     }
 
@@ -56,6 +56,5 @@ public:
 
 class PatternFinder {
     std::map<int, int> mapping;
-    std::map<int, Node*> nodeMapping;
     SubCircuit& findPattern(Circuit& circuit, const SubCircuit& pattern);
 };
