@@ -4,12 +4,7 @@
 using std::vector;
 
 
-class PatternFinder {
-
-    map<int, int> mapping;
-    map<int, Node*> nodeMapping;
-
-    bool isomorph(const vector<Node*> &list_circuit, 
+bool PatternFinder::isomorph(const vector<Node*> &list_circuit, 
     const vector <Node*> &list_pattern, SubCircuit& pattern) {
 
     if(list_circuit.size() != list_pattern.size())
@@ -28,7 +23,7 @@ class PatternFinder {
 
         mapping[list_pattern[i]->id] = list_circuit[i]->id;
     }
-    
+
     vector <int> inputs, outputs;
 
     auto check_ngh = [](vector <Node*>& ngh_circ, vector <Node*>& ngh_part) 
@@ -83,7 +78,7 @@ void dfs(Node * node, set<int> &used) {
         return;
 
     nodeMapping[node->id] = node;
-    
+
     used.insert(node->id);
 
     for(auto i : node->bottom)
@@ -109,67 +104,67 @@ void getNodes(const SubCircuit &sub_circuit) {
 
     for(auto i : sub_circuit.bottomEdges)
         used.insert(i.st);
-    
+
     for(auto i : sub_circuit.topEdges)
         dfs(i.nd, used);
 
     for(auto i : used)
         ret.push_back(i);
-    
+
     return ret;
 }
 
 vector<int> getRandomArrangement(vector<int> source, int k) {
-    random_shuffle(source.begin(), source.end());
-    return source.resize(k);
+random_shuffle(source.begin(), source.end());
+return source.resize(k);
 }
 
 
 SubCircuit createSubFromNodes(vector<int> node_list, const SubCircuit& pattern) {
 
-    SubCircuit original;
-    map<int, std::set<Node*>::iterator> last_edge;
+SubCircuit original;
+map<int, std::set<Node*>::iterator> last_edge;
 
-    for(auto j : pattern.topEdges) {
-        if(last_edge.find(j.bottom->id) == last_edge.end())
-            last_edge[j.bottom->id] = j.bottom->top.begin();
-        
-        original.push_back({last_edge[j.bottom->id]++, 
-            nodeMapping[mapping[j.bottom->id]]});
-        // original.push_back({NULL, nodeMapping[mapping[j.bottom->id]]});
-    }
-
-    last_edge.clear();
-
-    for(auto j : pattern.bottomEdges) {
-        if(last_edge.find(j.top->id) == last_edge.end())
-            last_edge[j.top->id] = j.top->bottom.begin();
-        
-        original.push_back({nodeMapping[mapping[j.top->id]], 
-            last_edge[j.top->id]++});
-        // original.push_back({NULL, nodeMapping[mapping[j.top->id]]});
-    }
+for(auto j : pattern.topEdges) {
+    if(last_edge.find(j.bottom->id) == last_edge.end())
+        last_edge[j.bottom->id] = j.bottom->top.begin();
     
-    for(auto j : pattern.bottomEdges) 
-        original.push_back({nodeMapping[mapping[j.top->id]], NULL});
+    original.push_back({last_edge[j.bottom->id]++, 
+        nodeMapping[mapping[j.bottom->id]]});
+    // original.push_back({NULL, nodeMapping[mapping[j.bottom->id]]});
+}
+
+last_edge.clear();
+
+for(auto j : pattern.bottomEdges) {
+    if(last_edge.find(j.top->id) == last_edge.end())
+        last_edge[j.top->id] = j.top->bottom.begin();
     
-    return original;
+    original.push_back({nodeMapping[mapping[j.top->id]], 
+        last_edge[j.top->id]++});
+    // original.push_back({NULL, nodeMapping[mapping[j.top->id]]});
+}
+
+for(auto j : pattern.bottomEdges) 
+    original.push_back({nodeMapping[mapping[j.top->id]], NULL});
+
+return original;
 }
 
 
 
-    SubCircuit& findPattern(Circuit& circuit, 
-        const SubCircuit& pattern) {
+SubCircuit& findPattern(Circuit& circuit, 
+    const SubCircuit& pattern) {
 
-        vector <int> pattern_node_list = getNodes(pattern);
-        vector <int> node_list = getNodes(circuit);
+    vector <int> pattern_node_list = getNodes(pattern);
+    vector <int> node_list = getNodes(circuit);
 
-        for(int i = 1; i <= 100; i++) {
-            vector <int> candidate = 
-                getRandomArrangement(pattern_node_list, node_list.size());
+    for(int i = 1; i <= 100; i++) {
+        vector <int> candidate = 
+            getRandomArrangement(pattern_node_list, node_list.size());
 
-            if (isomorph(candidate, pattern))
-                return createSubFromNodes(candidate, pattern);
-        }
+        if (isomorph(candidate, pattern))
+            return createSubFromNodes(candidate, pattern);
     }
-};
+    }
+

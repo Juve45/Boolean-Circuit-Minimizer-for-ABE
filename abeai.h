@@ -7,10 +7,19 @@ enum NodeType {
 };
 
 struct Node {
+    static int node_count;
+    static map<int, Node*> fromId;
     int id;
     NodeType type;
     std::set<Node*> top, bottom;
-    Node(int id, NodeType type) : id(id), type(type) { }
+    Node(NodeType type) : type(type) {
+        id = nodeCount++;
+        fromId[id] = this;
+    }
+
+    ~Node() {
+        fromId.erase(this->id);
+    }
 };
 
 struct Edge {
@@ -46,5 +55,7 @@ public:
 };
 
 class PatternFinder {
+    std::map<int, int> mapping;
+    std::map<int, Node*> nodeMapping;
     SubCircuit& findPattern(Circuit& circuit, const SubCircuit& pattern);
 };
