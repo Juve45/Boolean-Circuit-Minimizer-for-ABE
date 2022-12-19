@@ -23,8 +23,12 @@ struct Node {
 };
 
 struct Edge {
-    int id;
     Node *top, *bottom;
+
+    Edge(Node *_top, Node *_bottom) {
+        top = _top;
+        bottom = _bottom;
+    }
 };
 
 struct SubCircuit {
@@ -56,5 +60,9 @@ public:
 
 class PatternFinder {
     std::map<int, int> mapping;
-    SubCircuit& findPattern(Circuit& circuit, const SubCircuit& pattern);
+    SubCircuit findPattern(Circuit& circuit, const SubCircuit& pattern);
+    SubCircuit createSubFromNodes(std::vector<int> node_list, 
+        const SubCircuit& pattern);
+    bool isomorph(const std::vector<int> &list_circuit, 
+    const std::vector <int> &list_pattern, const SubCircuit& pattern);
 };

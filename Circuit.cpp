@@ -76,7 +76,7 @@ int main() {
         // alegem random subcircuit
         auto found = PatternFinder.findPattern(copy_circuit, to_replace[0].first);
         if(found.topEdges.size() != 0) {
-            copy_circuit.replace(found); // 
+            copy_circuit.replace(found, to_replace[0].second); // 
         }
     }
 
