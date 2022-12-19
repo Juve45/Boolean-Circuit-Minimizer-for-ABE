@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <unordered_set>
 #include <cassert>
+#include <chrono>
+#include <random>
 #include "abeai.h"
 
 using std::vector;
@@ -119,7 +121,9 @@ vector<int> getNodes(const SubCircuit &sub_circuit) {
 }
 
 vector<int> getRandomArrangement(vector<int> source, int k) {
-    random_shuffle(source.begin(), source.end());
+
+    std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
+    shuffle(source.begin(), source.end(), rand);
     source.resize(k);
     return source;
 }

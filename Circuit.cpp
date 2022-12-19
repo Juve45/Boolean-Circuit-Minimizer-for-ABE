@@ -78,7 +78,7 @@ int Circuit::eval() {
     return ans;
 }
 
-void replaceSubCircuit(const SubCircuit& found, const SubCircuit& toReplace) {
+void Circuit::replaceSubCircuit(const SubCircuit& found, const SubCircuit& toReplace) {
     assert(found.topEdges.size() == toReplace.topEdges.size());
     assert(found.bottomEdges.size() == toReplace.bottomEdges.size());
 
