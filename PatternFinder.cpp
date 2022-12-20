@@ -5,7 +5,7 @@
 #include <random>
 #include <iostream>
 #include "abeai.h"
-#include "debug.h"
+// #include "debug.h"
 
 using std::vector;
 using std::set;
@@ -36,8 +36,8 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
     }
 
     vector <int> inputs, outputs;
-    dbg(checked);
-    dbg(inputs);
+    // dbg(checked);
+    // dbg(inputs);
 
     auto check_ngh = [&](set <Node*>& ngh_circ, set <Node*>& ngh_part) 
     { 
@@ -62,10 +62,10 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
         checked.insert(i->bottom->id);
         checked.insert(mapping[i->bottom->id]);
     }
-    dbg(checked);
+    // dbg(checked);
 
     for(auto i : pattern.bottomEdges) {
-        dbg(i->top->id);
+        // dbg(i->top->id);
 
         if(checked.count(i->top->id)) 
             assert(false);

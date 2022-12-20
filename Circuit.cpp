@@ -5,7 +5,10 @@
 #include <algorithm>
 #include <assert.h>
 #include "abeai.h"
-#include "debug.h"
+// #include "debug.h"
+
+int Node::nodeCount = 0;
+std::map<int, Node*> Node::fromId = std::map<int, Node*>();
 
 Circuit& Circuit::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges) {
     std::vector<Node*> nodes;
@@ -17,7 +20,8 @@ Circuit& Circuit::from(const std::vector<NodeType>& types, const std::vector<std
     }
     std::vector<Node*> leaves;
     for (Node* node : nodes)
-        leaves.push_back(node);
+        if (node->bottom.empty())
+            leaves.push_back(node);
     return *(new Circuit(nodes[0], leaves));
 }
 
@@ -41,6 +45,10 @@ void Circuit::print() {
         }
     };
     dfs(root);
+    std::cout << "root: " << root->id << '\n';
+    for (Node* leaf : leaves)
+        std::cout << "leaves: " << leaf->id << ' ';
+    std::cout << '\n';
 }
 
 Circuit& Circuit::copy() {
@@ -161,8 +169,8 @@ SubCircuit::SubCircuit() {
 
 SubCircuit::SubCircuit(const Circuit& circuit) {
 
-    dbg(circuit.leaves);
-    dbg(circuit.root);
+    // dbg(circuit.leaves);
+    // dbg(circuit.root);
 
     for(auto leaf : circuit.leaves) 
         this->bottomEdges.push_back(new Edge(leaf, NULL));
@@ -172,7 +180,7 @@ SubCircuit::SubCircuit(const Circuit& circuit) {
 
 
 
-ostream& operator<<(ostream& out, Node * node) { 
+std::ostream& operator<<(std::ostream& out, Node * node) { 
 
     out << "Node[" << node->id << "]";
     return out; 
