@@ -24,6 +24,7 @@ struct Node {
     }
 };
 
+struct SubCircuit;
 
 struct Edge {
     Node *top, *bottom;
@@ -34,9 +35,6 @@ struct Edge {
     }
 };
 
-struct SubCircuit {
-    std::vector<Edge*> topEdges, bottomEdges;
-};
 
 class Circuit {
 public:
@@ -51,6 +49,14 @@ public:
     void replaceSubCircuit(const SubCircuit& found, const SubCircuit& toReplace);
     static Circuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges);
 };
+
+struct SubCircuit {
+    std::vector<Edge*> topEdges, bottomEdges;
+
+    SubCircuit();
+    SubCircuit(const Circuit& circuit);
+};
+
 
 class CircuitBuilder {
     int height; // length of maximum path from root to some leaf

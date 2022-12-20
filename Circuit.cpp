@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <assert.h>
 #include "abeai.h"
+#include "debug.h"
 
 Circuit& Circuit::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges) {
     std::vector<Node*> nodes;
@@ -153,3 +154,26 @@ void Circuit::replaceSubCircuit(const SubCircuit& found, const SubCircuit& toRep
     }
 }
 
+
+SubCircuit::SubCircuit() {
+
+}
+
+SubCircuit::SubCircuit(const Circuit& circuit) {
+
+    dbg(circuit.leaves);
+    dbg(circuit.root);
+
+    for(auto leaf : circuit.leaves) 
+        this->bottomEdges.push_back(new Edge(leaf, NULL));
+    this->topEdges.push_back(new Edge(NULL, circuit.root));
+}
+
+
+
+
+ostream& operator<<(ostream& out, Node * node) { 
+
+    out << "Node[" << node->id << "]";
+    return out; 
+}

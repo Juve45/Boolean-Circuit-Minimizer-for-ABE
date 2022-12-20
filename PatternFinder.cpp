@@ -5,6 +5,7 @@
 #include <random>
 #include <iostream>
 #include "abeai.h"
+#include "debug.h"
 
 using std::vector;
 using std::set;
@@ -20,19 +21,23 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
     std::unordered_set<int> checked;
     mapping.clear();
 
-
     for(int i = 0; i < list_circuit.size(); i++) {
-        // if(list_circuit[i]->type != list_pattern[i]->type)
-        //     return 0;
-        // if(list_circuit[i]->top.size() != list_pattern[i]->top.size())
-        //     return 0;
-        // if(list_circuit[i]->bottom.size() != list_pattern[i]->bottom.size())
-        //     return 0;
+        Node* node_circuit = Node::fromId[list_circuit[i]];
+        Node* node_pattern = Node::fromId[list_pattern[i]];
+        
+        if(node_circuit->type != node_pattern->type)
+            return 0;
+        if(node_circuit->top.size() != node_pattern->top.size())
+            return 0;
+        if(node_circuit->bottom.size() != node_pattern->bottom.size())
+            return 0;
 
         mapping[list_pattern[i]] = list_circuit[i];
     }
 
     vector <int> inputs, outputs;
+    dbg(checked);
+    dbg(inputs);
 
     auto check_ngh = [&](set <Node*>& ngh_circ, set <Node*>& ngh_part) 
     { 
@@ -57,8 +62,10 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
         checked.insert(i->bottom->id);
         checked.insert(mapping[i->bottom->id]);
     }
+    dbg(checked);
 
     for(auto i : pattern.bottomEdges) {
+        dbg(i->top->id);
 
         if(checked.count(i->top->id)) 
             assert(false);
@@ -107,17 +114,13 @@ vector<int> getNodes(const Circuit &circuit) {
 
 vector<int> getNodes(const SubCircuit &sub_circuit) {
 
-    std::cerr << "ok" << std::endl;
     set <int> used; 
     vector <int> ret;
 
     for(auto i : sub_circuit.bottomEdges) {
 
-        std::cerr << "ok = " << i << std::endl;
         used.insert(i->top->id);
     }
-
-    std::cerr << "ok" << std::endl;
 
     for(auto i : sub_circuit.topEdges)
         dfs(i->bottom, used);
@@ -172,12 +175,8 @@ SubCircuit PatternFinder::createSubFromNodes(vector<int> node_list, const SubCir
 SubCircuit PatternFinder::findPattern(Circuit& circuit, 
     const SubCircuit& pattern) {
 
-
-    std::cerr << "ok1" << std::endl;
-
     vector <int> pattern_node_list = getNodes(pattern);
 
-    std::cerr << "ok" << std::endl;
     vector <int> node_list = getNodes(circuit);
 
     for(int i = 1; i <= 100; i++) {
