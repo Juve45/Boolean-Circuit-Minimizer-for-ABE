@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <random>
+#include <chrono>
 #include "abeai.h"
 
 std::vector<int> random_partition(int value, int parts) {

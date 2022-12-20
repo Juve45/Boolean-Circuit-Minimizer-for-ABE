@@ -179,7 +179,7 @@ SubCircuit PatternFinder::find_pattern(Circuit& circuit,
 
     vector <int> node_list = get_nodes(circuit);
 
-    for(int i = 1; i <= 100; i++) {
+    for(int i = 1; i <= 1000; i++) {
         vector <int> candidate =
             get_random_arrangement(pattern_node_list, node_list.size());
 

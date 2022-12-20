@@ -1,6 +1,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <ostream>
 
 enum NodeType {
     AND, OR, FAN_OUT, INPUT
