@@ -26,8 +26,9 @@ std::ostream& operator<<(std::ostream& out, const Circuit& circuit) {
     };
     dfs(circuit.root);
     out << "root: " << *circuit.root << '\n';
+    out << "leaves: ";
     for (Node* leaf : circuit.leaves)
-        out << "leaves: " << *leaf << ' ';
+        out << *leaf << ' ';
     out << '\n';
     return out;
 }
