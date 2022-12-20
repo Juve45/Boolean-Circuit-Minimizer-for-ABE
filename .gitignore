@@ -1,5 +1,5 @@
 .vscode
 *.o
-a.out
 *.gch
+a.out
 main

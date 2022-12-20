@@ -7,9 +7,6 @@
 #include "abeai.h"
 // #include "debug.h"
 
-int Node::nodeCount = 0;
-std::map<int, Node*> Node::fromId = std::map<int, Node*>();
-
 Circuit& Circuit::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges) {
     std::vector<Node*> nodes;
     for (const NodeType type : types)
@@ -37,11 +34,11 @@ void Circuit::print() {
     std::set<Node*> visited;
     std::function<void(Node*)> dfs = [&](Node* node) {
         visited.insert(node);
-        for (Node* bottomNode : node->bottom) {
+        for (Node* bottom_node : node->bottom) {
             std::cout << node->id << '-' << stringify(node->type) << ' ';
-            std::cout << bottomNode->id << '-' << stringify(bottomNode->type) << '\n';
-            if (!visited.count(bottomNode))
-                dfs(bottomNode);
+            std::cout << bottom_node->id << '-' << stringify(bottom_node->type) << '\n';
+            if (!visited.count(bottom_node))
+                dfs(bottom_node);
         }
     };
     dfs(root);
@@ -52,29 +49,29 @@ void Circuit::print() {
 }
 
 Circuit& Circuit::copy() {
-    std::vector<Node*> newLeaves;
-    std::map<Node*, Node*> oldToNew;
+    std::vector<Node*> new_leaves;
+    std::map<Node*, Node*> old_to_new;
     std::function<void(Node*)> dfs = [&](Node* node) {
-        oldToNew[node] = new Node(node->type);
-        for (Node* bottomNode : node->bottom)
-            if (!oldToNew.count(bottomNode))
-                dfs(bottomNode);
+        old_to_new[node] = new Node(node->type);
+        for (Node* bottom_node : node->bottom)
+            if (!old_to_new.count(bottom_node))
+                dfs(bottom_node);
         if (node->bottom.empty())
-            newLeaves.push_back(oldToNew[node]);
+            new_leaves.push_back(old_to_new[node]);
     };
     dfs(root);
-    for (const auto& [oldNode, newNode] : oldToNew) {
-        for (Node* topNode : oldNode->top)
-            newNode->top.insert(oldToNew[topNode]);
-        for (Node* bottomNode : oldNode->bottom)
-            newNode->bottom.insert(oldToNew[bottomNode]);
+    for (const auto& [old_node, new_node] : old_to_new) {
+        for (Node* top_node : old_node->top)
+            new_node->top.insert(old_to_new[top_node]);
+        for (Node* bottom_node : old_node->bottom)
+            new_node->bottom.insert(old_to_new[bottom_node]);
     }
-    return *(new Circuit(oldToNew[root], newLeaves));
+    return *(new Circuit(old_to_new[root], new_leaves));
 }
 
 int Circuit::eval() {
-    std::map<int, int> nodeTopCisited = std::map<int, int>(); 
-    std::map<int, int> nodeValue = std::map<int, int>(); 
+    std::map<int, int> node_top_visited = std::map<int, int>();
+    std::map<int, int> node_value = std::map<int, int>();
 
     std::queue<std::pair<Node*, int> > nodes;
     nodes.push({this->root, 1});
@@ -85,11 +82,11 @@ int Circuit::eval() {
         auto &[node, value] = nodes.front();
         nodes.pop();
 
-        for (Node* nextNode : node->bottom) {
-            nodeTopCisited[nextNode->id]++;
-            nodeValue[nextNode->id] += value;
-            if (nodeTopCisited[nextNode->id] == nextNode->top.size()) {
-                nodes.push({nextNode, nodeValue[nextNode->id]});
+        for (Node* next_node : node->bottom) {
+            node_top_visited[next_node->id]++;
+            node_value[next_node->id] += value;
+            if (node_top_visited[next_node->id] == next_node->top.size()) {
+                nodes.push({next_node, node_value[next_node->id]});
             }
         }
 
@@ -101,67 +98,66 @@ int Circuit::eval() {
     return ans;
 }
 
-void Circuit::replaceSubCircuit(const SubCircuit& found, const SubCircuit& toReplace) {
-    assert(found.topEdges.size() == toReplace.topEdges.size());
-    assert(found.bottomEdges.size() == toReplace.bottomEdges.size());
+void Circuit::replace_subcircuit(const SubCircuit& found, const SubCircuit& to_replace) {
+    assert(found.top_edges.size() == to_replace.top_edges.size());
+    assert(found.bottom_edges.size() == to_replace.bottom_edges.size());
 
-    std::set<Node*> toDelete;
-    std::set<Node*> deleteEndNode;
+    std::set<Node*> to_delete;
+    std::set<Node*> delete_end_node;
 
     // Replace top nodes
-    for (int i=0; i<found.topEdges.size();i++) {
+    for (int i=0; i<found.top_edges.size();i++) {
         // TO DO if root
-        Edge* foundEdge = found.topEdges[i];
-        Edge* toReplaceEdge = toReplace.topEdges[i];
-        Node* outsideOldNode = foundEdge->top;
-        Node* insideOldNode = foundEdge->bottom;
-        toDelete.insert(insideOldNode);
+        Edge* found_edge = found.top_edges[i];
+        Edge* to_replace_edge = to_replace.top_edges[i];
+        Node* outside_old_node = found_edge->top;
+        Node* inside_old_node = found_edge->bottom;
+        to_delete.insert(inside_old_node);
 
-        Node* insideNewNode = toReplaceEdge->bottom;
-        outsideOldNode->bottom.erase(insideOldNode);
-        outsideOldNode->bottom.insert(insideNewNode);
-        insideNewNode->top.insert(outsideOldNode);
+        Node* inside_new_node = to_replace_edge->bottom;
+        outside_old_node->bottom.erase(inside_old_node);
+        outside_old_node->bottom.insert(inside_new_node);
+        inside_new_node->top.insert(outside_old_node);
     }
 
     // Replace bottom nodes
-    for (int i=0; i<found.bottomEdges.size();i++) {
-        Edge* foundEdge = found.bottomEdges[i];
-        Edge* toReplaceEdge = toReplace.bottomEdges[i];
-        Node* outsideOldNode = foundEdge->bottom;
-        Node* insideOldNode = foundEdge->top;
-        deleteEndNode.insert(insideOldNode);
+    for (int i=0; i<found.bottom_edges.size();i++) {
+        Edge* found_edge = found.bottom_edges[i];
+        Edge* to_replace_edge = to_replace.bottom_edges[i];
+        Node* outside_old_node = found_edge->bottom;
+        Node* inside_old_node = found_edge->top;
+        delete_end_node.insert(inside_old_node);
 
-        Node* insideNewNode = toReplaceEdge->top;
-        outsideOldNode->top.erase(insideOldNode);
-        outsideOldNode->top.insert(insideNewNode);
-        insideNewNode->bottom.insert(outsideOldNode);
+        Node* inside_new_node = to_replace_edge->top;
+        outside_old_node->top.erase(inside_old_node);
+        outside_old_node->top.insert(inside_new_node);
+        inside_new_node->bottom.insert(outside_old_node);
     }
 
     // delete old nodes
-    std::queue<Node*> toDeleteQueue;
-    std::set<Node*> visitedNodes;
+    std::queue<Node*> to_delete_queue;
+    std::set<Node*> visited_nodes;
 
-    for (Node* node : toDelete) {
-        visitedNodes.insert(node);
-        toDeleteQueue.push(node);
+    for (Node* node : to_delete) {
+        visited_nodes.insert(node);
+        to_delete_queue.push(node);
     }
 
-    while (!toDeleteQueue.empty()) {
-        Node* node = toDeleteQueue.front();
-        toDeleteQueue.pop();
-        if (!deleteEndNode.count(node)) {
+    while (!to_delete_queue.empty()) {
+        Node* node = to_delete_queue.front();
+        to_delete_queue.pop();
+        if (!delete_end_node.count(node)) {
             for (Node* nextNode : node->bottom) {
-                if (visitedNodes.count(nextNode)) {
+                if (visited_nodes.count(nextNode)) {
                     continue;
                 }
-                visitedNodes.insert(nextNode);
-                toDeleteQueue.push(nextNode);
+                visited_nodes.insert(nextNode);
+                to_delete_queue.push(nextNode);
             }
         }
         delete node;
     }
 }
-
 
 SubCircuit::SubCircuit() {
 
@@ -172,16 +168,12 @@ SubCircuit::SubCircuit(const Circuit& circuit) {
     // dbg(circuit.leaves);
     // dbg(circuit.root);
 
-    for(auto leaf : circuit.leaves) 
-        this->bottomEdges.push_back(new Edge(leaf, NULL));
-    this->topEdges.push_back(new Edge(NULL, circuit.root));
+    for(auto leaf : circuit.leaves)
+        this->bottom_edges.push_back(new Edge(leaf, NULL));
+    this->top_edges.push_back(new Edge(NULL, circuit.root));
 }
 
-
-
-
-std::ostream& operator<<(std::ostream& out, Node * node) { 
-
+std::ostream& operator<<(std::ostream& out, Node* node) {
     out << "Node[" << node->id << "]";
-    return out; 
+    return out;
 }

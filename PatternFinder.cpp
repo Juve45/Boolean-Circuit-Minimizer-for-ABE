@@ -12,7 +12,7 @@ using std::set;
 using std::map;
 
 
-bool PatternFinder::isomorph(const vector<int> &list_circuit, 
+bool PatternFinder::isomorph(const vector<int> &list_circuit,
     const vector <int> &list_pattern, const SubCircuit& pattern) {
 
     if(list_circuit.size() != list_pattern.size())
@@ -22,9 +22,9 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
     mapping.clear();
 
     for(int i = 0; i < list_circuit.size(); i++) {
-        Node* node_circuit = Node::fromId[list_circuit[i]];
-        Node* node_pattern = Node::fromId[list_pattern[i]];
-        
+        Node* node_circuit = Node::from_id[list_circuit[i]];
+        Node* node_pattern = Node::from_id[list_pattern[i]];
+
         if(node_circuit->type != node_pattern->type)
             return 0;
         if(node_circuit->top.size() != node_pattern->top.size())
@@ -39,8 +39,8 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
     // dbg(checked);
     // dbg(inputs);
 
-    auto check_ngh = [&](set <Node*>& ngh_circ, set <Node*>& ngh_part) 
-    { 
+    auto check_ngh = [&](set <Node*>& ngh_circ, set <Node*>& ngh_part)
+    {
         set <int> ngh_a, ngh_b;
         for(auto j : ngh_circ)
             ngh_a.insert(mapping[j->id]);
@@ -54,9 +54,9 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
         return 1;
     };
 
-    for(auto i : pattern.topEdges) {
-        
-        if(!check_ngh(i->bottom->bottom, Node::fromId[mapping[i->bottom->id]]->bottom))
+    for(auto i : pattern.top_edges) {
+
+        if(!check_ngh(i->bottom->bottom, Node::from_id[mapping[i->bottom->id]]->bottom))
             return 0;
 
         checked.insert(i->bottom->id);
@@ -64,13 +64,13 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
     }
     // dbg(checked);
 
-    for(auto i : pattern.bottomEdges) {
+    for(auto i : pattern.bottom_edges) {
         // dbg(i->top->id);
 
-        if(checked.count(i->top->id)) 
+        if(checked.count(i->top->id))
             assert(false);
 
-        if(!check_ngh(i->top->top, Node::fromId[mapping[i->top->id]]->top))
+        if(!check_ngh(i->top->top, Node::from_id[mapping[i->top->id]]->top))
             return 0;
 
         checked.insert(i->top->id);
@@ -78,12 +78,12 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
     }
 
     for(auto i : list_circuit) { // internal nodes, we need to check both up and down
-        Node* node = Node::fromId[i];
-        if(checked.count(i)) 
+        Node* node = Node::from_id[i];
+        if(checked.count(i))
             continue;
-        if(!check_ngh(node->top, Node::fromId[mapping[i]]->top))
+        if(!check_ngh(node->top, Node::from_id[mapping[i]]->top))
             return 0;
-        if(!check_ngh(node->bottom, Node::fromId[mapping[i]]->bottom))
+        if(!check_ngh(node->bottom, Node::from_id[mapping[i]]->bottom))
             return 0;
     }
 
@@ -91,7 +91,7 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
 }
 
 void dfs(Node * node, set<int> &used) {
-    if(used.count(node->id)) 
+    if(used.count(node->id))
         return;
 
     used.insert(node->id);
@@ -101,9 +101,9 @@ void dfs(Node * node, set<int> &used) {
 }
 
 
-vector<int> getNodes(const Circuit &circuit) {
+vector<int> get_nodes(const Circuit &circuit) {
 
-    set <int> used; 
+    set <int> used;
     vector <int> ret;
 
     dfs(circuit.root, used);
@@ -112,17 +112,17 @@ vector<int> getNodes(const Circuit &circuit) {
     return ret;
 }
 
-vector<int> getNodes(const SubCircuit &sub_circuit) {
+vector<int> get_nodes(const SubCircuit &sub_circuit) {
 
-    set <int> used; 
+    set <int> used;
     vector <int> ret;
 
-    for(auto i : sub_circuit.bottomEdges) {
+    for(auto i : sub_circuit.bottom_edges) {
 
         used.insert(i->top->id);
     }
 
-    for(auto i : sub_circuit.topEdges)
+    for(auto i : sub_circuit.top_edges)
         dfs(i->bottom, used);
 
     for(auto i : used)
@@ -131,7 +131,7 @@ vector<int> getNodes(const SubCircuit &sub_circuit) {
     return ret;
 }
 
-vector<int> getRandomArrangement(vector<int> source, int k) {
+vector<int> get_random_arrangement(vector<int> source, int k) {
 
     std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
     shuffle(source.begin(), source.end(), rand);
@@ -140,29 +140,29 @@ vector<int> getRandomArrangement(vector<int> source, int k) {
 }
 
 
-SubCircuit PatternFinder::createSubFromNodes(vector<int> node_list, const SubCircuit& pattern) {
+SubCircuit PatternFinder::create_sub_from_nodes(vector<int> node_list, const SubCircuit& pattern) {
 
     SubCircuit original;
     map<int, std::set<Node*>::iterator> last_edge;
 
-    for(auto j : pattern.topEdges) {
+    for(auto j : pattern.top_edges) {
         if(last_edge.find(j->bottom->id) == last_edge.end())
             last_edge[j->bottom->id] = j->bottom->top.begin();
-        
-        original.topEdges.push_back(
-            new Edge(*(last_edge[j->bottom->id]++), 
-            Node::fromId[mapping[j->bottom->id]]));
+
+        original.top_edges.push_back(
+            new Edge(*(last_edge[j->bottom->id]++),
+            Node::from_id[mapping[j->bottom->id]]));
         // original.push_back({NULL, nodeMapping[mapping[j.bottom->id]]});
     }
 
     last_edge.clear();
 
-    for(auto j : pattern.bottomEdges) {
+    for(auto j : pattern.bottom_edges) {
         if(last_edge.find(j->top->id) == last_edge.end())
             last_edge[j->top->id] = j->top->bottom.begin();
-        
-        original.topEdges.push_back(new Edge(
-            Node::fromId[mapping[j->top->id]], 
+
+        original.top_edges.push_back(new Edge(
+            Node::from_id[mapping[j->top->id]],
             *(last_edge[j->top->id]++)));
         // original.push_back({NULL, nodeMapping[mapping[j.top->id]]});
     }
@@ -172,19 +172,19 @@ SubCircuit PatternFinder::createSubFromNodes(vector<int> node_list, const SubCir
 
 
 
-SubCircuit PatternFinder::findPattern(Circuit& circuit, 
+SubCircuit PatternFinder::find_pattern(Circuit& circuit,
     const SubCircuit& pattern) {
 
-    vector <int> pattern_node_list = getNodes(pattern);
+    vector <int> pattern_node_list = get_nodes(pattern);
 
-    vector <int> node_list = getNodes(circuit);
+    vector <int> node_list = get_nodes(circuit);
 
     for(int i = 1; i <= 100; i++) {
-        vector <int> candidate = 
-            getRandomArrangement(pattern_node_list, node_list.size());
+        vector <int> candidate =
+            get_random_arrangement(pattern_node_list, node_list.size());
 
         if (isomorph(candidate, pattern_node_list, pattern))
-            return createSubFromNodes(candidate, pattern);
+            return create_sub_from_nodes(candidate, pattern);
     }
 
     return SubCircuit();

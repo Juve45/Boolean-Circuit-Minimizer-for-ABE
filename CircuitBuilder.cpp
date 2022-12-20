@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "abeai.h"
 
-std::vector<int> randomPartition(int value, int parts) {
+std::vector<int> random_partition(int value, int parts) {
     std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
     std::vector<int> partition(parts);
     for (int i = 0; i < parts - 1; i++) {
@@ -17,45 +17,45 @@ std::vector<int> randomPartition(int value, int parts) {
 
 // TODO
 Circuit& CircuitBuilder::build() {
-    std::vector<int> sizeOfLevel(height + 1);
-    sizeOfLevel[0] = 1;
-    auto partition = randomPartition(nodeCount - leafCount - 1, height - 1);
+    std::vector<int> size_of_level(height + 1);
+    size_of_level[0] = 1;
+    auto partition = random_partition(node_count - leaf_count - 1, height - 1);
     for (int i = 1; i < height; i++)
-        sizeOfLevel[i] = partition[i - 1];
-    sizeOfLevel[height] = leafCount;
+        size_of_level[i] = partition[i - 1];
+    size_of_level[height] = leaf_count;
 
     std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
-    NodeType nodeTypes[] = {AND, OR, FAN_OUT};
-    std::vector<std::vector<Node*>> nodesOnLevel(height + 1);
+    NodeType node_types[] = {AND, OR, FAN_OUT};
+    std::vector<std::vector<Node*>> nodes_on_level(height + 1);
     for (int i = 0; i <= height; i++)
-        for (int j = 0; j < sizeOfLevel[i]; j++) {
-            const NodeType type = i == height ? INPUT : nodeTypes[rand() % (i ? 3 : 2)];
-            nodesOnLevel[i].push_back(new Node(type));
+        for (int j = 0; j < size_of_level[i]; j++) {
+            const NodeType type = i == height ? INPUT : node_types[rand() % (i ? 3 : 2)];
+            nodes_on_level[i].push_back(new Node(type));
         }
 
     // making sure the final number of levels is actually going to be `height + 1`
     for (int i = 1; i <= height; i++) {
-        Node *node = nodesOnLevel[i][rand() % nodesOnLevel[i].size()];
-        Node *topNode = nodesOnLevel[i - 1][rand() % nodesOnLevel[i - 1].size()];
-        node->top.insert(topNode);
+        Node *node = nodes_on_level[i][rand() % nodes_on_level[i].size()];
+        Node *top_node = nodes_on_level[i - 1][rand() % nodes_on_level[i - 1].size()];
+        node->top.insert(top_node);
     }
 
-    std::vector<Node*> topNodes;
+    std::vector<Node*> top_nodes;
     for (int i = 0; i <= height; i++) {
-        for (Node* node : nodesOnLevel[i]) {
-            const int topCount = (node->type == FAN_OUT || node->type == INPUT ? rand() % topNodes.size() + 1 : i ? 1 : 0) - node->top.size();
-            std::sample(topNodes.begin(), topNodes.end(), std::inserter(node->top, node->top.end()), topCount, rand);
-            for (Node* topNode : node->top)
-                topNode->bottom.insert(node);
+        for (Node* node : nodes_on_level[i]) {
+            const int top_count = (node->type == FAN_OUT || node->type == INPUT ? rand() % top_nodes.size() + 1 : i ? 1 : 0) - node->top.size();
+            std::sample(top_nodes.begin(), top_nodes.end(), std::inserter(node->top, node->top.end()), top_count, rand);
+            for (Node* top_node : node->top)
+                top_node->bottom.insert(node);
         }
-        for (Node* node : nodesOnLevel[i])
-            topNodes.push_back(node);
+        for (Node* node : nodes_on_level[i])
+            top_nodes.push_back(node);
     }
 
-    std::vector<Node*> newLeaves;
+    std::vector<Node*> new_leaves;
     for (int i = 1; i <= height; i++)
-        for (Node* node : nodesOnLevel[i])
+        for (Node* node : nodes_on_level[i])
             if (node->bottom.empty())
-                newLeaves.push_back(node);
-    return *(new Circuit(nodesOnLevel[0][0], newLeaves));
+                new_leaves.push_back(node);
+    return *(new Circuit(nodes_on_level[0][0], new_leaves));
 }
