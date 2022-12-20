@@ -1,29 +1,12 @@
-#include <functional>
-#include <iostream>
-#include <queue>
-#include <map>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
+#include <fstream>
+#include <functional>
+#include <map>
+#include <queue>
 #include "abeai.h"
-// #include "debug.h"
 
-Circuit& Circuit::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges) {
-    std::vector<Node*> nodes;
-    for (const NodeType type : types)
-        nodes.push_back(new Node(type));
-    for (const auto& [node1, node2] : edges) {
-        nodes[node1]->bottom.insert(nodes[node2]);
-        nodes[node2]->top.insert(nodes[node1]);
-    }
-    std::vector<Node*> leaves;
-    for (Node* node : nodes)
-        if (node->bottom.empty())
-            leaves.push_back(node);
-    return *(new Circuit(nodes[0], leaves));
-}
-
-// https://csacademy.com/app/graph_editor/
-void Circuit::print() {
+std::ostream& operator<<(std::ostream& out, const Circuit& circuit) {
     auto stringify = [&](NodeType type) {
         if (type == AND) return "AND";
         if (type == OR) return "OR";
@@ -35,17 +18,18 @@ void Circuit::print() {
     std::function<void(Node*)> dfs = [&](Node* node) {
         visited.insert(node);
         for (Node* bottom_node : node->bottom) {
-            std::cout << node->id << '-' << stringify(node->type) << ' ';
-            std::cout << bottom_node->id << '-' << stringify(bottom_node->type) << '\n';
+            out << *node << '-' << stringify(node->type) << ' ';
+            out << *bottom_node << '-' << stringify(bottom_node->type) << '\n';
             if (!visited.count(bottom_node))
                 dfs(bottom_node);
         }
     };
-    dfs(root);
-    std::cout << "root: " << root->id << '\n';
-    for (Node* leaf : leaves)
-        std::cout << "leaves: " << leaf->id << ' ';
-    std::cout << '\n';
+    dfs(circuit.root);
+    out << "root: " << *circuit.root << '\n';
+    for (Node* leaf : circuit.leaves)
+        out << "leaves: " << *leaf << ' ';
+    out << '\n';
+    return out;
 }
 
 Circuit& Circuit::copy() {
@@ -157,23 +141,4 @@ void Circuit::replace_subcircuit(const SubCircuit& found, const SubCircuit& to_r
         }
         delete node;
     }
-}
-
-SubCircuit::SubCircuit() {
-
-}
-
-SubCircuit::SubCircuit(const Circuit& circuit) {
-
-    // dbg(circuit.leaves);
-    // dbg(circuit.root);
-
-    for(auto leaf : circuit.leaves)
-        this->bottom_edges.push_back(new Edge(leaf, NULL));
-    this->top_edges.push_back(new Edge(NULL, circuit.root));
-}
-
-std::ostream& operator<<(std::ostream& out, Node* node) {
-    out << "Node[" << node->id << "]";
-    return out;
 }

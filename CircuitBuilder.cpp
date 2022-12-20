@@ -1,6 +1,5 @@
-#include <random>
-#include <chrono>
 #include <algorithm>
+#include <random>
 #include "abeai.h"
 
 std::vector<int> random_partition(int value, int parts) {
@@ -16,7 +15,7 @@ std::vector<int> random_partition(int value, int parts) {
 }
 
 // TODO
-Circuit& CircuitBuilder::build() {
+Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
     std::vector<int> size_of_level(height + 1);
     size_of_level[0] = 1;
     auto partition = random_partition(node_count - leaf_count - 1, height - 1);
@@ -33,7 +32,6 @@ Circuit& CircuitBuilder::build() {
             nodes_on_level[i].push_back(new Node(type));
         }
 
-    // making sure the final number of levels is actually going to be `height + 1`
     for (int i = 1; i <= height; i++) {
         Node *node = nodes_on_level[i][rand() % nodes_on_level[i].size()];
         Node *top_node = nodes_on_level[i - 1][rand() % nodes_on_level[i - 1].size()];
@@ -58,4 +56,19 @@ Circuit& CircuitBuilder::build() {
             if (node->bottom.empty())
                 new_leaves.push_back(node);
     return *(new Circuit(nodes_on_level[0][0], new_leaves));
+}
+
+Circuit& CircuitBuilder::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges) {
+    std::vector<Node*> nodes;
+    for (const NodeType type : types)
+        nodes.push_back(new Node(type));
+    for (const auto& [node1, node2] : edges) {
+        nodes[node1]->bottom.insert(nodes[node2]);
+        nodes[node2]->top.insert(nodes[node1]);
+    }
+    std::vector<Node*> leaves;
+    for (Node* node : nodes)
+        if (node->bottom.empty())
+            leaves.push_back(node);
+    return *(new Circuit(nodes[0], leaves));
 }

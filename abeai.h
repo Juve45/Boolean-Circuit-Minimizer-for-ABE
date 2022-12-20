@@ -23,6 +23,7 @@ struct Node {
 
     Node(NodeType type);
     ~Node();
+    friend std::ostream& operator<<(std::ostream& out, const Node& node);
 };
 
 struct Edge {
@@ -34,21 +35,11 @@ struct Circuit {
     Node *root;
     std::vector<Node*> leaves;
 
-    Circuit(Node* root, const std::vector<Node*>& leaves) :
-        root(root), leaves(leaves) { }
+    Circuit(Node* root, const std::vector<Node*>& leaves) : root(root), leaves(leaves) { }
     Circuit& copy();
-
     int eval();
-    void print();
-
-    void replace_subcircuit(
-        const SubCircuit& found,
-        const SubCircuit& to_replace
-    );
-    static Circuit& from(
-        const std::vector<NodeType>& types,
-        const std::vector<std::pair<int, int>>& edges
-    );
+    void replace_subcircuit(const SubCircuit& found, const SubCircuit& to_replace);
+    friend std::ostream& operator<<(std::ostream& out, const Circuit& circuit);
 };
 
 struct SubCircuit {
@@ -57,15 +48,9 @@ struct SubCircuit {
     SubCircuit(const Circuit& circuit);
 };
 
-class CircuitBuilder {
-    int height;
-    int node_count;
-    int leaf_count;
-
-public:
-    CircuitBuilder(int height, int node_count, int leaf_count) :
-        height(height), node_count(node_count), leaf_count(leaf_count) { }
-    Circuit& build();
+struct CircuitBuilder {
+    static Circuit& random(int height, int node_count, int leaf_count);
+    static Circuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges);
 };
 
 class PatternFinder {

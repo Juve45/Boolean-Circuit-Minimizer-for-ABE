@@ -1,3 +1,4 @@
+#include <fstream>
 #include <map>
 #include "abeai.h"
 
@@ -11,4 +12,9 @@ Node::Node(NodeType type) : type(type) {
 
 Node::~Node() {
     from_id.erase(this->id);
+}
+
+std::ostream& operator<<(std::ostream& out, const Node& node) {
+    out << "node[" << node.id << ']';
+    return out;
 }

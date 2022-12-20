@@ -2,13 +2,11 @@
 #include "abeai.h"
 
 int main() {
-    Circuit circuit = CircuitBuilder(4, 7, 3).build();
-    circuit.print();
-    std::cout << '\n';
-    circuit.copy().print();
-    std::cout << '\n';
+    Circuit circuit = CircuitBuilder::random(4, 7, 3);
+    std::cout << circuit << '\n';
+    std::cout << circuit.copy() << '\n';
 
-    Circuit circuit1 = Circuit::from({AND, OR, OR, FAN_OUT, INPUT, INPUT, INPUT}, {
+    Circuit circuit1 = CircuitBuilder::from({AND, OR, OR, FAN_OUT, INPUT, INPUT, INPUT}, {
         {0, 1},
         {0, 2},
         {1, 4},
@@ -17,14 +15,14 @@ int main() {
         {2, 6},
         {3, 5}
     });
-    Circuit circuit2 = Circuit::from({OR, AND, INPUT, INPUT, INPUT}, {
+    Circuit circuit2 = CircuitBuilder::from({OR, AND, INPUT, INPUT, INPUT}, {
         {0, 1},
         {0, 3},
         {1, 2},
         {1, 4}
     });
-    circuit1.print(); std::cout << '\n';
-    circuit2.print(); std::cout << '\n';
+    std::cout << circuit1 << '\n';
+    std::cout << circuit2 << '\n';
 
     // std::vector<std::pair<SubCircuit, SubCircuit>> to_replace;
     // to_replace.emplace_back(
