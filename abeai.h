@@ -11,7 +11,7 @@ struct Node;
 struct Edge;
 struct Circuit;
 struct SubCircuit;
-class CircuitBuilder;
+struct CircuitBuilder;
 class PatternFinder;
 
 struct Node {

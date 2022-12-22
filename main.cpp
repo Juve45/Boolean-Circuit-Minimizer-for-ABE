@@ -1,6 +1,6 @@
 #include <iostream>
 #include "abeai.h"
-#include "debug.h"
+// #include "debug.h"
 
 int main() {
     Circuit circuit = CircuitBuilder::random(5, 45, 5);
@@ -47,6 +47,5 @@ int main() {
             std::cout << "Circuit value: " << copy_circuit.eval() << '\n';
         }
     }
-
     return 0;
 }

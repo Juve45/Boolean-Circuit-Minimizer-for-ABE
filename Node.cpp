@@ -15,6 +15,10 @@ Node::~Node() {
 }
 
 std::ostream& operator<<(std::ostream& out, const Node& node) {
-    out << "node[" << node.id << ']';
+    if (node.type == AND) out << "AND";
+    if (node.type == OR) out << "OR";
+    if (node.type == FAN_OUT) out << "FAN_OUT";
+    if (node.type == INPUT) out << "INPUT";
+    out << '(' << node.id << ')';
     return out;
 }
