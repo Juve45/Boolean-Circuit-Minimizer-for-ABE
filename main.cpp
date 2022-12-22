@@ -3,7 +3,7 @@
 #include "debug.h"
 
 int main() {
-    Circuit circuit = CircuitBuilder::random(5, 25, 4);
+    Circuit circuit = CircuitBuilder::random(5, 45, 5);
     std::cout << circuit << '\n';
     std::cout << circuit.copy() << '\n';
 
