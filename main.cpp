@@ -3,8 +3,7 @@
 // #include "debug.h"
 
 int main() {
-    Circuit circuit = CircuitBuilder::random(5, 15, 5);
-    std::cout << circuit << '\n';
+    std::cout << CircuitBuilder::random(5, 15, 5);
 
     // Circuit circuit1 = CircuitBuilder::from({AND, OR, OR, FAN_OUT, INPUT, INPUT, INPUT}, {
     //     {0, 1},

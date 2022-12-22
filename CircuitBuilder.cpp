@@ -22,7 +22,7 @@ void check_circuit(Node* root, int leaf_count) {
             std::cerr << "ERROR: input.top_count = " << node->top.size() << '\n';
         else if (node->type == INPUT && node->bottom.size() != 0)
             std::cerr << "ERROR: input.bottom_count = " << node->bottom.size() << '\n';
-        else if (node->type == FAN_OUT && node->top.size() == 0)
+        else if (node->type == FAN_OUT && node->top.size() < 2)
             std::cerr << "ERROR: fan_out.top_count = " << node->top.size() << '\n';
         else if (node->type == FAN_OUT && node->bottom.size() != 1)
             std::cerr << "ERROR: fan_out.bottom_count = " << node->bottom.size() << '\n';
@@ -89,6 +89,12 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
         const int bottom_count_target = node->type == FAN_OUT ? 1 : 2;
         if (bottom_count >= bottom_count_target) return;
         const int bottom_count_delta = bottom_count_target - bottom_count;
+        std::vector<Node*> already_used;
+        for (Node* bottom_node : node->bottom)
+            if (bottom_nodes.count(bottom_node)) {
+                already_used.push_back(bottom_node);
+                bottom_nodes.erase(bottom_node);
+            }
         std::vector<Node*> sampled_nodes;
         std::sample(bottom_nodes.begin(), bottom_nodes.end(), std::back_inserter(sampled_nodes), bottom_count_delta, rand);
         for (Node* bottom_node : sampled_nodes) {
@@ -97,6 +103,8 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
             if (bottom_node->type != FAN_OUT && bottom_node->top.size() == 1)
                 bottom_nodes.erase(bottom_node);
         }
+        for (Node* bottom_node : already_used)
+            bottom_nodes.insert(bottom_node);
     };
 
     for (Node* node : nodes_on_level[height])
@@ -120,15 +128,23 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
     std::set<Node*> top_nodes;
     auto add_top_nodes = [&](Node* node) {
         const int top_count = node->top.size();
-        const int top_count_target = node->type == FAN_OUT ? rand() % top_nodes.size() + 1 : 1;
+        const int top_count_target = node->type == FAN_OUT ? rand() % (top_nodes.size() - 1) + 2 : 1;
         if (top_count >= top_count_target) return;
         const int top_count_delta = top_count_target - top_count;
+        std::vector<Node*> already_used;
+        for (Node* top_node : node->top)
+            if (top_nodes.count(top_node)) {
+                already_used.push_back(top_node);
+                top_nodes.erase(top_node);
+            }
         std::vector<Node*> sampled_nodes;
         std::sample(top_nodes.begin(), top_nodes.end(), std::back_inserter(sampled_nodes), top_count_delta, rand);
         for (Node* top_node : sampled_nodes) {
             node->top.insert(top_node);
             top_node->bottom.insert(node);
         }
+        for (Node* top_node : already_used)
+            top_nodes.insert(top_node);
     };
 
     for (int i = 0; i <= height; i++)
@@ -141,7 +157,7 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
         for (Node* node : nodes_on_level[i])
             add_top_nodes(node);
     }
-    check_circuit(nodes_on_level[0][0], leaf_count);
+    check_circuit(nodes_on_level[0][0], leaf_count); // debugging
     return *(new Circuit(nodes_on_level[0][0], nodes_on_level[height]));
 }
 

@@ -7,19 +7,11 @@
 #include "abeai.h"
 
 std::ostream& operator<<(std::ostream& out, const Circuit& circuit) {
-    auto stringify = [&](NodeType type) {
-        if (type == AND) return "AND";
-        if (type == OR) return "OR";
-        if (type == FAN_OUT) return "FAN_OUT";
-        if (type == INPUT) return "INPUT";
-        return "";
-    };
     std::set<Node*> visited;
     std::function<void(Node*)> dfs = [&](Node* node) {
         visited.insert(node);
         for (Node* bottom_node : node->bottom) {
-            out << *node << '-' << stringify(node->type) << ' ';
-            out << *bottom_node << '-' << stringify(bottom_node->type) << '\n';
+            out << *node << ' ' << *bottom_node << '\n';
             if (!visited.count(bottom_node))
                 dfs(bottom_node);
         }
