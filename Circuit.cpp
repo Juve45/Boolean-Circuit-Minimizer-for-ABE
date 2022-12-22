@@ -70,7 +70,7 @@ int Circuit::eval() {
         for (Node* next_node : node->bottom) {
             node_top_visited[next_node->id]++;
             node_value[next_node->id] += value;
-            if (node_top_visited[next_node->id] == next_node->top.size()) {
+            if (node_top_visited[next_node->id] == int(next_node->top.size())) {
                 nodes.push({next_node, node_value[next_node->id]});
             }
         }
@@ -91,7 +91,7 @@ void Circuit::replace_subcircuit(const SubCircuit& found, const SubCircuit& to_r
     std::set<Node*> delete_end_node;
 
     // Replace top nodes
-    for (int i=0; i<found.top_edges.size();i++) {
+    for (int i=0; i<int(found.top_edges.size());i++) {
         // TO DO if root
         Edge* found_edge = found.top_edges[i];
         Edge* to_replace_edge = to_replace.top_edges[i];
@@ -106,7 +106,7 @@ void Circuit::replace_subcircuit(const SubCircuit& found, const SubCircuit& to_r
     }
 
     // Replace bottom nodes
-    for (int i=0; i<found.bottom_edges.size();i++) {
+    for (int i=0; i<int(found.bottom_edges.size());i++) {
         Edge* found_edge = found.bottom_edges[i];
         Edge* to_replace_edge = to_replace.bottom_edges[i];
         Node* outside_old_node = found_edge->bottom;

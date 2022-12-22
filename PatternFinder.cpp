@@ -21,7 +21,7 @@ bool PatternFinder::isomorph(const vector<int> &list_circuit,
     std::unordered_set<int> checked;
     mapping.clear();
 
-    for(int i = 0; i < list_circuit.size(); i++) {
+    for(int i = 0; i < int(list_circuit.size()); i++) {
         Node* node_circuit = Node::from_id[list_circuit[i]];
         Node* node_pattern = Node::from_id[list_pattern[i]];
 
