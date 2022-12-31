@@ -5,6 +5,28 @@
 #include <random>
 #include "abeai.h"
 
+// NOT finished
+Circuit& CircuitBuilder::random(int node_count, int max_neighbor_count) {
+    std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
+    std::vector<std::vector<Node*>> nodes_on_level(2);
+    int current_level = 0;
+    nodes_on_level[current_level].push_back(new Node(INPUT));
+    for (int i = 1; i < node_count; i++) {
+        if (nodes_on_level[current_level].empty())
+            current_level ^= 1;
+        const int node_position = rand() % nodes_on_level[current_level].size();
+        Node *node = nodes_on_level[current_level][node_position];
+        Node *bottom_node = new Node(INPUT);
+        nodes_on_level[!current_level].push_back(bottom_node);
+        node->bottom.insert(bottom_node);
+        bottom_node->top.insert(node);
+        if (node->bottom.size() >= 2 && node->bottom.size() > rand() % max_neighbor_count) {
+            nodes_on_level[current_level][node_position] = nodes_on_level[current_level].back();
+            nodes_on_level[current_level].pop_back();
+        }
+    }
+}
+
 void check_circuit(Node* root, int leaf_count) {
     std::set<Node*> nodes;
     std::function<void(Node*)> dfs = [&](Node* node) {
