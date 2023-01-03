@@ -1,9 +1,9 @@
 #include <iostream>
 #include "abeai.h"
-// #include "debug.h"
+#include "debug.h"
 
 int main() {
-    Circuit circuit = CircuitBuilder::random(5, 45, 5);
+    Circuit circuit = CircuitBuilder::random(5, 30, 5);
     std::cout << circuit << '\n';
     std::cout << circuit.copy() << '\n';
 
