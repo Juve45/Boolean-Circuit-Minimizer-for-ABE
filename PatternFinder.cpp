@@ -5,7 +5,7 @@
 #include <random>
 #include <iostream>
 #include "abeai.h"
-// #include "debug.h"
+#include "debug.h"
 
 using std::vector;
 using std::set;

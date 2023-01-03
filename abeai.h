@@ -50,6 +50,7 @@ struct SubCircuit {
 };
 
 struct CircuitBuilder {
+    static Circuit& random(int leaf_count, int max_bottom_count);
     static Circuit& random(int height, int node_count, int leaf_count);
     static Circuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges);
 };

@@ -3,9 +3,10 @@
 #include "debug.h"
 
 int main() {
-    Circuit circuit = CircuitBuilder::random(5, 30, 5);
+
+    Circuit circuit = CircuitBuilder::random(5, 2);
+
     std::cout << circuit << '\n';
-    std::cout << circuit.copy() << '\n';
 
     Circuit circuit1 = CircuitBuilder::from({AND, OR, OR, FAN_OUT, INPUT, INPUT, INPUT}, {
         {0, 1},
@@ -22,13 +23,11 @@ int main() {
         {1, 2},
         {1, 4}
     });
-    std::cout << circuit1 << '\n';
-    std::cout << circuit2 << '\n';
+    // std::cout << circuit1 << '\n';
+    // std::cout << circuit2 << '\n';
 
     std::vector<std::pair<SubCircuit, SubCircuit>> to_replace;
-    to_replace.emplace_back(
-        circuit1, circuit2
-    );
+    to_replace.emplace_back(circuit1, circuit2);
 
     std::cout << "Circuit value: " << circuit.eval() << '\n';
 
