@@ -12,7 +12,7 @@ struct Edge;
 struct Circuit;
 struct SubCircuit;
 struct CircuitBuilder;
-class PatternFinder;
+struct PatternFinder;
 
 struct Node {
     static int node_count;
@@ -30,6 +30,7 @@ struct Node {
 struct Edge {
     Node *top, *bottom;
     Edge(Node* top, Node* bottom) : top(top), bottom(bottom) { }
+    friend std::ostream& operator<<(std::ostream& out, const Edge& edge);
 };
 
 struct Circuit {
@@ -38,6 +39,7 @@ struct Circuit {
 
     Circuit(Node* root, const std::vector<Node*>& leaves) : root(root), leaves(leaves) { }
     Circuit& copy();
+    std::vector<Node*> get_nodes();
     int eval();
     void replace_subcircuit(const SubCircuit& found, const SubCircuit& to_replace);
     friend std::ostream& operator<<(std::ostream& out, const Circuit& circuit);
@@ -45,8 +47,9 @@ struct Circuit {
 
 struct SubCircuit {
     std::vector<Edge*> top_edges, bottom_edges;
-    SubCircuit();
+    SubCircuit() { }
     SubCircuit(const Circuit& circuit);
+    std::vector<Node*> get_nodes();
 };
 
 struct CircuitBuilder {
@@ -55,18 +58,6 @@ struct CircuitBuilder {
     static Circuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges);
 };
 
-class PatternFinder {
-    std::map<int, int> mapping;
-    SubCircuit create_sub_from_nodes(
-        std::vector<int> node_list,
-        const SubCircuit& pattern
-    );
-    bool isomorph(
-        const std::vector<int>& list_circuit,
-        const std::vector<int>& list_pattern,
-        const SubCircuit& pattern
-    );
-
-public:
-    SubCircuit find_pattern(Circuit& circuit, const SubCircuit& pattern);
+struct PatternFinder {
+    static SubCircuit* find_pattern(Circuit& circuit, SubCircuit& pattern);
 };

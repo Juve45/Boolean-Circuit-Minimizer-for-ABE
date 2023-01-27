@@ -22,3 +22,11 @@ std::ostream& operator<<(std::ostream& out, const Node& node) {
     out << '(' << node.id << ')';
     return out;
 }
+
+std::ostream& operator<<(std::ostream& out, const Edge& edge) {
+    const auto& [node1, node2] = edge;
+    if (node1 == nullptr) out << "null"; else out << *node1;
+    out << " -> ";
+    if (node2 == nullptr) out << "null"; else out << *node2;
+    return out;
+}
