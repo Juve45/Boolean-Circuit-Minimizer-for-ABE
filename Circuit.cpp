@@ -46,6 +46,20 @@ Circuit& Circuit::copy() {
     return *(new Circuit(old_to_new[root], new_leaves));
 }
 
+std::vector<Node*> Circuit::get_nodes() {
+    std::set<Node*> node_set;
+    std::function<void(Node*)> dfs = [&](Node* node) {
+        node_set.insert(node);
+        for (Node* bottom_node : node->bottom)
+            if (!node_set.count(bottom_node))
+                dfs(bottom_node);
+    };
+    dfs(root);
+    std::vector<Node*> nodes;
+    std::copy(node_set.begin(), node_set.end(), std::back_inserter(nodes));
+    return nodes;
+}
+
 int Circuit::eval() {
     std::map<int, int> node_top_visited = std::map<int, int>();
     std::map<int, int> node_value = std::map<int, int>();
