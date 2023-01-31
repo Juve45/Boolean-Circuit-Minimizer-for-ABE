@@ -1,3 +1,5 @@
+#ifndef _ABEAI_H_
+#define _ABEAI_H_
 #include <map>
 #include <set>
 #include <vector>
@@ -61,3 +63,5 @@ struct CircuitBuilder {
 struct PatternFinder {
     static SubCircuit* find_pattern(Circuit& circuit, SubCircuit& pattern);
 };
+
+#endif

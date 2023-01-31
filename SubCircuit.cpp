@@ -1,3 +1,4 @@
+#include <functional>
 #include "abeai.h"
 
 SubCircuit::SubCircuit(const Circuit& circuit) {

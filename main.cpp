@@ -1,6 +1,7 @@
 #include <iostream>
 #include "abeai.h"
 #include "debug.h"
+#include "patterns.h"
 
 int main() {
 
@@ -8,7 +9,7 @@ int main() {
 
     std::cout << circuit << '\n';
 
-    Circuit circuit1 = CircuitBuilder::from({AND, OR, OR, FAN_OUT, INPUT, INPUT, INPUT}, {
+    /*Circuit circuit1 = CircuitBuilder::from({AND, OR, OR, FAN_OUT, INPUT, INPUT, INPUT}, {
         {0, 1},
         {0, 2},
         {1, 3},
@@ -38,7 +39,14 @@ int main() {
         for (Edge* edge : match->bottom_edges)
             std::cout << *edge << '\n';
         std::cout << '\n';
-    }
+    }*/
+
+    for (Edge* edge : pattern1.top_edges)
+        std::cout << *edge << '\n';
+    std::cout << '\n';
+    for (Edge* edge : to_replace1.bottom_edges)
+        std::cout << *edge << '\n';
+
     return 0;
 
     // // Circuit circuit = CircuitBuilder::random(5, 45, 5);
