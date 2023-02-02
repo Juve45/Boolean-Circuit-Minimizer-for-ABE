@@ -52,6 +52,7 @@ struct SubCircuit {
     SubCircuit() { }
     SubCircuit(const Circuit& circuit);
     std::vector<Node*> get_nodes();
+    friend std::ostream& operator<<(std::ostream& out, const SubCircuit& subcircuit);
 };
 
 struct CircuitBuilder {
