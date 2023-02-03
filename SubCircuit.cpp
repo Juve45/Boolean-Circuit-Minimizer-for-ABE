@@ -7,7 +7,7 @@ SubCircuit::SubCircuit(const Circuit& circuit) {
     this->top_edges.push_back(new Edge(nullptr, circuit.root));
 }
 
-SubCircuit::SubCircuit(vector <Edge*> top_edges, vector<Edge*> bottom_edges) {
+SubCircuit::SubCircuit(std::vector <Edge*> top_edges, std::vector<Edge*> bottom_edges) {
     for (Edge* edge : bottom_edges)
         this->bottom_edges.push_back(edge);
     for (Edge* edge : top_edges)
@@ -36,11 +36,11 @@ std::vector<Node*> SubCircuit::get_nodes() {
 std::ostream& operator<<(std::ostream& out, const SubCircuit& subcircuit) {
     out << "IN EDGES: ";
     for(auto e : subcircuit.top_edges)
-        out << e << ' ';
+        out << *e << ' ';
     out << '\n';
     out << "OUT EDGES: ";
     for(auto e : subcircuit.bottom_edges)
-        out << e << ' ';
+        out << *e << ' ';
     out << '\n';
     return out;
 }

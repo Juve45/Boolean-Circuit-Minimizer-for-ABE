@@ -1,9 +1,10 @@
 #include <iostream>
 #include "abeai.h"
 #include "debug.h"
-#include "patterns.h"
+// #include "patterns.h"
 
 int main() {
+    
     Circuit circuit = CircuitBuilder::from({OR, AND, INPUT, OR, OR, OR, FAN_OUT, INPUT, INPUT, INPUT, INPUT}, {
         {0, 1},
         {0, 2},
@@ -34,6 +35,9 @@ int main() {
     pattern.bottom_edges.push_back(new Edge(node4, nullptr));
 
     SubCircuit *match = PatternFinder::find_pattern(circuit, pattern);
+
+    dbg(*match);
+    
     if (match != nullptr) {
         for (Edge* edge : match->top_edges)
             std::cout << *edge << '\n';

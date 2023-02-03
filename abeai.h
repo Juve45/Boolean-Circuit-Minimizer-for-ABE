@@ -51,6 +51,7 @@ struct SubCircuit {
     std::vector<Edge*> top_edges, bottom_edges;
     SubCircuit() { }
     SubCircuit(const Circuit& circuit);
+    SubCircuit(std::vector <Edge*> top_edges, std::vector<Edge*> bottom_edges);
     std::vector<Node*> get_nodes();
     friend std::ostream& operator<<(std::ostream& out, const SubCircuit& subcircuit);
 };
