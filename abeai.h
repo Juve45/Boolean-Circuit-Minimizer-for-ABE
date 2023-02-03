@@ -4,6 +4,7 @@
 #include <set>
 #include <vector>
 #include <ostream>
+#include <functional>
 
 enum NodeType {
     AND, OR, FAN_OUT, INPUT
