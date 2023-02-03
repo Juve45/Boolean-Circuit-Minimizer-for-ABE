@@ -5,7 +5,8 @@
 
 int main() {
     
-    Circuit circuit = CircuitBuilder::from({OR, AND, INPUT, OR, OR, OR, FAN_OUT, INPUT, INPUT, INPUT, INPUT}, {
+    Circuit circuit = CircuitBuilder::random(55, 2);
+    Circuit circuit2 = CircuitBuilder::from({OR, AND, INPUT, OR, OR, OR, FAN_OUT, INPUT, INPUT, INPUT, INPUT}, {
         {0, 1},
         {0, 2},
         {1, 3},
@@ -20,7 +21,7 @@ int main() {
     });
     std::cout << circuit << '\n';
 
-    SubCircuit pattern;
+    SubCircuit pattern, to_replace;
     Node *node0 = new Node(AND);
     Node *node1 = new Node(OR);
     Node *node2 = new Node(OR);
@@ -30,22 +31,49 @@ int main() {
     node1->bottom.insert(node4); node4->top.insert(node1);
     node2->bottom.insert(node4); node4->top.insert(node2);
     pattern.top_edges.push_back(new Edge(nullptr, node0));
-    pattern.bottom_edges.push_back(new Edge(node1, nullptr));
-    pattern.bottom_edges.push_back(new Edge(node2, nullptr));
-    pattern.bottom_edges.push_back(new Edge(node4, nullptr));
+    pattern.bottom_edges.push_back(new Edge(node1, nullptr)); // A
+    pattern.bottom_edges.push_back(new Edge(node2, nullptr)); // C
+    pattern.bottom_edges.push_back(new Edge(node4, nullptr)); // B
+
+
+    Node *node5 = new Node(OR);
+    Node *node6 = new Node(AND);
+    // node5->top.insert(nullptr);
+    node5->bottom.insert(node6); node6->bottom.insert(node5);
+    // node5->bottom.insert(nullptr); // B
+    to_replace.bottom_edges.push_back(new Edge(node6, nullptr));
+    to_replace.bottom_edges.push_back(new Edge(node6, nullptr));
+    to_replace.bottom_edges.push_back(new Edge(node5, nullptr));
+    to_replace.top_edges.push_back(new Edge(nullptr, node5));
 
     SubCircuit *match = PatternFinder::find_pattern(circuit, pattern);
 
-    dbg(*match);
-    
+    dbg(match);
+
+    dbg(circuit.eval());
+
+
     if (match != nullptr) {
+        dbg(*match);
+        
         for (Edge* edge : match->top_edges)
             std::cout << *edge << '\n';
         std::cout << '\n';
         for (Edge* edge : match->bottom_edges)
             std::cout << *edge << '\n';
         std::cout << '\n';
+    
+        circuit.replace_subcircuit(*match, to_replace);
+        dbg(circuit.eval());
+    
+        std::cout << circuit << '\n';
     }
+
+
+
+
+
+
     return 0;
 }
 
