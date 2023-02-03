@@ -1,3 +1,5 @@
+#ifndef _ABEAI_H_
+#define _ABEAI_H_
 #include <map>
 #include <set>
 #include <vector>
@@ -51,6 +53,7 @@ struct SubCircuit {
     SubCircuit() { }
     SubCircuit(const Circuit& circuit);
     std::vector<Node*> get_nodes();
+    friend std::ostream& operator<<(std::ostream& out, const SubCircuit& subcircuit);
 };
 
 struct CircuitBuilder {
@@ -62,3 +65,5 @@ struct CircuitBuilder {
 struct PatternFinder {
     static SubCircuit* find_pattern(Circuit& circuit, SubCircuit& pattern);
 };
+
+#endif
