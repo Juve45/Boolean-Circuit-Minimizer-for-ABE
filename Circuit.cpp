@@ -5,6 +5,7 @@
 #include <map>
 #include <queue>
 #include "abeai.h"
+#include "debug.h"
 
 std::ostream& operator<<(std::ostream& out, const Circuit& circuit) {
     std::set<Node*> visited;
@@ -90,6 +91,11 @@ int Circuit::eval() {
 }
 
 void Circuit::replace_subcircuit(const SubCircuit& found, const SubCircuit& to_replace) {
+    dbg(found.bottom_edges.size());
+    dbg(to_replace.bottom_edges.size());
+    for (auto it : found.bottom_edges)
+        dbg(*it);
+    // dbg(found.bottom_edges);
     assert(found.top_edges.size() == to_replace.top_edges.size());
     assert(found.bottom_edges.size() == to_replace.bottom_edges.size());
 

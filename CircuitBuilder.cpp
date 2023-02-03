@@ -57,7 +57,7 @@ Circuit& CircuitBuilder::random(int leaf_count, int max_bottom_count) {
             Node *top_node = the_top_node.back();
             top_node->bottom.insert(node);
             node->top.insert(top_node);
-            if (top_node->bottom.size() == max_bottom_count)
+            if ((int)top_node->bottom.size() == max_bottom_count)
                 top_nodes.erase(top_node);
         }
         for (Node* node : nodes[current_level]) {
