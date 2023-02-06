@@ -5,7 +5,7 @@
 
 int main() {
     
-    Circuit circuit = CircuitBuilder::random(55, 2);
+    Circuit circuit = CircuitBuilder::random(5, 2);
     Circuit circuit2 = CircuitBuilder::from({OR, AND, INPUT, OR, OR, OR, FAN_OUT, INPUT, INPUT, INPUT, INPUT}, {
         {0, 1},
         {0, 2},
@@ -19,7 +19,23 @@ int main() {
         {5, 9},
         {6, 10}
     });
-    std::cout << circuit << '\n';
+    Circuit circuit3 = CircuitBuilder::from({INPUT, INPUT, INPUT, INPUT, INPUT, OR, AND, AND, FAN_OUT, OR, OR, FAN_OUT, AND}, {
+        {12, 9},
+        {12, 10},
+        {9, 6},
+        {9, 11},
+        {10, 11},
+        {10, 5},
+        {6, 1},
+        {6, 2},
+        {11, 7},
+        {5, 0},
+        {5, 8},
+        {7, 8},
+        {7, 3},
+        {8, 4}
+    });
+    std::cout << circuit3 << '\n';
 
     SubCircuit pattern, to_replace;
     Node *node0 = new Node(AND);
@@ -39,18 +55,18 @@ int main() {
     Node *node5 = new Node(OR);
     Node *node6 = new Node(AND);
     // node5->top.insert(nullptr);
-    node5->bottom.insert(node6); node6->bottom.insert(node5);
+    node5->bottom.insert(node6); node6->top.insert(node5);
     // node5->bottom.insert(nullptr); // B
     to_replace.bottom_edges.push_back(new Edge(node6, nullptr));
     to_replace.bottom_edges.push_back(new Edge(node6, nullptr));
     to_replace.bottom_edges.push_back(new Edge(node5, nullptr));
     to_replace.top_edges.push_back(new Edge(nullptr, node5));
 
-    SubCircuit *match = PatternFinder::find_pattern(circuit, pattern);
+    SubCircuit *match = PatternFinder::find_pattern(circuit3, pattern);
 
     dbg(match);
 
-    dbg(circuit.eval());
+    dbg(circuit3.eval());
 
 
     if (match != nullptr) {
@@ -63,10 +79,10 @@ int main() {
             std::cout << *edge << '\n';
         std::cout << '\n';
     
-        circuit.replace_subcircuit(*match, to_replace);
-        dbg(circuit.eval());
+        circuit3.replace_subcircuit(*match, to_replace);
+        dbg(circuit3.eval());
     
-        std::cout << circuit << '\n';
+        std::cout << circuit3 << '\n';
     }
 
 

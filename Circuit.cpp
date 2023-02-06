@@ -91,11 +91,6 @@ int Circuit::eval() {
 }
 
 void Circuit::replace_subcircuit(const SubCircuit& found, const SubCircuit& to_replace) {
-    dbg(found.bottom_edges.size());
-    dbg(to_replace.bottom_edges.size());
-    for (auto it : found.bottom_edges)
-        dbg(*it);
-    // dbg(found.bottom_edges);
     assert(found.top_edges.size() == to_replace.top_edges.size());
     assert(found.bottom_edges.size() == to_replace.bottom_edges.size());
 
@@ -104,7 +99,6 @@ void Circuit::replace_subcircuit(const SubCircuit& found, const SubCircuit& to_r
 
     // Replace top nodes
     for (int i=0; i<int(found.top_edges.size());i++) {
-        // TO DO if root
         Edge* found_edge = found.top_edges[i];
         Edge* to_replace_edge = to_replace.top_edges[i];
         Node* outside_old_node = found_edge->top;
@@ -112,8 +106,13 @@ void Circuit::replace_subcircuit(const SubCircuit& found, const SubCircuit& to_r
         to_delete.insert(inside_old_node);
 
         Node* inside_new_node = to_replace_edge->bottom;
-        outside_old_node->bottom.erase(inside_old_node);
-        outside_old_node->bottom.insert(inside_new_node);
+        if (outside_old_node) {
+            outside_old_node->bottom.erase(inside_old_node);
+            outside_old_node->bottom.insert(inside_new_node);
+        } else {
+            // inside node is the root
+            this->root = inside_new_node;
+        }
         inside_new_node->top.insert(outside_old_node);
     }
 
@@ -126,8 +125,10 @@ void Circuit::replace_subcircuit(const SubCircuit& found, const SubCircuit& to_r
         delete_end_node.insert(inside_old_node);
 
         Node* inside_new_node = to_replace_edge->top;
-        outside_old_node->top.erase(inside_old_node);
-        outside_old_node->top.insert(inside_new_node);
+        if (outside_old_node) {
+            outside_old_node->top.erase(inside_old_node);
+            outside_old_node->top.insert(inside_new_node);
+        }
         inside_new_node->bottom.insert(outside_old_node);
     }
 

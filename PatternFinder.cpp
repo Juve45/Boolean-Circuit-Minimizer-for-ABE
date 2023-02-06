@@ -55,7 +55,7 @@ SubCircuit* PatternFinder::find_pattern(Circuit& circuit, SubCircuit& pattern) {
                         leaf_edges[match_leaf].push_back(bottom_node);
             }
             for (Node* leaf : pattern_leaf_nodes)
-                if (leaf_degrees[leaf] != leaf_edges[mapping[leaf]].size()) return false;
+                if (leaf_degrees[leaf] != (int)leaf_edges[mapping[leaf]].size()) return false;
 
             match = new SubCircuit();
             for (Edge* edge : pattern.top_edges) {
