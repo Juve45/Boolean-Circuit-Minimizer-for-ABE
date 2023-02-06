@@ -15,6 +15,33 @@ SubCircuit::SubCircuit(std::vector <Edge*> top_edges, std::vector<Edge*> bottom_
     //TODO: assert that the subcircuit is good (connex?)
 }
 
+SubCircuit::SubCircuit(std::vector<NodeType> nodes, std::vector <pair<int, int>> edges) {
+    
+    vector <Node*> pNodes;
+    for(auto i : nodes) {
+        pNodes.push_back(new Node(i));
+    }
+    
+    for(auto edge : edges) {
+        Node * from = nullptr;
+        Node * to = nullptr;
+        
+        if(edge.first != -1)
+            from = pNodes[edge.first];
+        if(edge.second != -1)
+            to = pNodes[edge.second];
+
+        from->bottom_edges.push_back(to);
+        to->top_edges.push_back(from);
+
+        if(from == nullptr)
+            this->top_edges.push_back(new Edge(from, to));
+        if(to == nullptr)
+            this->bottom_edges.push_back(new Edge(from, to))
+    }
+
+}
+
 std::vector<Node*> SubCircuit::get_nodes() {
     std::set<Node*> node_set;
     std::function<void(Node*)> dfs = [&](Node* node) {
