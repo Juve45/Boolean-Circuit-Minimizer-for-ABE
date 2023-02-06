@@ -22,7 +22,7 @@ template<class T> ostream& operator<<(ostream& out, vector <T> v) { return prnt(
 template<class T> ostream& operator<<(ostream& out, set <T> v) { return prnt(out, v); }
 template<class T> ostream& operator<<(ostream& out, unordered_set <T> v) { return prnt(out, v); }
 template<class T1, class T2> ostream& operator<<(ostream& out, map <T1, T2> v) { return prnt(out, v); }
-template<class T1, class T2> ostream& operator<<(ostream& out, pair<T1, T2> p) { return out << '(' << p.st << ' ' << p.nd << ')'; }
+template<class T1, class T2> ostream& operator<<(ostream& out, pair<T1, T2> p) { return out << '(' << p.first << ' ' << p.second << ')'; }
 // template <class T> void debug_out(T t) { cerr << " " << t;}
 template <typename Head, typename... Tail> void debug_out(Head H, Tail... T) { cerr << " " << H; debug_out<Head>(T...);}
 

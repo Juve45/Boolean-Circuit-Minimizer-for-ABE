@@ -1,5 +1,6 @@
 #include <functional>
 #include "abeai.h"
+#include "debug.h"
 
 SubCircuit::SubCircuit(const Circuit& circuit) {
     for (Node* leaf : circuit.leaves)
@@ -15,14 +16,17 @@ SubCircuit::SubCircuit(std::vector <Edge*> top_edges, std::vector<Edge*> bottom_
     //TODO: assert that the subcircuit is good (connex?)
 }
 
-SubCircuit::SubCircuit(std::vector<NodeType> nodes, std::vector <pair<int, int>> edges) {
-    
-    vector <Node*> pNodes;
-    for(auto i : nodes) {
-        pNodes.push_back(new Node(i));
+SubCircuit::SubCircuit(std::vector<NodeType> nodes, std::vector <std::pair<int, int>> edges) {
+        
+    dbg_ok;
+    std::vector <Node*> pNodes;
+    for(const NodeType type : nodes) {
+        pNodes.push_back(new Node(type));
+        dbg_ok;
     }
     
     for(auto edge : edges) {
+        dbg(edge);
         Node * from = nullptr;
         Node * to = nullptr;
         
@@ -31,13 +35,13 @@ SubCircuit::SubCircuit(std::vector<NodeType> nodes, std::vector <pair<int, int>>
         if(edge.second != -1)
             to = pNodes[edge.second];
 
-        from->bottom_edges.push_back(to);
-        to->top_edges.push_back(from);
+        from->bottom.insert(to);
+        to->top.insert(from);
 
         if(from == nullptr)
             this->top_edges.push_back(new Edge(from, to));
         if(to == nullptr)
-            this->bottom_edges.push_back(new Edge(from, to))
+            this->bottom_edges.push_back(new Edge(from, to));
     }
 
 }

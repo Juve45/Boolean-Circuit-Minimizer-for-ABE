@@ -1,6 +1,8 @@
 #include <fstream>
+#include <iostream>
 #include <map>
 #include "abeai.h"
+#include "debug.h"
 
 int Node::node_count = 0;
 std::map<int, Node*> Node::from_id = std::map<int, Node*>();
