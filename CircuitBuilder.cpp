@@ -4,6 +4,7 @@
 #include <iostream>
 #include <random>
 #include "abeai.h"
+#include "debug.h"
 
 void check_circuit(Node* root, int leaf_count) {
     std::set<Node*> nodes;
@@ -227,8 +228,14 @@ Circuit& CircuitBuilder::from(const std::vector<NodeType>& types, const std::vec
         nodes[node2]->top.insert(nodes[node1]);
     }
     std::vector<Node*> leaves;
-    for (Node* node : nodes)
+    Node* root = nullptr;
+    for (Node* node : nodes) {
         if (node->bottom.empty())
             leaves.push_back(node);
-    return *(new Circuit(nodes[0], leaves));
+        if (node->top.empty()){
+            assert(root == nullptr);
+            root = node;
+        }
+    }
+    return *(new Circuit(root, leaves));
 }
