@@ -1,10 +1,5 @@
-#include <algorithm>
-#include <cassert>
-#include <chrono>
-#include <iostream>
-#include <random>
-#include "abeai.h"
-#include "debug.h"
+#include "../headers/abeai.h"
+#include "../headers/debug.h"
 
 void check_circuit(Node* root, int leaf_count) {
     std::set<Node*> nodes;

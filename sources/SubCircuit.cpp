@@ -1,6 +1,5 @@
-#include <functional>
-#include "abeai.h"
-#include "debug.h"
+#include "../headers/abeai.h"
+#include "../headers/debug.h"
 
 SubCircuit::SubCircuit(const Circuit& circuit) {
     for (Node* leaf : circuit.leaves)
@@ -17,19 +16,19 @@ SubCircuit::SubCircuit(std::vector <Edge*> top_edges, std::vector<Edge*> bottom_
 }
 
 SubCircuit::SubCircuit(std::vector<NodeType> nodes, std::vector <std::pair<int, int>> edges) {
-        
+
     dbg_ok;
     std::vector <Node*> pNodes;
     for(const NodeType type : nodes) {
         pNodes.push_back(new Node(type));
         dbg_ok;
     }
-    
+
     for(auto edge : edges) {
         dbg(edge);
         Node * from = nullptr;
         Node * to = nullptr;
-        
+
         if(edge.first != -1)
             from = pNodes[edge.first];
         if(edge.second != -1)

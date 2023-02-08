@@ -1,11 +1,5 @@
-#include <algorithm>
-#include <cassert>
-#include <fstream>
-#include <functional>
-#include <map>
-#include <queue>
-#include "abeai.h"
-#include "debug.h"
+#include "../headers/abeai.h"
+#include "../headers/debug.h"
 
 std::ostream& operator<<(std::ostream& out, const Circuit& circuit) {
     std::set<Node*> visited;

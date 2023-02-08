@@ -1,10 +1,7 @@
 #ifndef _ABEAI_H_
 #define _ABEAI_H_
-#include <map>
-#include <set>
-#include <vector>
-#include <ostream>
-#include <functional>
+
+#include <bits/stdc++.h>
 
 enum NodeType {
     AND, OR, FAN_OUT, INPUT
