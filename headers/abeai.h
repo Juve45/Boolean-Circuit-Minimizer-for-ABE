@@ -45,17 +45,18 @@ struct Circuit {
 
 struct Subcircuit {
     std::vector<Edge*> upper_edges, lower_edges;
-    Subcircuit() { }
-    Subcircuit(const Circuit& circuit);
-    Subcircuit(const std::vector<Edge*>& upper_edges, const std::vector<Edge*>& lower_edges);
-    Subcircuit(const std::vector<NodeType>& nodes, const std::vector<std::pair<int, int>>& edges);
+    Subcircuit(const std::vector<Edge*>& upper_edges, const std::vector<Edge*>& lower_edges) : upper_edges(upper_edges), lower_edges(lower_edges) { }
+    // Subcircuit(const Circuit& circuit);
+    // Subcircuit(const std::vector<NodeType>& nodes, const std::vector<std::pair<int, int>>& edges);
     std::vector<Node*> get_nodes() const;
+    Subcircuit& copy() const;
 };
 
 struct CircuitBuilder {
     static Circuit& random(int leaf_count, int max_lower_count);
     static Circuit& random(int height, int node_count, int leaf_count);
     static Circuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges);
+    static Subcircuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges, const std::vector<int>& upper_nodes, const std::vector<int>& lower_nodes);
 };
 
 struct PatternFinder {

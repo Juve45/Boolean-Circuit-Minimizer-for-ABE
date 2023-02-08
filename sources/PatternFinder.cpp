@@ -57,16 +57,18 @@ Subcircuit* PatternFinder::find_pattern(const Circuit& circuit, const Subcircuit
             for (Node* leaf : pattern_leaf_nodes)
                 if (leaf_degrees[leaf] != (int)leaf_edges[mapping[leaf]].size()) return false;
 
-            match = new Subcircuit();
+            std::vector<Edge*> upper_edges;
             for (Edge* edge : pattern.upper_edges) {
                 Node *root = mapping[edge->lower];
-                match->upper_edges.push_back(new Edge(root->upper.empty() ? nullptr : *(root->upper.begin()), root));
+                upper_edges.push_back(new Edge(root->upper.empty() ? nullptr : *(root->upper.begin()), root));
             }
+            std::vector<Edge*> lower_edges;
             for (Edge* edge : pattern.lower_edges) {
                 Node *leaf = mapping[edge->upper];
-                match->lower_edges.push_back(new Edge(leaf, leaf_edges[leaf].back()));
+                lower_edges.push_back(new Edge(leaf, leaf_edges[leaf].back()));
                 leaf_edges[leaf].pop_back();
             }
+            match = new Subcircuit(upper_edges, lower_edges);
             return true;
         }
         for (Node* node : circuit_nodes) {

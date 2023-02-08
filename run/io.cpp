@@ -38,6 +38,21 @@ std::ostream& operator<<(std::ostream& out, const Circuit& circuit) {
 }
 
 std::ostream& operator<<(std::ostream& out, const Subcircuit& subcircuit) {
+    std::set<Node*> visited;
+    std::function<void(Node*)> dfs = [&](Node* node) {
+        visited.insert(node);
+        for (Node* lower_node : node->lower) {
+            out << *node << ' ' << *lower_node << '\n';
+            if (!visited.count(lower_node))
+                dfs(lower_node);
+        }
+    };
+    for (Edge* edge : subcircuit.upper_edges)
+        dfs(edge->lower);
+    for (int i = 0; i < int(subcircuit.upper_edges.size()); i++)
+        out << "UPPER(" << i << ") " << *subcircuit.upper_edges[i]->lower << '\n';
+    for (int i = 0; i < int(subcircuit.lower_edges.size()); i++)
+        out << *subcircuit.lower_edges[i]->upper << " LOWER(" << i << ")\n";
     out << "upper edges: ";
     for (Edge* edge : subcircuit.upper_edges)
         out << *edge << ' ';

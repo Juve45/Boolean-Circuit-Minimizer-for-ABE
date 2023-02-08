@@ -195,3 +195,20 @@ Circuit& CircuitBuilder::from(const std::vector<NodeType>& types, const std::vec
     }
     return *new Circuit(root, leaves);
 }
+
+Subcircuit& CircuitBuilder::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges, const std::vector<int>& upper_nodes, const std::vector<int>& lower_nodes) {
+    std::vector<Node*> nodes;
+    for (const NodeType type : types)
+        nodes.push_back(new Node(type));
+    for (const auto& [node1, node2] : edges) {
+        nodes[node1]->lower.insert(nodes[node2]);
+        nodes[node2]->upper.insert(nodes[node1]);
+    }
+    std::vector<Edge*> upper_edges;
+    for (const int node : upper_nodes)
+        upper_edges.push_back(new Edge(nullptr, nodes[node]));
+    std::vector<Edge*> lower_edges;
+    for (const int node : lower_nodes)
+        lower_edges.push_back(new Edge(nodes[node], nullptr));
+    return *new Subcircuit(upper_edges, lower_edges);
+}
