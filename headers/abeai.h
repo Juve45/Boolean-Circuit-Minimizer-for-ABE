@@ -10,27 +10,25 @@ enum NodeType {
 struct Node;
 struct Edge;
 struct Circuit;
-struct SubCircuit;
+struct Subcircuit;
 struct CircuitBuilder;
 struct PatternFinder;
 
 struct Node {
     static int node_count;
-    static std::map<int, Node*> from_id;
+    // static std::map<int, Node*> from_id;
 
     int id;
     NodeType type;
-    std::set<Node*> top, bottom;
+    std::set<Node*> upper, lower;
 
     Node(NodeType type);
     ~Node();
-    friend std::ostream& operator<<(std::ostream& out, const Node& node);
 };
 
 struct Edge {
-    Node *top, *bottom;
-    Edge(Node* top, Node* bottom) : top(top), bottom(bottom) { }
-    friend std::ostream& operator<<(std::ostream& out, const Edge& edge);
+    Node *upper, *lower;
+    Edge(Node* upper, Node* lower) : upper(upper), lower(lower) { }
 };
 
 struct Circuit {
@@ -41,28 +39,31 @@ struct Circuit {
     Circuit& copy();
     std::vector<Node*> get_nodes();
     int eval();
-    void replace_subcircuit(const SubCircuit& found, const SubCircuit& to_replace);
-    friend std::ostream& operator<<(std::ostream& out, const Circuit& circuit);
+    void replace_Subcircuit(const Subcircuit& found, const Subcircuit& to_replace);
 };
 
-struct SubCircuit {
-    std::vector<Edge*> top_edges, bottom_edges;
-    SubCircuit() { }
-    SubCircuit(const Circuit& circuit);
-    SubCircuit(std::vector <Edge*> top_edges, std::vector<Edge*> bottom_edges);
-    SubCircuit(std::vector<NodeType> nodes, std::vector <std::pair<int, int>> edges);
+struct Subcircuit {
+    std::vector<Edge*> upper_edges, lower_edges;
+    Subcircuit() { }
+    Subcircuit(const Circuit& circuit);
+    Subcircuit(std::vector<Edge*> upper_edges, std::vector<Edge*> lower_edges);
+    Subcircuit(std::vector<NodeType> nodes, std::vector<std::pair<int, int>> edges);
     std::vector<Node*> get_nodes();
-    friend std::ostream& operator<<(std::ostream& out, const SubCircuit& subcircuit);
 };
 
 struct CircuitBuilder {
-    static Circuit& random(int leaf_count, int max_bottom_count);
+    static Circuit& random(int leaf_count, int max_lower_count);
     static Circuit& random(int height, int node_count, int leaf_count);
     static Circuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges);
 };
 
 struct PatternFinder {
-    static SubCircuit* find_pattern(Circuit& circuit, SubCircuit& pattern);
+    static Subcircuit* find_pattern(Circuit& circuit, Subcircuit& pattern);
 };
+
+std::ostream& operator<<(std::ostream& out, const Node& node);
+std::ostream& operator<<(std::ostream& out, const Edge& edge);
+std::ostream& operator<<(std::ostream& out, const Circuit& circuit);
+std::ostream& operator<<(std::ostream& out, const Subcircuit& Subcircuit);
 
 #endif

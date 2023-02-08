@@ -1,22 +1,22 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
-SubCircuit* PatternFinder::find_pattern(Circuit& circuit, SubCircuit& pattern) {
+Subcircuit* PatternFinder::find_pattern(Circuit& circuit, Subcircuit& pattern) {
     auto circuit_nodes = circuit.get_nodes();
     auto pattern_nodes = pattern.get_nodes();
 
     std::set<Node*> pattern_root_nodes;
-    for (Edge* edge : pattern.top_edges)
-        pattern_root_nodes.insert(edge->bottom);
+    for (Edge* edge : pattern.upper_edges)
+        pattern_root_nodes.insert(edge->lower);
     std::set<Node*> pattern_leaf_nodes;
-    for (Edge* edge : pattern.bottom_edges)
-        pattern_leaf_nodes.insert(edge->top);
+    for (Edge* edge : pattern.lower_edges)
+        pattern_leaf_nodes.insert(edge->upper);
 
     std::map<Node*, int> leaf_degrees;
-    for (Edge* edge : pattern.bottom_edges)
-        leaf_degrees[edge->top]++;
+    for (Edge* edge : pattern.lower_edges)
+        leaf_degrees[edge->upper]++;
 
-    SubCircuit *match = nullptr;
+    Subcircuit *match = nullptr;
     std::vector<Node*> match_nodes(pattern_nodes.size());
 
     std::set<Node*> used;
@@ -36,11 +36,11 @@ SubCircuit* PatternFinder::find_pattern(Circuit& circuit, SubCircuit& pattern) {
 
             bool isomorph = true;
             for (const auto& [node1, node2] : mapping) {
-                if (!pattern_root_nodes.count(node1) && !same(node1->top, node2->top)) {
+                if (!pattern_root_nodes.count(node1) && !same(node1->upper, node2->upper)) {
                     isomorph = false;
                     break;
                 }
-                if (!same(node1->bottom, node2->bottom)) {
+                if (!same(node1->lower, node2->lower)) {
                     isomorph = false;
                     break;
                 }
@@ -50,21 +50,21 @@ SubCircuit* PatternFinder::find_pattern(Circuit& circuit, SubCircuit& pattern) {
             std::map<Node*, std::vector<Node*>> leaf_edges;
             for (Node* leaf : pattern_leaf_nodes) {
                 Node *match_leaf = mapping[leaf];
-                for (Node* bottom_node : match_leaf->bottom)
-                    if (!used.count(bottom_node))
-                        leaf_edges[match_leaf].push_back(bottom_node);
+                for (Node* lower_node : match_leaf->lower)
+                    if (!used.count(lower_node))
+                        leaf_edges[match_leaf].push_back(lower_node);
             }
             for (Node* leaf : pattern_leaf_nodes)
                 if (leaf_degrees[leaf] != (int)leaf_edges[mapping[leaf]].size()) return false;
 
-            match = new SubCircuit();
-            for (Edge* edge : pattern.top_edges) {
-                Node *root = mapping[edge->bottom];
-                match->top_edges.push_back(new Edge(root->top.empty() ? nullptr : *(root->top.begin()), root));
+            match = new Subcircuit();
+            for (Edge* edge : pattern.upper_edges) {
+                Node *root = mapping[edge->lower];
+                match->upper_edges.push_back(new Edge(root->upper.empty() ? nullptr : *(root->upper.begin()), root));
             }
-            for (Edge* edge : pattern.bottom_edges) {
-                Node *leaf = mapping[edge->top];
-                match->bottom_edges.push_back(new Edge(leaf, leaf_edges[leaf].back()));
+            for (Edge* edge : pattern.lower_edges) {
+                Node *leaf = mapping[edge->upper];
+                match->lower_edges.push_back(new Edge(leaf, leaf_edges[leaf].back()));
                 leaf_edges[leaf].pop_back();
             }
             return true;
@@ -74,11 +74,11 @@ SubCircuit* PatternFinder::find_pattern(Circuit& circuit, SubCircuit& pattern) {
             if (node->type != pattern_nodes[pos]->type) continue;
             const bool is_root = pattern_root_nodes.count(pattern_nodes[pos]);
             const bool is_leaf = pattern_leaf_nodes.count(pattern_nodes[pos]);
-            const bool same_top = node->top.size() == pattern_nodes[pos]->top.size();
-            const bool same_bottom = node->bottom.size() == pattern_nodes[pos]->bottom.size();
-            if (is_root && !same_bottom) continue;
-            if (is_leaf && !(same_top && leaf_degrees[pattern_nodes[pos]] + pattern_nodes[pos]->bottom.size() == node->bottom.size())) continue;
-            if (!is_root && !is_leaf && !(same_top && same_bottom)) continue;
+            const bool same_upper = node->upper.size() == pattern_nodes[pos]->upper.size();
+            const bool same_lower = node->lower.size() == pattern_nodes[pos]->lower.size();
+            if (is_root && !same_lower) continue;
+            if (is_leaf && !(same_upper && leaf_degrees[pattern_nodes[pos]] + pattern_nodes[pos]->lower.size() == node->lower.size())) continue;
+            if (!is_root && !is_leaf && !(same_upper && same_lower)) continue;
             match_nodes[pos] = node;
             used.insert(node);
             if (bkt(pos + 1)) return true;
