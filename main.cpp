@@ -1,9 +1,12 @@
 #include <iostream>
 #include "abeai.h"
 #include "debug.h"
-// #include "patterns.h"
+#include "patterns.h"
 
 int main() {
+
+    auto patterns = gen_patterns();
+
     SubCircuit pattern;
     Node *node0 = new Node(AND);
     Node *node1 = new Node(OR);
@@ -29,15 +32,24 @@ int main() {
 
     std::cout << "==========\n";
     while (true) {
-        Circuit circuit = CircuitBuilder::random(50, 2);
+        Circuit circuit = CircuitBuilder::random(40, 2);
         std::cout << circuit.eval() << '\n';
+        // std::cout << circuit << '\n';
         while (true) {
-            SubCircuit *match = PatternFinder::find_pattern(circuit, pattern);
+            dbg(*patterns[0].first);
+            auto asd = *patterns[0].first->top_edges.begin();
+            dbg(asd->bottom->bottom);
+            dbg(pattern);
+            SubCircuit *match = PatternFinder::find_pattern(circuit, *patterns[0].first);
+            dbg_ok;
             if (match == nullptr) break;
-            circuit.replace_subcircuit(*match, replacement);
+            dbg_ok;
+            circuit.replace_subcircuit(*match, *patterns[0].second);
             std::cout << circuit.eval() << '\n';
-            std::cout << "==========\n";
+            // std::cout << circuit << '\n';
+            break;
         }
+        std::cout << "==========\n";
     }
     return 0;
 }

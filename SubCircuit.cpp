@@ -26,17 +26,17 @@ SubCircuit::SubCircuit(std::vector<NodeType> nodes, std::vector <std::pair<int, 
     }
     
     for(auto edge : edges) {
-        dbg(edge);
+
         Node * from = nullptr;
         Node * to = nullptr;
         
         if(edge.first != -1)
             from = pNodes[edge.first];
         if(edge.second != -1)
-            to = pNodes[edge.second];
+            to = pNodes[edge.second];   
 
-        from->bottom.insert(to);
-        to->top.insert(from);
+        if(from) from->bottom.insert(to);
+        if(to) to->top.insert(from);
 
         if(from == nullptr)
             this->top_edges.push_back(new Edge(from, to));
