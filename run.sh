@@ -1,1 +1,1 @@
-g++ -std=c++17 -Wall *.cpp -o main && ./main # && rm main
+g++ -std=c++17 -Wall -Wextra sources/*.cpp run/*.cpp -o main && ./main
