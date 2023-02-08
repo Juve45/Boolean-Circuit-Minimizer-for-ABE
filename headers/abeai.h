@@ -46,8 +46,6 @@ struct Circuit {
 struct Subcircuit {
     std::vector<Edge*> upper_edges, lower_edges;
     Subcircuit(const std::vector<Edge*>& upper_edges, const std::vector<Edge*>& lower_edges) : upper_edges(upper_edges), lower_edges(lower_edges) { }
-    // Subcircuit(const Circuit& circuit);
-    // Subcircuit(const std::vector<NodeType>& nodes, const std::vector<std::pair<int, int>>& edges);
     std::vector<Node*> get_nodes() const;
     Subcircuit& copy() const;
 };

@@ -12,9 +12,11 @@ std::ostream& operator<<(std::ostream& out, const Node& node) {
 
 std::ostream& operator<<(std::ostream& out, const Edge& edge) {
     const auto& [node1, node2] = edge;
+    out << '[';
     if (node1 == nullptr) out << "null"; else out << *node1;
-    out << " -> ";
+    out << ' ';
     if (node2 == nullptr) out << "null"; else out << *node2;
+    out << ']';
     return out;
 }
 
