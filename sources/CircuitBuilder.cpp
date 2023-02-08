@@ -1,35 +1,6 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
-void check_circuit(Node* root, int leaf_count) {
-    std::set<Node*> nodes;
-    std::function<void(Node*)> dfs = [&](Node* node) {
-        nodes.insert(node);
-        for (Node* lower_node : node->lower)
-            if (!nodes.count(lower_node))
-                dfs(lower_node);
-    };
-    dfs(root);
-    int real_leaf_count = 0;
-    for (Node* node : nodes) {
-        real_leaf_count += node->lower.empty();
-        if (node->type == INPUT && node->upper.size() != 1)
-            std::cerr << "ERROR: input.upper_count = " << node->upper.size() << '\n';
-        else if (node->type == INPUT && node->lower.size() != 0)
-            std::cerr << "ERROR: input.lower_count = " << node->lower.size() << '\n';
-        else if (node->type == FAN_OUT && node->upper.size() < 2)
-            std::cerr << "ERROR: fan_out.upper_count = " << node->upper.size() << '\n';
-        else if (node->type == FAN_OUT && node->lower.size() != 1)
-            std::cerr << "ERROR: fan_out.lower_count = " << node->lower.size() << '\n';
-        else if ((node->type == AND || node->type == OR) && !((node == root && node->upper.size() == 0) || (node != root && node->upper.size() == 1)))
-            std::cerr << "ERROR: and_or.upper_count = " << node->upper.size() << '\n';
-        else if ((node->type == AND || node->type == OR) && node->lower.size() < 2)
-            std::cerr << "ERROR: and_or.lower_count = " << node->lower.size() << '\n';
-    }
-    if (real_leaf_count != leaf_count)
-        std::cerr << "ERROR: more leafs than expected\n";
-}
-
 Circuit& CircuitBuilder::random(int leaf_count, int max_lower_count) {
     std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
     std::vector<Node*> leaves(leaf_count);
@@ -84,20 +55,8 @@ Circuit& CircuitBuilder::random(int leaf_count, int max_lower_count) {
             fan_out_node->lower.insert(node);
         }
     }
-    check_circuit(nodes[current_level][0], leaf_count);
+    Utils::check_circuit(nodes[current_level][0], leaf_count);
     return *(new Circuit(nodes[current_level][0], leaves));
-}
-
-std::vector<int> random_partition(int value, int parts) {
-    std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
-    std::vector<int> partition(parts);
-    for (int i = 0; i < parts - 1; i++) {
-        partition[i] = rand() % (value - parts + i + 1) + 1;
-        value -= partition[i];
-    }
-    partition[parts - 1] = value;
-    std::shuffle(partition.begin(), partition.end(), rand);
-    return partition;
 }
 
 Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
@@ -112,7 +71,7 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
     node_count -= size_of_level[height - 1] = rand() % ((leaf_count - 2) / 2) + 3;
     assert(node_count >= height - 2);
 
-    auto partition = random_partition(node_count, height - 2);
+    auto partition = Utils::random_partition(node_count, height - 2);
     for (int i = 1; i < height - 1; i++)
         size_of_level[i] = partition[i - 1];
     node_count = 0;
@@ -210,7 +169,7 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
         for (Node* node : nodes_on_level[i])
             add_upper_nodes(node);
     }
-    check_circuit(nodes_on_level[0][0], leaf_count);
+    Utils::check_circuit(nodes_on_level[0][0], leaf_count);
     return *(new Circuit(nodes_on_level[0][0], nodes_on_level[height]));
 }
 

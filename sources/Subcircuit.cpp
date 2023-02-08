@@ -12,7 +12,7 @@ Subcircuit::Subcircuit(std::vector <Edge*> upper_edges, std::vector<Edge*> lower
         this->lower_edges.push_back(edge);
     for (Edge* edge : upper_edges)
         this->upper_edges.push_back(edge);
-    //TODO: assert that the Subcircuit is good (connex?)
+    //TODO: assert that the subcircuit is good (connex?)
 }
 
 Subcircuit::Subcircuit(std::vector<NodeType> nodes, std::vector <std::pair<int, int>> edges) {

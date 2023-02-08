@@ -37,13 +37,13 @@ std::ostream& operator<<(std::ostream& out, const Circuit& circuit) {
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const Subcircuit& Subcircuit) {
+std::ostream& operator<<(std::ostream& out, const Subcircuit& subcircuit) {
     out << "IN EDGES: ";
-    for(auto e : Subcircuit.upper_edges)
+    for(auto e : subcircuit.upper_edges)
         out << *e << ' ';
     out << '\n';
     out << "OUT EDGES: ";
-    for(auto e : Subcircuit.lower_edges)
+    for(auto e : subcircuit.lower_edges)
         out << *e << ' ';
     out << '\n';
     return out;

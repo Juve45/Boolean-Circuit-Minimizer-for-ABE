@@ -32,7 +32,7 @@ int main() {
         while (true) {
             Subcircuit *match = PatternFinder::find_pattern(circuit, pattern);
             if (match == nullptr) break;
-            circuit.replace_Subcircuit(*match, replacement);
+            circuit.replace_subcircuit(*match, replacement);
             std::cout << circuit.eval() << '\n';
             std::cout << "==========\n";
         }

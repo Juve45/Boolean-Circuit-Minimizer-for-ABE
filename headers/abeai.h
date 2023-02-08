@@ -13,6 +13,7 @@ struct Circuit;
 struct Subcircuit;
 struct CircuitBuilder;
 struct PatternFinder;
+struct Utils;
 
 struct Node {
     static int node_count;
@@ -39,7 +40,7 @@ struct Circuit {
     Circuit& copy();
     std::vector<Node*> get_nodes();
     int eval();
-    void replace_Subcircuit(const Subcircuit& found, const Subcircuit& to_replace);
+    void replace_subcircuit(const Subcircuit& found, const Subcircuit& to_replace);
 };
 
 struct Subcircuit {
@@ -61,9 +62,14 @@ struct PatternFinder {
     static Subcircuit* find_pattern(Circuit& circuit, Subcircuit& pattern);
 };
 
+struct Utils {
+    static void check_circuit(Node* root, int leaf_count);
+    static std::vector<int> random_partition(int value, int parts);
+};
+
 std::ostream& operator<<(std::ostream& out, const Node& node);
 std::ostream& operator<<(std::ostream& out, const Edge& edge);
 std::ostream& operator<<(std::ostream& out, const Circuit& circuit);
-std::ostream& operator<<(std::ostream& out, const Subcircuit& Subcircuit);
+std::ostream& operator<<(std::ostream& out, const Subcircuit& subcircuit);
 
 #endif
