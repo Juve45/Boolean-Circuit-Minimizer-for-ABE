@@ -1,7 +1,7 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
-Subcircuit* PatternFinder::find_pattern(Circuit& circuit, Subcircuit& pattern) {
+Subcircuit* PatternFinder::find_pattern(const Circuit& circuit, const Subcircuit& pattern) {
     auto circuit_nodes = circuit.get_nodes();
     auto pattern_nodes = pattern.get_nodes();
 

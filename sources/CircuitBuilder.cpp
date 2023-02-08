@@ -24,7 +24,7 @@ Circuit& CircuitBuilder::random(int leaf_count, int max_lower_count) {
             Node *upper_node = the_upper_node.back();
             upper_node->lower.insert(node);
             node->upper.insert(upper_node);
-            if ((int)upper_node->lower.size() == max_lower_count)
+            if (int(upper_node->lower.size()) == max_lower_count)
                 upper_nodes.erase(upper_node);
         }
         for (Node* node : nodes[current_level]) {
@@ -55,8 +55,9 @@ Circuit& CircuitBuilder::random(int leaf_count, int max_lower_count) {
             fan_out_node->lower.insert(node);
         }
     }
-    Utils::check_circuit(nodes[current_level][0], leaf_count);
-    return *(new Circuit(nodes[current_level][0], leaves));
+    Circuit *circuit = new Circuit(nodes[current_level][0], leaves);
+    Utils::check_circuit(*circuit);
+    return *circuit;
 }
 
 Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
@@ -169,8 +170,9 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
         for (Node* node : nodes_on_level[i])
             add_upper_nodes(node);
     }
-    Utils::check_circuit(nodes_on_level[0][0], leaf_count);
-    return *(new Circuit(nodes_on_level[0][0], nodes_on_level[height]));
+    Circuit *circuit = new Circuit(nodes_on_level[0][0], nodes_on_level[height]);
+    Utils::check_circuit(*circuit);
+    return *circuit;
 }
 
 Circuit& CircuitBuilder::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges) {
@@ -186,10 +188,10 @@ Circuit& CircuitBuilder::from(const std::vector<NodeType>& types, const std::vec
     for (Node* node : nodes) {
         if (node->lower.empty())
             leaves.push_back(node);
-        if (node->upper.empty()){
+        if (node->upper.empty()) {
             assert(root == nullptr);
             root = node;
         }
     }
-    return *(new Circuit(root, leaves));
+    return *new Circuit(root, leaves);
 }

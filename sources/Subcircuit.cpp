@@ -7,7 +7,7 @@ Subcircuit::Subcircuit(const Circuit& circuit) {
     this->upper_edges.push_back(new Edge(nullptr, circuit.root));
 }
 
-Subcircuit::Subcircuit(std::vector <Edge*> upper_edges, std::vector<Edge*> lower_edges) {
+Subcircuit::Subcircuit(const std::vector<Edge*>& upper_edges, const std::vector<Edge*>& lower_edges) {
     for (Edge* edge : lower_edges)
         this->lower_edges.push_back(edge);
     for (Edge* edge : upper_edges)
@@ -15,7 +15,7 @@ Subcircuit::Subcircuit(std::vector <Edge*> upper_edges, std::vector<Edge*> lower
     //TODO: assert that the subcircuit is good (connex?)
 }
 
-Subcircuit::Subcircuit(std::vector<NodeType> nodes, std::vector <std::pair<int, int>> edges) {
+Subcircuit::Subcircuit(const std::vector<NodeType>& nodes, const std::vector<std::pair<int, int>>& edges) {
 
     dbg_ok;
     std::vector <Node*> pNodes;
@@ -45,7 +45,7 @@ Subcircuit::Subcircuit(std::vector<NodeType> nodes, std::vector <std::pair<int, 
 
 }
 
-std::vector<Node*> Subcircuit::get_nodes() {
+std::vector<Node*> Subcircuit::get_nodes() const {
     std::set<Node*> node_set;
     std::function<void(Node*)> dfs = [&](Node* node) {
         node_set.insert(node);

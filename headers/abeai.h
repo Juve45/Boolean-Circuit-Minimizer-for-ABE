@@ -23,8 +23,8 @@ struct Node {
     NodeType type;
     std::set<Node*> upper, lower;
 
-    Node(NodeType type);
-    ~Node();
+    Node(NodeType type) : type(type) { id = node_count++; /* from_id[id] = this; */ }
+    // ~Node() { from_id.erase(this->id); }
 };
 
 struct Edge {
@@ -37,19 +37,19 @@ struct Circuit {
     std::vector<Node*> leaves;
 
     Circuit(Node* root, const std::vector<Node*>& leaves) : root(root), leaves(leaves) { }
-    Circuit& copy();
-    std::vector<Node*> get_nodes();
-    int eval();
+    Circuit& copy() const;
+    int eval() const;
     void replace_subcircuit(const Subcircuit& found, const Subcircuit& to_replace);
+    std::vector<Node*> get_nodes() const;
 };
 
 struct Subcircuit {
     std::vector<Edge*> upper_edges, lower_edges;
     Subcircuit() { }
     Subcircuit(const Circuit& circuit);
-    Subcircuit(std::vector<Edge*> upper_edges, std::vector<Edge*> lower_edges);
-    Subcircuit(std::vector<NodeType> nodes, std::vector<std::pair<int, int>> edges);
-    std::vector<Node*> get_nodes();
+    Subcircuit(const std::vector<Edge*>& upper_edges, const std::vector<Edge*>& lower_edges);
+    Subcircuit(const std::vector<NodeType>& nodes, const std::vector<std::pair<int, int>>& edges);
+    std::vector<Node*> get_nodes() const;
 };
 
 struct CircuitBuilder {
@@ -59,11 +59,11 @@ struct CircuitBuilder {
 };
 
 struct PatternFinder {
-    static Subcircuit* find_pattern(Circuit& circuit, Subcircuit& pattern);
+    static Subcircuit* find_pattern(const Circuit& circuit, const Subcircuit& pattern);
 };
 
 struct Utils {
-    static void check_circuit(Node* root, int leaf_count);
+    static void check_circuit(const Circuit& circuit);
     static std::vector<int> random_partition(int value, int parts);
 };
 

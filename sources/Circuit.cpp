@@ -1,7 +1,7 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
-Circuit& Circuit::copy() {
+Circuit& Circuit::copy() const {
     std::vector<Node*> new_leaves;
     std::map<Node*, Node*> old_to_new;
     std::function<void(Node*)> dfs = [&](Node* node) {
@@ -19,10 +19,10 @@ Circuit& Circuit::copy() {
         for (Node* lower_node : old_node->lower)
             new_node->lower.insert(old_to_new[lower_node]);
     }
-    return *(new Circuit(old_to_new[root], new_leaves));
+    return *new Circuit(old_to_new[root], new_leaves);
 }
 
-std::vector<Node*> Circuit::get_nodes() {
+std::vector<Node*> Circuit::get_nodes() const {
     std::set<Node*> node_set;
     std::function<void(Node*)> dfs = [&](Node* node) {
         node_set.insert(node);
@@ -36,7 +36,7 @@ std::vector<Node*> Circuit::get_nodes() {
     return nodes;
 }
 
-int Circuit::eval() {
+int Circuit::eval() const {
     std::map<int, int> node_upper_visited = std::map<int, int>();
     std::map<int, int> node_value = std::map<int, int>();
 

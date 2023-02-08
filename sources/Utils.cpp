@@ -1,18 +1,13 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
-void Utils::check_circuit(Node* root, int leaf_count) {
-    std::set<Node*> nodes;
-    std::function<void(Node*)> dfs = [&](Node* node) {
-        nodes.insert(node);
-        for (Node* lower_node : node->lower)
-            if (!nodes.count(lower_node))
-                dfs(lower_node);
-    };
-    dfs(root);
-    int real_leaf_count = 0;
-    for (Node* node : nodes) {
-        real_leaf_count += node->lower.empty();
+int Node::node_count;
+// std::map<int, Node*> Node::from_id;
+
+void Utils::check_circuit(const Circuit& circuit) {
+    int leaf_count = 0;
+    for (Node* node : circuit.get_nodes()) {
+        leaf_count += node->lower.empty();
         if (node->type == INPUT && node->upper.size() != 1)
             std::cerr << "ERROR: input.upper_count = " << node->upper.size() << '\n';
         else if (node->type == INPUT && node->lower.size() != 0)
@@ -21,12 +16,12 @@ void Utils::check_circuit(Node* root, int leaf_count) {
             std::cerr << "ERROR: fan_out.upper_count = " << node->upper.size() << '\n';
         else if (node->type == FAN_OUT && node->lower.size() != 1)
             std::cerr << "ERROR: fan_out.lower_count = " << node->lower.size() << '\n';
-        else if ((node->type == AND || node->type == OR) && !((node == root && node->upper.size() == 0) || (node != root && node->upper.size() == 1)))
+        else if ((node->type == AND || node->type == OR) && !((node == circuit.root && node->upper.size() == 0) || (node != circuit.root && node->upper.size() == 1)))
             std::cerr << "ERROR: and_or.upper_count = " << node->upper.size() << '\n';
         else if ((node->type == AND || node->type == OR) && node->lower.size() < 2)
             std::cerr << "ERROR: and_or.lower_count = " << node->lower.size() << '\n';
     }
-    if (real_leaf_count != leaf_count)
+    if (leaf_count != int(circuit.leaves.size()))
         std::cerr << "ERROR: more leafs than expected\n";
 }
 
