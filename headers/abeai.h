@@ -17,14 +17,14 @@ struct Utils;
 
 struct Node {
     static int node_count;
-    // static std::map<int, Node*> from_id;
+    static std::map<int, Node*> from_id;
 
     int id;
     NodeType type;
     std::set<Node*> upper, lower;
 
-    Node(NodeType type) : type(type) { id = node_count++; /* from_id[id] = this; */ }
-    // ~Node() { from_id.erase(this->id); }
+    Node(NodeType type) : type(type) { from_id[id = node_count++] = this; }
+    ~Node() { from_id.erase(this->id); }
 };
 
 struct Edge {
@@ -37,10 +37,10 @@ struct Circuit {
     std::vector<Node*> leaves;
 
     Circuit(Node* root, const std::vector<Node*>& leaves) : root(root), leaves(leaves) { }
+    std::vector<Node*> get_nodes() const;
     Circuit& copy() const;
     int eval() const;
-    void replace_subcircuit(const Subcircuit& found, const Subcircuit& to_replace);
-    std::vector<Node*> get_nodes() const;
+    void replace_subcircuit(const Subcircuit& found, const Subcircuit& replacement);
 };
 
 struct Subcircuit {

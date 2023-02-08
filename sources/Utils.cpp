@@ -2,7 +2,7 @@
 #include "../headers/debug.h"
 
 int Node::node_count;
-// std::map<int, Node*> Node::from_id;
+std::map<int, Node*> Node::from_id;
 
 void Utils::check_circuit(const Circuit& circuit) {
     int leaf_count = 0;

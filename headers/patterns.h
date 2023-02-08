@@ -3,7 +3,7 @@
 
 #include "abeai.h"
 
-Subcircuit *pattern1 = new Subcircuit({AND, OR, OR, FAN_OUT}, {
+Subcircuit pattern1({AND, OR, OR, FAN_OUT}, {
     {-1, 0},
     {0, 1},
     {0, 2},
@@ -14,7 +14,7 @@ Subcircuit *pattern1 = new Subcircuit({AND, OR, OR, FAN_OUT}, {
     {3, -1}
 });
 
-Subcircuit *to_replace1 = new Subcircuit({AND, OR}, {
+Subcircuit replacement1({AND, OR}, {
     {-1, 0},
     {0, 1},
     {1, -1},
@@ -22,7 +22,7 @@ Subcircuit *to_replace1 = new Subcircuit({AND, OR}, {
     {1, -1}
 });
 
-Subcircuit *pattern2 = new Subcircuit({OR, AND, AND, FAN_OUT}, {
+Subcircuit pattern2({OR, AND, AND, FAN_OUT}, {
     {-1, 0},
     {0, 1},
     {0, 2},
@@ -33,7 +33,7 @@ Subcircuit *pattern2 = new Subcircuit({OR, AND, AND, FAN_OUT}, {
     {3, -1}
 });
 
-Subcircuit *to_replace2 = new Subcircuit({OR, AND}, {
+Subcircuit replacement2({OR, AND}, {
     {-1, 0},
     {0, 1},
     {1, -1},

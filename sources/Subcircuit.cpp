@@ -12,37 +12,34 @@ Subcircuit::Subcircuit(const std::vector<Edge*>& upper_edges, const std::vector<
         this->lower_edges.push_back(edge);
     for (Edge* edge : upper_edges)
         this->upper_edges.push_back(edge);
-    //TODO: assert that the subcircuit is good (connex?)
+    // TODO: assert that the subcircuit is good (connex?)
 }
 
 Subcircuit::Subcircuit(const std::vector<NodeType>& nodes, const std::vector<std::pair<int, int>>& edges) {
-
     dbg_ok;
-    std::vector <Node*> pNodes;
-    for(const NodeType type : nodes) {
-        pNodes.push_back(new Node(type));
+    std::vector<Node*> ptr_nodes;
+    for (const NodeType type : nodes) {
+        ptr_nodes.push_back(new Node(type));
         dbg_ok;
     }
-
-    for(auto edge : edges) {
+    for (auto edge : edges) {
         dbg(edge);
-        Node * from = nullptr;
-        Node * to = nullptr;
+        Node *from = nullptr;
+        Node *to = nullptr;
 
-        if(edge.first != -1)
-            from = pNodes[edge.first];
-        if(edge.second != -1)
-            to = pNodes[edge.second];
+        if (edge.first != -1)
+            from = ptr_nodes[edge.first];
+        if (edge.second != -1)
+            to = ptr_nodes[edge.second];
 
         from->lower.insert(to);
         to->upper.insert(from);
 
-        if(from == nullptr)
+        if (from == nullptr)
             this->upper_edges.push_back(new Edge(from, to));
-        if(to == nullptr)
+        if (to == nullptr)
             this->lower_edges.push_back(new Edge(from, to));
     }
-
 }
 
 std::vector<Node*> Subcircuit::get_nodes() const {
