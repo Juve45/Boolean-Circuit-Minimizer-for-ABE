@@ -85,5 +85,23 @@ Circuit& Utils::to_circuit(const std::string& formula) {
 }
 
 std::string Utils::to_formula(const Circuit& circuit) {
-    return "";
+    int variable_count = 0;
+    std::map<Node*, std::string> mapping;
+    std::function<std::string(Node*)> dfs = [&](Node* node) {
+        if (!mapping.count(node)) {
+            if (node->type == AND || node->type == OR)
+                mapping[node]
+                    = "("
+                    + dfs(*(node->lower.begin()))
+                    + (node->type == AND ? '*' : '+')
+                    + dfs(*(node->lower.rbegin()))
+                    + ")";
+            else if (node->type == FAN_OUT)
+                mapping[node] = dfs(*(node->lower.begin()));
+            else
+                mapping[node] = 'a' + variable_count++;
+        }
+        return mapping[node];
+    };
+    return dfs(circuit.root);
 }
