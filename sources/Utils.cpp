@@ -36,3 +36,54 @@ std::vector<int> Utils::random_partition(int value, int parts) {
     std::shuffle(partition.begin(), partition.end(), rand);
     return partition;
 }
+
+Circuit& Utils::to_circuit(const std::string& formula) {
+    std::vector<Node*> leaves;
+    std::vector<std::string> stack;
+    std::map<std::string, Node*> mapping;
+    for (const char chr : formula) {
+        if (chr == '*' || chr == '+' || ('a' <= chr && chr <= 'z'))
+            stack.emplace_back(1, chr);
+        if ('a' <= chr && chr <= 'z' && !mapping.count(stack.back())) {
+            mapping[stack.back()] = new Node(INPUT);
+            leaves.push_back(mapping[stack.back()]);
+        }
+        else if (chr == ')') {
+            const std::string lhs = stack[stack.size() - 3];
+            const std::string opr = stack[stack.size() - 2];
+            const std::string rhs = stack[stack.size() - 1];
+            std::string subformula = "(" + lhs + opr + rhs + ")";
+            if (!mapping.count(subformula)) {
+                mapping[subformula] = new Node(opr == "*" ? AND : OR);
+                Node *lhs_node = mapping[lhs];
+                Node *rhs_node = mapping[rhs];
+                Node *big_node = mapping[subformula];
+                big_node->lower.insert(lhs_node); lhs_node->upper.insert(big_node);
+                big_node->lower.insert(rhs_node); rhs_node->upper.insert(big_node);
+            }
+            stack.pop_back();
+            stack.pop_back();
+            stack.pop_back();
+            stack.push_back(subformula);
+        }
+    }
+    Circuit *circuit = new Circuit(mapping[stack.back()], leaves);
+    auto nodes = circuit->get_nodes();
+    for (Node* node : nodes)
+        if (node->upper.size() > 1) {
+            Node *fan_out_node = new Node(FAN_OUT);
+            for (Node* upper_node : node->upper) {
+                fan_out_node->upper.insert(upper_node);
+                upper_node->lower.erase(node);
+                upper_node->lower.insert(fan_out_node);
+            }
+            node->upper.clear();
+            node->upper.insert(fan_out_node);
+            fan_out_node->lower.insert(node);
+        }
+    return *circuit;
+}
+
+std::string Utils::to_formula(const Circuit& circuit) {
+    return "";
+}

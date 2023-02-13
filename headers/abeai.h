@@ -64,6 +64,8 @@ struct PatternFinder {
 struct Utils {
     static void check_circuit(const Circuit& circuit);
     static std::vector<int> random_partition(int value, int parts);
+    static Circuit& to_circuit(const std::string& formula);
+    static std::string to_formula(const Circuit& circuit);
 };
 
 std::ostream& operator<<(std::ostream& out, const Node& node);
