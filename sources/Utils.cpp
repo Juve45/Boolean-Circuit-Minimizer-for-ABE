@@ -112,3 +112,14 @@ std::string Utils::to_formula(const Circuit& circuit) {
     };
     return dfs(circuit.root);
 }
+
+Subcircuit& Utils::conjugate(const Subcircuit& pattern1) {
+    Subcircuit *pattern2 = &pattern1.copy();
+    auto nodes = pattern2->get_nodes();
+    for (Node* node : nodes)
+        if (node->type == AND)
+            node->type = OR;
+        else if (node->type == OR)
+            node->type = AND;
+    return *pattern2;
+}

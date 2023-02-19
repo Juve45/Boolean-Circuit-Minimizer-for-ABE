@@ -66,6 +66,7 @@ struct Utils {
     static std::vector<int> random_partition(int value, int parts);
     static Circuit& to_circuit(const std::string& formula);
     static std::string to_formula(const Circuit& circuit);
+    static Subcircuit& conjugate(const Subcircuit& pattern1);
 };
 
 std::ostream& operator<<(std::ostream& out, const Node& node);
