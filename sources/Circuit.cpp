@@ -62,6 +62,22 @@ int Circuit::eval() const {
 }
 
 void Circuit::replace_subcircuit(const Subcircuit& found, const Subcircuit& replacement) {
+    if (replacement.upper_edges.empty()) {
+        // TODO: more asserts
+        Node *upper = replacement.upper_edges[0]->upper;
+        Node *lower = replacement.lower_edges[0]->lower;
+        upper->lower.erase(replacement.upper_edges[0]->lower);
+        lower->upper.erase(replacement.lower_edges[0]->upper);
+        for (Edge* edge : replacement.lower_edges)
+            edge->lower = nullptr;
+        auto nodes = found.get_nodes();
+        for (Node* node : nodes)
+            delete node;
+        upper->lower.insert(lower);
+        lower->upper.insert(upper);
+        return;
+    }
+
     assert(found.upper_edges.size() == replacement.upper_edges.size());
     assert(found.lower_edges.size() == replacement.lower_edges.size());
 
