@@ -1,10 +1,11 @@
+#include "../headers/abeai.h"
 #include "../headers/Tree.h"
 
 using std::vector;
 using std::map;
 using std::string;
 
-vector <vector<Tree*>> reduce(Tree * t) {
+vector <vector<Tree*>> our_reduce(Tree * t) {
 
 	vector <vector<Tree*>> ans;
 
@@ -26,7 +27,7 @@ vector <vector<Tree*>> reduce(Tree * t) {
 	} 
 
 	for(auto i : t->edges) {
-		auto ans_child = reduce(i);
+		auto ans_child = our_reduce(i);
 		for(auto i : ans_child)
 			ans.push_back(i);
 	}

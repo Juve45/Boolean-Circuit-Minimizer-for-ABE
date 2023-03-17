@@ -1,4 +1,5 @@
 #include "abeai.h"
+using namespace std;
 
 class Tree {
 public:
@@ -31,4 +32,14 @@ public:
 			formula += ")";
 		}
 	}
+
+	Tree() { }
+
+	static Tree& from(std::string formula);
 };
+
+std::ostream& operator<<(std::ostream& out, const Tree& tree);
+
+vector <vector<Tree*>> our_reduce(Tree * t);
+void factorize(Tree * t1, Tree * t2);
+void defactorize(Tree * t1, Tree * t2);

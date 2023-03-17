@@ -1,11 +1,16 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 #include "../headers/patterns.h"
+#include "../headers/Tree.h"
 
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout << std::boolalpha;
+
+    Tree tree = Tree::from("((a*b*c)+(a*d)+(b*c*d))");
+    std::cout << tree << '\n';
+    return 0;
 
     load_patterns();
     int max_delta = 0;
