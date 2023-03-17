@@ -6,6 +6,7 @@ Tree& Tree::from(std::string formula) {
     for (const char chr : formula)
         if ('a' <= chr && chr <= 'z') {
             Tree *node = new Tree;
+            node->node_type = INPUT;
             node->formula = std::string(1, chr);
             operandStack.push(node);
         }
@@ -27,6 +28,7 @@ Tree& Tree::from(std::string formula) {
                     return a->formula < b->formula;
                 });
                 Tree *node = new Tree;
+                node->node_type = operation == '+' ? OR : AND;
                 if (operation == '+') node->formula += '(';
                 for (Tree* operand : operands) {
                     node->edges.push_back(operand);
@@ -43,7 +45,7 @@ Tree& Tree::from(std::string formula) {
 std::ostream& operator<<(std::ostream& out, const Tree& tree) {
     std::function<void(Tree)> dfs = [&](Tree node) {
         for (Tree* edge : node.edges) {
-            out << node.formula << ' ' << edge->formula << '\n';
+            out << (node.node_type == AND ? "AND" : node.node_type == OR ? "OR" : "INPUT") << ' ' << node.formula << ' ' << edge->formula << '\n';
             dfs(*edge);
         }
     };
