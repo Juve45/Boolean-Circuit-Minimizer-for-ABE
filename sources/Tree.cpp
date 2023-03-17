@@ -31,6 +31,7 @@ Tree& Tree::from(std::string formula) {
                 node->node_type = operation == '+' ? OR : AND;
                 if (operation == '+') node->formula += '(';
                 for (Tree* operand : operands) {
+                    operand->parent = node;
                     node->edges.push_back(operand);
                     node->formula += operand->formula + (operation == '+' ? "+" : "");
                 }
@@ -39,6 +40,7 @@ Tree& Tree::from(std::string formula) {
                 operandStack.push(node);
             }
         }
+    operandStack.top()->parent = nullptr;
     return *operandStack.top();
 }
 
