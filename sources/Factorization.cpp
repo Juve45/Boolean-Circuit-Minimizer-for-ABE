@@ -1,4 +1,5 @@
 #include "../headers/abeai.h"
+#include "../headers/debug.h"
 #include "../headers/Tree.h"
 
 using std::vector;
@@ -6,7 +7,6 @@ using std::map;
 using std::string;
 
 vector <vector<Tree*>> our_reduce(Tree * t) {
-
 	vector <vector<Tree*>> ans;
 
 	if(t->node_type == OR) {
@@ -47,6 +47,14 @@ void add_edge(Tree * parent, Tree * child) {
 
 void factorize(Tree * t1, Tree * t2) {
 
+	dbg(t1);
+	dbg(t1->parent);
+	assert(t1->parent);
+	assert(t2->parent);
+	assert(t1->parent->parent);
+	assert(t2->parent->parent);
+	assert(t1->parent->parent == t2->parent->parent);
+
 	Tree * and_node = new Tree();
 	and_node->node_type = AND;
 	Tree * or_node = new Tree();
@@ -54,21 +62,25 @@ void factorize(Tree * t1, Tree * t2) {
 
 	Tree * old1 = t1->parent;
 	Tree * old2 = t2->parent;
+	dbg_ok;
 
 	add_edge(old1->parent, and_node);
 	add_edge(and_node, or_node);
 	add_edge(and_node, t1);
 	add_edge(or_node, old1);
 	add_edge(or_node, old2);
-
+	dbg_ok;
 	erase_child(old1, t1);
 	erase_child(old2, t2);
 
+	dbg_ok;
 	old1->compute_formula();
 	old2->compute_formula();
 
+	dbg_ok;
 	auto tmp = old2;
 	while(tmp) {
+		dbg(tmp);
 		tmp->compute_formula();
 		tmp = tmp->parent;
 	}
