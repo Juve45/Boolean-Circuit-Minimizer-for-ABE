@@ -29,12 +29,12 @@ public:
 		}
 		else {
 			formula = "";
-			if(parent || s.size() > 1) formula += "(";
+			if(parent && s.size() > 1) formula += "(";
 			for(auto i : s) {
 				formula += i + "+";
 			}
 			formula.pop_back();
-			if(parent || s.size() > 1) formula += ")";
+			if(parent && s.size() > 1) formula += ")";
 		}
 	}
 
