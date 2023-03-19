@@ -22,7 +22,6 @@ pair<int, int> get_two_randoms(int mx) {
 void hill_climbing(Tree *t) {
 	int i = 0;
 	while (true) {
-		dbg(i++);
 		vector<vector<Tree*>> factorizable = our_reduce(t);
 		if (factorizable.empty()) {
 			// we can't optimize further
@@ -32,11 +31,7 @@ void hill_climbing(Tree *t) {
 		assert(factorizable[c].size() > 1);
  
 		auto [f1, f2] = get_two_randoms(factorizable[c].size());
-		dbg(t);
-		dbg(t->formula);
 		factorize(factorizable[c][f1], factorizable[c][f2]);
-		dbg(t);
-		dbg(t->formula);
 	}
 }
  
@@ -91,7 +86,7 @@ void simulated_annealing(Tree *root, int k_max = 100) {
 
 int main() {
 
-	Tree tree = Tree::from("((a*b*c)+(a*d)+(b*c*d))");
-	hill_climbing(&tree);
-	cout << tree << '\n';
+	Tree * tree = &Tree::from("((a*b*c)+(a*d)+(b*c*d))");
+	hill_climbing(tree);
+	cout << tree->formula << '\n';
 }

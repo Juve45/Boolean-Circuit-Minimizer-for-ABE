@@ -7,7 +7,6 @@ using std::map;
 using std::string;
 
 vector <vector<Tree*>> our_reduce(Tree * t) {
-	dbg(t->formula);
 	vector <vector<Tree*>> ans;
 
 	if(t->node_type == OR) {
@@ -16,20 +15,21 @@ vector <vector<Tree*>> our_reduce(Tree * t) {
 
 		for(auto i : t->edges)
 			for(auto j : i->edges) {
-					dbg(i->formula);
-					dbg(j->formula);
 				if(similar.find(j->formula) != similar.end()) {
 					assert(j->parent->parent == similar[j->formula].back()->parent->parent);
-
-					similar[j->formula].push_back(j);
-				} else {
-					similar[j->formula] = vector <Tree*>();
-					similar[j->formula].push_back(j);
+					if(similar[j->formula].back()->parent == j->parent) {
+						throw std::runtime_error("Two siblings with same parent! Please implement absorbtion");
+					}
 				}
+				else 
+					similar[j->formula] = vector <Tree*>();
+				similar[j->formula].push_back(j);
 			}
 
-		for(auto i : similar)
-			ans.push_back(i.second);
+		for(auto i : similar) 
+			if(i.second.size() > 1)
+				ans.push_back(i.second);
+		
 	} 
 
 	for(auto i : t->edges) {
@@ -68,18 +68,8 @@ void factorize(Tree * t1, Tree * t2) {
 
 	Tree * old1 = t1->parent;
 	Tree * old2 = t2->parent;
-	dbg_ok;
 
 	auto parent = old1->parent;
-	dbg(parent);
-	dbg(parent->parent);
-	dbg(old1->parent);
-	dbg(parent->formula);
-	dbg(old1->formula);
-	dbg(old2->formula);
-	dbg(t1->formula);
-	dbg(t2->formula);
-
 
 	erase_child(parent, old1);
 	erase_child(parent, old2);
@@ -89,29 +79,22 @@ void factorize(Tree * t1, Tree * t2) {
 	add_edge(and_node, t1);
 	add_edge(or_node, old1);
 	add_edge(or_node, old2);
-	dbg_ok;
+
 	erase_child(old1, t1);
 	erase_child(old2, t2);
 
-	dbg_ok;
 	old1->compute_formula();
 	old2->compute_formula();
 
-	dbg_ok;
 	auto tmp = old2;
 	while(tmp) {
-		dbg(tmp);
 		tmp->compute_formula();
 		tmp = tmp->parent;
 	}
-	dbg(parent);
-	dbg(parent->formula);
 
 }
 
 void defactorize(Tree * t1, Tree * t2) {
-	dbg(t1->formula);
-	dbg(t2->formula);
 	assert(t1->parent == t2->parent);
 	assert(t1->node_type == OR);
 	assert(t2->node_type == OR);

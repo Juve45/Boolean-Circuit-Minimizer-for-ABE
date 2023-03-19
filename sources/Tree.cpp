@@ -1,4 +1,5 @@
 #include "../headers/Tree.h"
+#include "../headers/debug.h"
 
 Tree& Tree::from(std::string formula) {
     std::stack<char> operatorStack;
