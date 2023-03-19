@@ -7,6 +7,7 @@ using std::map;
 using std::string;
 
 vector <vector<Tree*>> our_reduce(Tree * t) {
+	dbg(t->formula);
 	vector <vector<Tree*>> ans;
 
 	if(t->node_type == OR) {
@@ -14,13 +15,18 @@ vector <vector<Tree*>> our_reduce(Tree * t) {
 		map<string, vector <Tree *>> similar;
 
 		for(auto i : t->edges)
-			for(auto j : i->edges)
+			for(auto j : i->edges) {
+					dbg(i->formula);
+					dbg(j->formula);
 				if(similar.find(j->formula) != similar.end()) {
+					assert(j->parent->parent == similar[j->formula].back()->parent->parent);
+
 					similar[j->formula].push_back(j);
 				} else {
 					similar[j->formula] = vector <Tree*>();
 					similar[j->formula].push_back(j);
 				}
+			}
 
 		for(auto i : similar)
 			ans.push_back(i.second);
@@ -38,6 +44,7 @@ void erase_child(Tree * parent, Tree * child) {
 	auto it = find(parent->edges.begin(), parent->edges.end(), child);
 	if(it != parent->edges.end())
 		parent->edges.erase(it);
+	else assert(false);
 }
 
 void add_edge(Tree * parent, Tree * child) {
@@ -47,8 +54,7 @@ void add_edge(Tree * parent, Tree * child) {
 
 void factorize(Tree * t1, Tree * t2) {
 
-	dbg(t1);
-	dbg(t1->parent);
+
 	assert(t1->parent);
 	assert(t2->parent);
 	assert(t1->parent->parent);
@@ -64,7 +70,21 @@ void factorize(Tree * t1, Tree * t2) {
 	Tree * old2 = t2->parent;
 	dbg_ok;
 
-	add_edge(old1->parent, and_node);
+	auto parent = old1->parent;
+	dbg(parent);
+	dbg(parent->parent);
+	dbg(old1->parent);
+	dbg(parent->formula);
+	dbg(old1->formula);
+	dbg(old2->formula);
+	dbg(t1->formula);
+	dbg(t2->formula);
+
+
+	erase_child(parent, old1);
+	erase_child(parent, old2);
+
+	add_edge(parent, and_node);
 	add_edge(and_node, or_node);
 	add_edge(and_node, t1);
 	add_edge(or_node, old1);
@@ -84,10 +104,14 @@ void factorize(Tree * t1, Tree * t2) {
 		tmp->compute_formula();
 		tmp = tmp->parent;
 	}
+	dbg(parent);
+	dbg(parent->formula);
 
 }
 
 void defactorize(Tree * t1, Tree * t2) {
+	dbg(t1->formula);
+	dbg(t2->formula);
 	assert(t1->parent == t2->parent);
 	assert(t1->node_type == OR);
 	assert(t2->node_type == OR);

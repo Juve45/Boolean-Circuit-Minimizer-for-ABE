@@ -16,7 +16,8 @@ public:
 
 	void compute_formula() {
 		std::set <std::string> s;
-
+		formula = "";
+		
 		for(auto i : edges)
 			s.insert(i->formula);
 
