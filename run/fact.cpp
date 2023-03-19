@@ -32,6 +32,7 @@ void hill_climbing(Tree *t) {
  
 		auto [f1, f2] = get_two_randoms(factorizable[c].size());
 		factorize(factorizable[c][f1], factorizable[c][f2]);
+		dbg(t->formula);
 	}
 }
  
@@ -86,7 +87,7 @@ void simulated_annealing(Tree *root, int k_max = 100) {
 
 int main() {
 
-	Tree * tree = &Tree::from("((a*b*c)+(a*d)+(b*c*d))");
+	Tree * tree = &Tree::from("((a*b*c)+(a*d)+(b*c*d)+(a*e*(b+c))+(a+d)*(e+b))");
 	hill_climbing(tree);
 	cout << tree->formula << '\n';
 }

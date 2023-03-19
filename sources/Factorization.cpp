@@ -48,8 +48,42 @@ void erase_child(Tree * parent, Tree * child) {
 }
 
 void add_edge(Tree * parent, Tree * child) {
+	assert(parent);
+	assert(child);
 	parent->edges.push_back(child);
 	child->parent = parent;
+}
+
+
+void trimm(Tree * t) {
+	if(t->parent && t->node_type != INPUT) {
+		if(t->edges.size() == 0) 
+			erase_child(t->parent, t);
+		if(t->edges.size() == 1) {
+			Tree * child = t->edges[0];
+			if(child->node_type != INPUT) {
+				assert(t->parent->node_type == child->node_type);
+				for(auto i : child->edges)
+					add_edge(t->parent, i);
+			} else 
+				add_edge(t->parent, child);
+			
+			erase_child(t->parent, t);
+		}
+	}
+	for(auto i : t->edges)
+		trimm(i);
+}
+
+void dfs(Tree * t) {
+	
+	if(t->node_type == AND) cout << "AND ";
+	if(t->node_type == OR) cout << "OR ";
+	if(t->node_type == INPUT) cout << "INPUT ";
+	cout << t->formula << ' ' << t->edges.size() << endl;
+
+	for(auto i : t->edges)
+		dfs(i);
 }
 
 void factorize(Tree * t1, Tree * t2) {
@@ -74,11 +108,11 @@ void factorize(Tree * t1, Tree * t2) {
 	erase_child(parent, old1);
 	erase_child(parent, old2);
 
-	add_edge(parent, and_node);
-	add_edge(and_node, or_node);
-	add_edge(and_node, t1);
 	add_edge(or_node, old1);
 	add_edge(or_node, old2);
+	add_edge(and_node, or_node);
+	add_edge(and_node, t1);
+	add_edge(parent, and_node);
 
 	erase_child(old1, t1);
 	erase_child(old2, t2);
@@ -91,7 +125,9 @@ void factorize(Tree * t1, Tree * t2) {
 		tmp->compute_formula();
 		tmp = tmp->parent;
 	}
-
+	// dfs(parent);
+	trimm(parent);
+	// dfs(parent);
 }
 
 void defactorize(Tree * t1, Tree * t2) {
