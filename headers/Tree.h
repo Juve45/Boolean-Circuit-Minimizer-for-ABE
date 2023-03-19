@@ -17,20 +17,24 @@ public:
 	void compute_formula() {
 		std::set <std::string> s;
 		formula = "";
-		
+
 		for(auto i : edges)
 			s.insert(i->formula);
 
 		if(node_type == AND) {
 			for(auto i : s)
 				formula += i;
-		} else {
-			formula = "(";
+		} else if(node_type == INPUT) {
+
+		}
+		else {
+			formula = "";
+			if(parent || s.size() > 1) formula += "(";
 			for(auto i : s) {
 				formula += i + "+";
 			}
 			formula.pop_back();
-			formula += ")";
+			if(parent || s.size() > 1) formula += ")";
 		}
 	}
 
