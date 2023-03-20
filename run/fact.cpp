@@ -20,7 +20,7 @@ pair<int, int> get_two_randoms(int mx) {
 }
  
 void hill_climbing(Tree *t) {
-	int i = 0;
+	// int i = 0;
 	while (true) {
 		vector<vector<Tree*>> factorizable = our_reduce(t);
 		if (factorizable.empty()) {
@@ -85,9 +85,9 @@ void simulated_annealing(Tree *root, int k_max = 100) {
 	}
 }
 
-int main() {
+// int main() {
 
-	Tree * tree = &Tree::from("((a*b*c)+(a*d)+(b*c*d)+(a*e*(b+c))+(a+d)*(e+b))");
-	hill_climbing(tree);
-	cout << tree->formula << '\n';
-}
+// 	Tree * tree = &Tree::from("((a*b*c)+(a*d)+(b*c*d)+(a*e*(b+c))+(a+d)*(e+b))");
+// 	hill_climbing(tree);
+// 	cout << tree->formula << '\n';
+// }

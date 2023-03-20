@@ -38,7 +38,7 @@ public:
 		}
 	}
 
-	Tree() { }
+	Tree(NodeType type) : node_type(type) { }
 
 	static Tree& from(std::string formula);
 };

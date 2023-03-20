@@ -8,8 +8,10 @@ int main() {
     std::cin.tie(nullptr);
     std::cout << std::boolalpha;
 
-    Tree tree = Tree::from("((a*b*c)+(a*d)+(b*c*d))");
-    std::cout << tree << '\n';
+    std::cout << Tree::from("((a*b*c)+(a*d)+(b*c*d))") << '\n';
+    std::cout << Tree::from("abc+ab") << '\n';
+    std::cout << Tree::from("(a+b)*(c+d)") << '\n';
+    std::cout << Tree::from("((a*b*c)+(a*d)+(b*c*d)+(a*e*(b+c))+(a+d)*(e+b))") << '\n';
     return 0;
 
     load_patterns();

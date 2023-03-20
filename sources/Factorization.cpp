@@ -95,10 +95,8 @@ void factorize(Tree * t1, Tree * t2) {
 	assert(t2->parent->parent);
 	assert(t1->parent->parent == t2->parent->parent);
 
-	Tree * and_node = new Tree();
-	and_node->node_type = AND;
-	Tree * or_node = new Tree();
-	or_node->node_type = OR;
+	Tree * and_node = new Tree(AND);
+	Tree * or_node = new Tree(OR);
 
 	Tree * old1 = t1->parent;
 	Tree * old2 = t2->parent;
@@ -137,14 +135,12 @@ void defactorize(Tree * t1, Tree * t2) {
 
 	auto parent = t1->parent;
 
-	Tree * or_node = new Tree();
-	or_node->node_type = OR;
+	Tree * or_node = new Tree(OR);
 	add_edge(parent, or_node);
 
 	for(auto i : t1->edges)
 		for(auto j : t2->edges) {
-			Tree * tmp = new Tree();
-			tmp->node_type = AND;
+			Tree * tmp = new Tree(AND);
 			for(auto k : i->edges) 
 				add_edge(tmp, k);
 			
