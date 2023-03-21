@@ -7,7 +7,7 @@ int get_random(int mx) {
 	static std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
 	return rand() % mx;
 }
- 
+
 // return two distinct random numbers from [0,mx)
 pair<int, int> get_two_randoms(int mx) {
 	assert(mx > 1);
@@ -18,7 +18,7 @@ pair<int, int> get_two_randoms(int mx) {
 	}
 	return {a,b};
 }
- 
+
 void hill_climbing(Tree *t) {
 	// int i = 0;
 	while (true) {
@@ -29,13 +29,13 @@ void hill_climbing(Tree *t) {
 		}
 		int c = get_random(factorizable.size());
 		assert(factorizable[c].size() > 1);
- 
+
 		auto [f1, f2] = get_two_randoms(factorizable[c].size());
 		factorize(factorizable[c][f1], factorizable[c][f2]);
 		dbg(t->formula);
 	}
 }
- 
+
 Tree* get_random_and(Tree *root) {
 	vector<Tree*> and_nodes;
 	queue<Tree *> nodes;
@@ -53,7 +53,7 @@ Tree* get_random_and(Tree *root) {
 	int i = get_random(and_nodes.size());
 	return and_nodes[i];
 }
- 
+
 void simulated_annealing(Tree *root, int k_max = 100) {
 	for (int k=0;k<k_max;k++){
 		if (get_random(2*k_max) < k_max - k){
@@ -78,16 +78,18 @@ void simulated_annealing(Tree *root, int k_max = 100) {
 			}
 			int c = get_random(factorizable.size());
 			assert(factorizable[c].size() > 1);
- 
+
 			auto [f1, f2] = get_two_randoms(factorizable[c].size());
 			factorize(factorizable[c][f1], factorizable[c][f2]);
 		}
 	}
 }
 
-// int main() {
-
-// 	Tree * tree = &Tree::from("((a*b*c)+(a*d)+(b*c*d)+(a*e*(b+c))+(a+d)*(e+b))");
-// 	hill_climbing(tree);
-// 	cout << tree->formula << '\n';
-// }
+int main() {
+	const string formula = Utils::to_formula(CircuitBuilder::random(10, 5));
+	cout << formula << '\n';
+	Tree *tree = &Tree::from(formula);
+	hill_climbing(tree);
+	cout << tree->formula << '\n';
+	return 0;
+}
