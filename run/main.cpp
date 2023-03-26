@@ -7,17 +7,13 @@ int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout << std::boolalpha;
-
-    std::cout << Tree::from("((a*b*c)+(a*d)+(b*c*d))") << '\n';
-    std::cout << Tree::from("abc+ab") << '\n';
-    std::cout << Tree::from("(a+b)*(c+d)") << '\n';
-    std::cout << Tree::from("((a*b*c)+(a*d)+(b*c*d)+(a*e*(b+c))+(a+d)*(e+b))") << '\n';
-    return 0;
-
     load_patterns();
-    int max_delta = 0;
-    for (int try_id = 0; ; try_id++) {
-        Circuit circuit = CircuitBuilder::random(20, 2);
+
+	ifstream fin("formulas.txt");
+	string formula;
+	while (fin >> formula) {
+		cout << formula << '\n';
+        Circuit circuit = Utils::to_circuit(formula);
         std::vector<int> values(1, circuit.eval());
         int not_found_count = 0, index = 0;
         while (not_found_count < 2 * int(patterns.size())) {
@@ -31,14 +27,7 @@ int main() {
             }
             index = (index + 1) % patterns.size();
         }
-        if (values.size() > 1) {
-            const int delta = values.front() - values.back();
-            max_delta = std::max(max_delta, delta);
-            std::cout << ">>> try #" << try_id << ": ";
-            for (const int value : values)
-                std::cout << value << ' ';
-            std::cout << "\ndelta: " << delta << " (best: " << max_delta << ")\n";
-        }
-    }
-    return 0;
+        cout << Utils::to_formula(circuit) << "\n\n";
+	}
+	return 0;
 }

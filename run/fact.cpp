@@ -86,10 +86,13 @@ void simulated_annealing(Tree *root, int k_max = 100) {
 }
 
 int main() {
-	const string formula = Utils::to_formula(CircuitBuilder::random(10, 5));
-	cout << formula << '\n';
-	Tree *tree = &Tree::from(formula);
-	hill_climbing(tree);
-	cout << tree->formula << '\n';
+	ifstream fin("formulas.txt");
+	string formula;
+	while (fin >> formula) {
+		cout << formula << '\n';
+		Tree *tree = &Tree::from(formula);
+		hill_climbing(tree);
+		cout << tree->formula << "\n\n";
+	}
 	return 0;
 }
