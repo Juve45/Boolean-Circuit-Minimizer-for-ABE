@@ -99,7 +99,7 @@ std::istream& operator>>(std::istream& in, Subcircuit& subcircuit) {
 std::ostream& operator<<(std::ostream& out, const Tree& tree) {
     std::function<void(Tree, int)> dfs = [&](Tree node, int level) {
         for (int i = 0; i < level; i++)
-            std::cout << "  ";
+            std::cout << " | ";
         std::cout << node.type << ' ' << node.formula << '\n';
         for (Tree* child : node.children)
             dfs(*child, level + 1);

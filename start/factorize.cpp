@@ -9,7 +9,6 @@ void hill_climbing(Tree* t) {
         assert(factorizable[c].size() > 1);
         const auto [f1, f2] = Random::two_integers(factorizable[c].size());
         Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
-        dbg(t->formula);
     }
 }
 
@@ -58,6 +57,8 @@ int main() {
     while (fin >> formula) {
         std::cout << formula << '\n';
         Tree *tree = &Logic::to_tree(formula);
+        tree->trim();
+        std::cout << "Trimmed formula: " << tree->formula << '\n';
         hill_climbing(tree);
         std::cout << tree->formula << "\n\n";
     }

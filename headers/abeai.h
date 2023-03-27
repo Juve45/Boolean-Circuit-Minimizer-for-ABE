@@ -69,6 +69,7 @@ struct Tree {
     void add_child(Tree* child);
     void erase_child(Tree* child);
     void trim();
+    bool has_child(std::string formula);
 };
 
 struct Factorizer {
