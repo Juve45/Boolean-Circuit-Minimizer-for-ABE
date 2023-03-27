@@ -11,9 +11,10 @@ struct Node;
 struct Edge;
 struct Circuit;
 struct Subcircuit;
-struct CircuitBuilder;
-struct PatternFinder;
-struct Utils;
+struct Build;
+struct Tree;
+struct Logic;
+struct Random;
 
 struct Node {
     static int node_count;
@@ -40,38 +41,64 @@ struct Circuit {
     std::vector<Node*> get_nodes() const;
     Circuit& copy() const;
     int eval() const;
+    void check() const;
+
+    Subcircuit* find_pattern(const Subcircuit& pattern) const;
     void replace_subcircuit(const Subcircuit& found, const Subcircuit& replacement);
 };
 
 struct Subcircuit {
     std::vector<Edge*> upper_edges, lower_edges;
+    Subcircuit() { }
     Subcircuit(const std::vector<Edge*>& upper_edges, const std::vector<Edge*>& lower_edges) : upper_edges(upper_edges), lower_edges(lower_edges) { }
     std::vector<Node*> get_nodes() const;
     Subcircuit& copy() const;
 };
 
-struct CircuitBuilder {
+struct Build {
     static Circuit& random(int leaf_count, int max_lower_count);
     static Circuit& random(int height, int node_count, int leaf_count);
     static Circuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges);
     static Subcircuit& from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges, const std::vector<int>& upper_nodes, const std::vector<int>& lower_nodes);
 };
 
-struct PatternFinder {
-    static Subcircuit* find_pattern(const Circuit& circuit, const Subcircuit& pattern);
+struct Tree {
+    NodeType type;
+    std::string formula;
+
+    Tree *parent;
+    std::vector<Tree*> children;
+
+    Tree(NodeType type) : type(type) { }
+    void compute_formula();
+    static Tree& from(std::string formula);
 };
 
-struct Utils {
-    static void check_circuit(const Circuit& circuit);
-    static std::vector<int> random_partition(int value, int parts);
+std::vector<std::vector<Tree*>> our_reduce(Tree* t);
+void factorize(Tree* t1, Tree* t2);
+void defactorize(Tree* t1, Tree* t2);
+
+struct Logic {
     static Circuit& to_circuit(const std::string& formula);
     static std::string to_formula(const Circuit& circuit);
-    static Subcircuit& conjugate(const Subcircuit& pattern1);
+    static Subcircuit& flipped(const Subcircuit& pattern1);
 };
 
+struct Random {
+    static std::mt19937 engine();
+    static int integer(int max);
+    static int integer(int min, int max);
+    static std::pair<int, int> two_integers(int max);
+    static std::vector<int> partition(int value, int parts);
+};
+
+std::istream& operator>>(std::istream& in, NodeType& node_type);
+std::ostream& operator<<(std::ostream& out, const NodeType& node_type);
 std::ostream& operator<<(std::ostream& out, const Node& node);
 std::ostream& operator<<(std::ostream& out, const Edge& edge);
 std::ostream& operator<<(std::ostream& out, const Circuit& circuit);
 std::ostream& operator<<(std::ostream& out, const Subcircuit& subcircuit);
+std::istream& operator>>(std::istream& in, Subcircuit& subcircuit);
+std::ostream& operator<<(std::ostream& out, const Tree& tree);
 
 #endif

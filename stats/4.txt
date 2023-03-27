@@ -1,4 +1,5 @@
-gareth618@Air-2020 ~/D/abe (main)> ./run.sh
+CircuitBuilder::random(20, 2)
+
 >>> try #20: 50 39 
 delta: 11 (best: 11)
 >>> try #31: 53 44 

@@ -1,12 +1,25 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
+std::istream& operator>>(std::istream& in, NodeType& node_type) {
+    std::string name; in >> name;
+    if (name == "AND") node_type = AND;
+    if (name == "OR") node_type = OR;
+    if (name == "FO") node_type = FAN_OUT;
+    if (name == "INPUT") node_type = INPUT;
+    return in;
+}
+
+std::ostream& operator<<(std::ostream& out, const NodeType& node_type) {
+    if (node_type == AND) out << "AND";
+    if (node_type == OR) out << "OR";
+    if (node_type == FAN_OUT) out << "FO";
+    if (node_type == INPUT) out << "INPUT";
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, const Node& node) {
-    if (node.type == AND) out << "AND";
-    if (node.type == OR) out << "OR";
-    if (node.type == FAN_OUT) out << "FO";
-    if (node.type == INPUT) out << "INPUT";
-    out << '(' << node.id << ')';
+    out << node.type << '(' << node.id << ')';
     return out;
 }
 
@@ -63,5 +76,34 @@ std::ostream& operator<<(std::ostream& out, const Subcircuit& subcircuit) {
     for (Edge* edge : subcircuit.lower_edges)
         out << *edge << ' ';
     out << '\n';
+    return out;
+}
+
+std::istream& operator>>(std::istream& in, Subcircuit& subcircuit) {
+    int node_count; in >> node_count;
+    int edge_count; in >> edge_count;
+    int upper_count; in >> upper_count;
+    int lower_count; in >> lower_count;
+    std::vector<NodeType> types(node_count);
+    for (NodeType& type : types) in >> type;
+    std::vector<std::pair<int, int>> edges(edge_count);
+    for (auto& [upper, lower] : edges) in >> upper >> lower;
+    std::vector<int> upper_nodes(upper_count);
+    for (int& node : upper_nodes) in >> node;
+    std::vector<int> lower_nodes(lower_count);
+    for (int& node : lower_nodes) in >> node;
+    subcircuit = Build::from(types, edges, upper_nodes, lower_nodes);
+    return in;
+}
+
+std::ostream& operator<<(std::ostream& out, const Tree& tree) {
+    std::function<void(Tree, int)> dfs = [&](Tree node, int level) {
+        for (int i = 0; i < level; i++)
+            std::cout << "  ";
+        std::cout << node.type << ' ' << node.formula << '\n';
+        for (Tree* child : node.children)
+            dfs(*child, level + 1);
+    };
+    dfs(tree, 0);
     return out;
 }

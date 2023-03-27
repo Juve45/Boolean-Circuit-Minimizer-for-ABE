@@ -1,8 +1,8 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
-Circuit& CircuitBuilder::random(int leaf_count, int max_lower_count) {
-    std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
+Circuit& Build::random(int leaf_count, int max_lower_count) {
+    static std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
     std::vector<Node*> leaves(leaf_count);
     for (Node*& leaf : leaves)
         leaf = new Node(INPUT);
@@ -14,7 +14,7 @@ Circuit& CircuitBuilder::random(int leaf_count, int max_lower_count) {
         nodes[current_level].clear();
         nodes[current_level].resize((nodes[!current_level].size() + 1) / 2);
         for (Node*& node : nodes[current_level])
-            node = new Node(rand() % 2 ? AND : OR);
+            node = new Node(Random::integer(2) ? AND : OR);
         std::set<Node*> upper_nodes;
         for (Node* node : nodes[current_level])
             upper_nodes.insert(node);
@@ -56,23 +56,23 @@ Circuit& CircuitBuilder::random(int leaf_count, int max_lower_count) {
         }
     }
     Circuit *circuit = new Circuit(nodes[current_level][0], leaves);
-    Utils::check_circuit(*circuit);
+    circuit->check();
     return *circuit;
 }
 
-Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
+Circuit& Build::random(int height, int node_count, int leaf_count) {
+    static std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
     NodeType node_types[] = {AND, OR, FAN_OUT};
-    std::mt19937 rand(std::chrono::steady_clock::now().time_since_epoch().count());
     assert(height >= 4);
     assert(leaf_count >= 4);
 
     std::vector<int> size_of_level(height + 1);
     node_count -= size_of_level[0] = 1;
     node_count -= size_of_level[height] = leaf_count;
-    node_count -= size_of_level[height - 1] = rand() % ((leaf_count - 2) / 2) + 3;
+    node_count -= size_of_level[height - 1] = 3 + Random::integer((leaf_count - 2) / 2);
     assert(node_count >= height - 2);
 
-    auto partition = Utils::random_partition(node_count, height - 2);
+    auto partition = Random::partition(node_count, height - 2);
     for (int i = 1; i < height - 1; i++)
         size_of_level[i] = partition[i - 1];
     node_count = 0;
@@ -80,18 +80,18 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
     std::vector<std::vector<Node*>> nodes_on_level(height + 1);
     for (const int i : {0, 1, height - 1})
         for (int j = 0; j < size_of_level[i]; j++)
-            nodes_on_level[i].push_back(new Node(node_types[rand() % 2]));
+            nodes_on_level[i].push_back(new Node(node_types[Random::integer(2)]));
     nodes_on_level[height - 1].front()->type = FAN_OUT;
     nodes_on_level[height - 1].back()->type = FAN_OUT;
     for (int i = 2; i < height - 1; i++)
         for (int j = 0; j < size_of_level[i]; j++)
-            nodes_on_level[i].push_back(new Node(node_types[rand() % 3]));
+            nodes_on_level[i].push_back(new Node(node_types[Random::integer(3)]));
     for (int j = 0; j < size_of_level[height]; j++)
         nodes_on_level[height].push_back(new Node(INPUT));
 
     for (int i = 1; i <= height; i++) {
-        Node *node = nodes_on_level[i][rand() % size_of_level[i]];
-        Node *upper_node = nodes_on_level[i - 1][i == height ? 0 : rand() % size_of_level[i - 1]];
+        Node *node = nodes_on_level[i][Random::integer(size_of_level[i])];
+        Node *upper_node = nodes_on_level[i - 1][i == height ? 0 : Random::integer(size_of_level[i - 1])];
         node->upper.insert(upper_node);
         upper_node->lower.insert(node);
     }
@@ -141,7 +141,7 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
     std::set<Node*> upper_nodes;
     auto add_upper_nodes = [&](Node* node) {
         const int upper_count = node->upper.size();
-        const int upper_count_target = node->type == FAN_OUT ? rand() % (upper_nodes.size() - 1) + 2 : 1;
+        const int upper_count_target = node->type == FAN_OUT ? Random::integer((upper_nodes.size() - 1) + 2) : 1;
         if (upper_count >= upper_count_target) return;
         const int upper_count_delta = upper_count_target - upper_count;
         std::vector<Node*> already_used;
@@ -171,11 +171,11 @@ Circuit& CircuitBuilder::random(int height, int node_count, int leaf_count) {
             add_upper_nodes(node);
     }
     Circuit *circuit = new Circuit(nodes_on_level[0][0], nodes_on_level[height]);
-    Utils::check_circuit(*circuit);
+    circuit->check();
     return *circuit;
 }
 
-Circuit& CircuitBuilder::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges) {
+Circuit& Build::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges) {
     std::vector<Node*> nodes;
     for (const NodeType type : types)
         nodes.push_back(new Node(type));
@@ -196,7 +196,7 @@ Circuit& CircuitBuilder::from(const std::vector<NodeType>& types, const std::vec
     return *new Circuit(root, leaves);
 }
 
-Subcircuit& CircuitBuilder::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges, const std::vector<int>& upper_nodes, const std::vector<int>& lower_nodes) {
+Subcircuit& Build::from(const std::vector<NodeType>& types, const std::vector<std::pair<int, int>>& edges, const std::vector<int>& upper_nodes, const std::vector<int>& lower_nodes) {
     std::vector<Node*> nodes;
     for (const NodeType type : types)
         nodes.push_back(new Node(type));

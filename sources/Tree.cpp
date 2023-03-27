@@ -1,5 +1,27 @@
-#include "../headers/Tree.h"
+#include "../headers/abeai.h"
 #include "../headers/debug.h"
+
+void Tree::compute_formula() {
+    std::set<std::string> subformulas;
+    formula = "";
+    for (auto child : children)
+        subformulas.insert(child->formula);
+
+    if (type == AND)
+        for (auto subformula : subformulas)
+            formula += subformula;
+    else if (type == OR) {
+        formula = "";
+        if (parent && subformulas.size() > 1)
+            formula += '(';
+        for (auto subformula : subformulas)
+            formula += subformula + '+';
+        formula.pop_back();
+        if (parent && subformulas.size() > 1)
+            formula += ')';
+    }
+    // TODO for INPUT?
+}
 
 Tree& Tree::from(std::string formula) {
     std::string new_formula = "(";
@@ -37,18 +59,18 @@ Tree& Tree::from(std::string formula) {
                             else {
                                 Tree *product = new Tree(AND);
                                 for (Tree* factor : factors)
-                                    product->edges.push_back(factor);
+                                    product->children.push_back(factor);
                                 terms.push_back(product);
                                 factors.clear();
                                 factors.push_back(operands[i]);
                             }
                         Tree *product = new Tree(AND);
                         for (Tree* factor : factors)
-                            product->edges.push_back(factor);
+                            product->children.push_back(factor);
                         terms.push_back(product);
                         Tree *sum = new Tree(OR);
                         for (Tree* term : terms)
-                            sum->edges.push_back(term);
+                            sum->children.push_back(term);
                         operandStack.push(sum);
                         break;
                     }
@@ -61,44 +83,32 @@ Tree& Tree::from(std::string formula) {
         }
 
     Tree *tree = operandStack.top();
-    function<void(Tree*)> clean = [&](Tree* tree) {
-        for (Tree* child : tree->edges)
+    std::function<void(Tree*)> clean = [&](Tree* tree) {
+        for (Tree* child : tree->children)
             clean(child);
-        if (tree->edges.size() == 1) {
-            Tree *child = tree->edges.back();
-            tree->edges.pop_back();
-            for (Tree* grand : child->edges)
-                tree->edges.push_back(grand);
-            tree->node_type = child->node_type;
+        if (tree->children.size() == 1) {
+            Tree *child = tree->children.back();
+            tree->children.pop_back();
+            for (Tree* grand : child->children)
+                tree->children.push_back(grand);
+            tree->type = child->type;
             tree->formula = child->formula;
             delete child;
         }
     };
     clean(tree);
 
-    function<void(Tree*)> make_formula = [&](Tree* tree) {
-        for (Tree* child : tree->edges) {
+    std::function<void(Tree*)> make_formula = [&](Tree* tree) {
+        for (Tree* child : tree->children) {
             make_formula(child);
             child->parent = tree;
         }
-        if (tree->edges.empty()) return;
+        if (tree->children.empty()) return;
         tree->formula = "(";
-        for (Tree* child : tree->edges)
-            tree->formula += child->formula + (tree->node_type == AND ? '*' : '+');
+        for (Tree* child : tree->children)
+            tree->formula += child->formula + (tree->type == AND ? '*' : '+');
         tree->formula.back() = ')';
     };
     make_formula(tree);
     return *tree;
-}
-
-std::ostream& operator<<(std::ostream& out, const Tree& tree) {
-    std::function<void(Tree, int)> dfs = [&](Tree node, int level) {
-        for (int i = 0; i < level; i++)
-            std::cout << "  ";
-        std::cout << (node.node_type == AND ? "AND" : node.node_type == OR ? "OR" : "INPUT") << ' ' << node.formula << '\n';
-        for (Tree* child : node.edges)
-            dfs(*child, level + 1);
-    };
-    dfs(tree, 0);
-    return out;
 }
