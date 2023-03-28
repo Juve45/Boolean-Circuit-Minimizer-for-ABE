@@ -50,32 +50,25 @@ void Tree::trim() {
                 parent->add_child(child);
             parent->erase_child(this);
             // to do: remove this node
-        } else {
-            if (parent->type == type) {
-                for (Tree* child : children) {
-                    if (parent->has_child(child->formula)) {
-                        continue;
-                    }
+        }
+        else if (parent->type == type) {
+            for (Tree* child : children)
+                if (!parent->has_child(child->formula))
                     parent->add_child(child);
-                }
-                parent->erase_child(this);
-                // to do: remove this node
-            }
+            parent->erase_child(this);
+            // to do: remove this node
         }
     }
     std::vector<Tree*> children_copy = children;
-    for (Tree* child : children_copy){
+    for (Tree* child : children_copy)
         child->trim();
-    }
-    if (children.size() > 0)
+    if (!children.empty())
         update_formula();
 }
 
-bool Tree::has_child(std::string formula) {
-    for (Tree* child : children) {
-        if (child->formula == formula) {
+bool Tree::has_child(const std::string& formula) const {
+    for (Tree* child : children)
+        if (child->formula == formula)
             return true;
-        }   
-    }
     return false;
 }

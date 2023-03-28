@@ -80,7 +80,7 @@ std::string Logic::to_formula(const Circuit& circuit) {
 Tree& Logic::to_tree(const std::string& formula) {
     std::string new_formula = "(";
     for (const char chr : formula) {
-        if (isalpha(new_formula.back()) && isalpha(chr))
+        if (isalnum(new_formula.back()) && isalpha(chr))
             new_formula += '*';
         new_formula += chr;
     }
@@ -88,12 +88,15 @@ Tree& Logic::to_tree(const std::string& formula) {
 
     std::stack<char> operatorStack;
     std::stack<Tree*> operandStack;
-    for (const char chr : new_formula)
+    for (int i = 0; i < int(new_formula.size()); i++) {
+        const char chr = new_formula[i];
         if (isalpha(chr)) {
             Tree *node = new Tree(INPUT);
             node->formula = std::string(1, chr);
             operandStack.push(node);
         }
+        else if (isdigit(chr))
+            operandStack.top()->formula += chr;
         else {
             operatorStack.push(chr);
             if (chr == ')') {
@@ -135,6 +138,7 @@ Tree& Logic::to_tree(const std::string& formula) {
                 }
             }
         }
+    }
 
     Tree *tree = operandStack.top();
     std::function<void(Tree*)> clean = [&](Tree* tree) {

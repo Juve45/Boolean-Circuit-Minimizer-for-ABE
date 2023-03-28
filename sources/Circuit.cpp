@@ -139,7 +139,7 @@ Subcircuit* Circuit::find_pattern(const Subcircuit& pattern) const {
                         leaf_edges[match_leaf].push_back(lower_node);
             }
             for (Node* leaf : pattern_leaf_nodes)
-                if (leaf_degrees[leaf] != (int)leaf_edges[mapping[leaf]].size()) return false;
+                if (leaf_degrees[leaf] != int(leaf_edges[mapping[leaf]].size())) return false;
 
             std::vector<Edge*> upper_edges;
             for (Edge* edge : pattern.upper_edges) {
