@@ -71,6 +71,7 @@ struct Tree {
     void trim();
     int get_cost() const;
     bool has_child(const std::string& formula) const;
+    Tree* deep_copy() const;
 };
 
 struct Factorizer {

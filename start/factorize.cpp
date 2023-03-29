@@ -80,8 +80,19 @@ int improvement_percent(int old_val, int new_val) {
 int main() {
     std::ifstream fin("inputs/formulas.txt");
     std::string formula;
+    
+    fin >> formula;
+    Tree *tree2 = &Logic::to_tree(formula);
+    tree2->trim();
+    std::cout << tree2->formula << '\n';
+    simulated_annealing(tree2);
+    int after_sa = tree2->get_cost();
+    std::cout << "Cost after sa: " << after_sa << "\n\n";
+
+    return 0;
+    
     int total_formulas = 0, trim_improvement_sum = 0, hc_improvement_sum = 0, hc_trim_improvement_sum = 0;
-    int iterated_hc_improvement_sum = 0;
+    int iterated_hc_improvement_sum = 0, sa_improvement_sum = 0;
     while (fin >> formula) {
         total_formulas++;
         Tree *tree = &Logic::to_tree(formula);
@@ -105,16 +116,24 @@ int main() {
         int after_ihc = iterated_hc_tree->get_cost();
         std::cout << "Cost after ihc: " << after_ihc << "\n\n";
 
+        Tree *tree2 = &Logic::to_tree(formula);
+        tree2->trim();
+        simulated_annealing(tree2);
+        int after_sa = tree2->get_cost();
+        std::cout << "Cost after sa: " << after_sa << "\n\n";
+
         trim_improvement_sum += improvement_percent(before_trim, after_trim);
         hc_improvement_sum += improvement_percent(after_trim, after_hc);
         hc_trim_improvement_sum += improvement_percent(before_trim, after_hc);
         iterated_hc_improvement_sum += improvement_percent(after_trim, after_ihc);
+        sa_improvement_sum += improvement_percent(after_trim, after_sa);
     }
 
     std::cout << "Trim improvement average: " << 1.0 * trim_improvement_sum / total_formulas << '\n';
     std::cout << "Hc improvement average: " << 1.0 * hc_improvement_sum / total_formulas << '\n';
     std::cout << "Hc + trim improvement average: " << 1.0 * hc_trim_improvement_sum / total_formulas << '\n';
     std::cout << "Ihc improvement average: " << 1.0 * iterated_hc_improvement_sum / total_formulas << '\n';
+    std::cout << "Sa improvement average: " << 1.0 * sa_improvement_sum / total_formulas << '\n';
     
     
     return 0;

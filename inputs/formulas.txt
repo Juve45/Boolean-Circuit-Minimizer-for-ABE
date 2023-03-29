@@ -1,5 +1,5 @@
-(((((a*b)*(c+d+e+f))*((g*h)*(c+d+e+f))*((i+j)*(k*l*m*n)*(o*i*j)))*(((g*h)*(c+d+e+f))+((i+j)*(k*l*m*n)*(o*i*j))))*((((p*a)+(o*i*j))*((q+b)*(a*n)*(r+s+h)*(g*h)*(c+d+e+f)))*(((a*b)*(c+d+e+f))*((g*h)*(c+d+e+f))*((i+j)*(k*l*m*n)*(o*i*j)))*(((g*h)*(c+d+e+f))+((i+j)*(k*l*m*n)*(o*i*j)))))
 ((((a*b*c*d)*(e+c))+((f+e)+(g+d)))*(((h+i+j+e)*(g+d))+((a*b*c*d)*(e+c))+((f+e)+(g+d))))
+(((((a*b)*(c+d+e+f))*((g*h)*(c+d+e+f))*((i+j)*(k*l*m*n)*(o*i*j)))*(((g*h)*(c+d+e+f))+((i+j)*(k*l*m*n)*(o*i*j))))*((((p*a)+(o*i*j))*((q+b)*(a*n)*(r+s+h)*(g*h)*(c+d+e+f)))*(((a*b)*(c+d+e+f))*((g*h)*(c+d+e+f))*((i+j)*(k*l*m*n)*(o*i*j)))*(((g*h)*(c+d+e+f))+((i+j)*(k*l*m*n)*(o*i*j)))))
 (((a+b)*(c*d*e))+((f+g)*(e+g)*(a+b)*(c*d*e)))
 ((((a*b*c*d)+(e*f))+((c+g)*(h+c)*(i*j)))*(((k+l+i+m+j)*(m*d))+((n*o*g)*(i*j))+((c+g)*(h+c)*(i*j))))
 ((((a+b)*(c*d)*(e+f))+((g*d)*(h*i*j*b)))*(((k+d)*(e+f))+((g*d)*(h*i*j*b))))

@@ -35,6 +35,19 @@ void Tree::erase_child(Tree* child) {
         assert(false);
 }
 
+Tree* Tree::deep_copy() const {
+    Tree* res = new Tree(type);
+    res->formula = formula;
+    res->parent = nullptr;
+    res->children = std::vector<Tree*>();
+
+    for (auto child : children) {
+        res->children.push_back(child->deep_copy());
+    }
+
+    return res;
+}
+
 void Tree::trim() {
     std::vector<Tree*> children_copy = children;
     for (Tree* child : children_copy)
