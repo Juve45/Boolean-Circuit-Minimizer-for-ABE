@@ -36,6 +36,10 @@ void Tree::erase_child(Tree* child) {
 }
 
 void Tree::trim() {
+    std::vector<Tree*> children_copy = children;
+    for (Tree* child : children_copy)
+        child->trim();
+
     if (parent && type != INPUT) {
         if (children.empty())
             parent->erase_child(this);
@@ -59,9 +63,7 @@ void Tree::trim() {
             // to do: remove this node
         }
     }
-    std::vector<Tree*> children_copy = children;
-    for (Tree* child : children_copy)
-        child->trim();
+    
     if (!children.empty())
         update_formula();
 }
