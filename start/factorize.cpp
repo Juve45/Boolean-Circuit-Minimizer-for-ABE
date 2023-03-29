@@ -12,6 +12,26 @@ void hill_climbing(Tree* t) {
     }
 }
 
+// TO DO: instead of sending the initial formula send the tree and make a deep copy function
+// to copy the three for each iteration
+Tree* iterated_hc(std::string formula, int runs = 100) {
+    int best_cost = 1e9;
+    Tree *best_tree;
+    
+    for (int i=1;i<=runs;i++){
+        Tree *tree = &Logic::to_tree(formula);
+        tree->trim();
+        hill_climbing(tree);
+        int cost = tree->get_cost();
+        if (cost < best_cost) {
+            best_cost = cost;
+            best_tree = tree;
+        }
+    }
+
+    return best_tree;
+}
+
 Tree* get_random_and(Tree* root) {
     std::vector<Tree*> and_nodes;
     std::queue<Tree*> nodes;
@@ -61,31 +81,41 @@ int main() {
     std::ifstream fin("inputs/formulas.txt");
     std::string formula;
     int total_formulas = 0, trim_improvement_sum = 0, hc_improvement_sum = 0, hc_trim_improvement_sum = 0;
+    int iterated_hc_improvement_sum = 0;
     while (fin >> formula) {
         total_formulas++;
-        std::cout << formula << '\n';
         Tree *tree = &Logic::to_tree(formula);
+
+        std::cout << formula << '\n';
         int before_trim = tree->get_cost();
         std::cout << "Cost before trim: " << before_trim << '\n';
+        
         tree->trim();
         std::cout << "Trimmed formula: " << tree->formula << '\n';
         int after_trim = tree->get_cost();
         std::cout << "Cost after trim: " << after_trim << '\n';
-        hill_climbing(tree);
-        std::cout << tree->formula << "\n\n";
-        int after_hc = tree->get_cost();
-        std::cout << "Cost after hc: " << after_hc << '\n';
 
-        dbg(improvement_percent(before_trim, after_trim));
+        hill_climbing(tree);
+        std::cout << tree->formula << "\n";
+        int after_hc = tree->get_cost();
+        std::cout << "Cost after hc: " << after_hc << "\n\n";
+
+        Tree* iterated_hc_tree = iterated_hc(formula);
+        std::cout << iterated_hc_tree->formula << "\n";
+        int after_ihc = iterated_hc_tree->get_cost();
+        std::cout << "Cost after ihc: " << after_ihc << "\n\n";
 
         trim_improvement_sum += improvement_percent(before_trim, after_trim);
         hc_improvement_sum += improvement_percent(after_trim, after_hc);
         hc_trim_improvement_sum += improvement_percent(before_trim, after_hc);
+        iterated_hc_improvement_sum += improvement_percent(after_trim, after_ihc);
     }
 
     std::cout << "Trim improvement average: " << 1.0 * trim_improvement_sum / total_formulas << '\n';
     std::cout << "Hc improvement average: " << 1.0 * hc_improvement_sum / total_formulas << '\n';
     std::cout << "Hc + trim improvement average: " << 1.0 * hc_trim_improvement_sum / total_formulas << '\n';
+    std::cout << "Ihc improvement average: " << 1.0 * iterated_hc_improvement_sum / total_formulas << '\n';
+    
     
     return 0;
 }
