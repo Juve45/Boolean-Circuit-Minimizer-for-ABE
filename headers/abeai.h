@@ -69,6 +69,7 @@ struct Tree {
     void add_child(Tree* child);
     void erase_child(Tree* child);
     void trim();
+    int get_cost() const;
     bool has_child(const std::string& formula) const;
 };
 

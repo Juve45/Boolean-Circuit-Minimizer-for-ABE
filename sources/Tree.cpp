@@ -63,7 +63,7 @@ void Tree::trim() {
             // to do: remove this node
         }
     }
-    
+
     if (!children.empty())
         update_formula();
 }
@@ -73,4 +73,14 @@ bool Tree::has_child(const std::string& formula) const {
         if (child->formula == formula)
             return true;
     return false;
+}
+
+int Tree::get_cost() const {
+    int cost = 0;
+    for (auto c : formula) {
+        if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')) {
+            cost++;
+        }
+    }
+    return cost;
 }
