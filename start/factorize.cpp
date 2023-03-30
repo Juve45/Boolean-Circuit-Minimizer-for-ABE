@@ -49,7 +49,7 @@ Tree* get_random_and(Tree* root) {
 }
 
 void simulated_annealing(Tree* root, int k_max = 100) {
-    for (int k = 0; k < k_max; k++)
+    for (int k = 0; k < k_max; k++) {
         if (Random::integer(2 * k_max) < k_max - k) { // defactorize
             Tree *and_node = get_random_and(root);
             std::vector<Tree*> or_nodes;
@@ -69,6 +69,7 @@ void simulated_annealing(Tree* root, int k_max = 100) {
             const auto [f1, f2] = Random::two_integers(factorizable[c].size());
             Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
         }
+    }
 }
 
 int improvement_percent(int old_val, int new_val) {

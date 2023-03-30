@@ -61,10 +61,12 @@ void Tree::trim() {
             if (child->type != INPUT) {
                 assert(parent->type == child->type);
                 for (Tree* child_child : child->children)
-                    parent->add_child(child_child);
+                    if (!parent->has_child(child->formula))
+                        parent->add_child(child_child);
             }
             else
-                parent->add_child(child);
+                if (!parent->has_child(child->formula))
+                    parent->add_child(child);
             parent->erase_child(this);
             // to do: remove this node
         }

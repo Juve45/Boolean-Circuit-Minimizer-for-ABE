@@ -11,6 +11,7 @@ std::vector<std::vector<Tree*>> Factorizer::reduce(Tree* t) {
                     assert(j->parent->parent == similar[j->formula].back()->parent->parent);
                     if (similar[j->formula].back()->parent == j->parent){
                         assert(j != similar[j->formula].back());
+                        dbg(j->formula);
                         throw std::runtime_error("Two siblings with same parent! Please implement absorbtion");
                     }
                 }
@@ -78,12 +79,14 @@ void Factorizer::defactorize(Tree* t1, Tree* t2) {
     for (Tree* i : t1->children)
         for (Tree* j : t2->children) {
             Tree *temp = new Tree(AND);
-            temp->add_child(i->deep_copy());
-            temp->add_child(j->deep_copy());
+            if (!temp->has_child(i->formula))
+                temp->add_child(i->deep_copy());
+            if (!temp->has_child(j->formula))
+                temp->add_child(j->deep_copy());
             temp->update_formula();
-            or_node->add_child(temp);
+            if (!or_node->has_child(temp->formula))
+                or_node->add_child(temp);
         }
-
     parent->erase_child(t1);
     parent->erase_child(t2);
 
@@ -92,5 +95,8 @@ void Factorizer::defactorize(Tree* t1, Tree* t2) {
         temp->update_formula();
         temp = temp->parent;
     }
-    parent->trim();
+    if (parent->parent)
+        parent->parent->trim();
+    else
+        parent->trim();
 }
