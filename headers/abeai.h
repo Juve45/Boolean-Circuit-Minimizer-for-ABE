@@ -72,6 +72,11 @@ struct Tree {
     int get_cost() const;
     bool has_child(const std::string& formula) const;
     Tree* deep_copy() const;
+    // Each input node needs to have an and parent in order to be correctly 
+    // factorized
+    // E.g.: ((e*i)+i) => i
+    void add_and_for_input_nodes();
+    bool is_and_for_input_node();
 };
 
 struct Factorizer {

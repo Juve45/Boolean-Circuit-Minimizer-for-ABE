@@ -1,5 +1,6 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
+#include <chrono>
 
 void hill_climbing(Tree* t) {
     while (true) {
@@ -29,6 +30,8 @@ Tree* iterated_hc(std::string formula, int runs = 100) {
         }
     }
 
+    // dbg("A");
+    // dbg(best_cost);
     return best_tree;
 }
 
@@ -72,70 +75,125 @@ void simulated_annealing(Tree* root, int k_max = 100) {
     }
 }
 
-int improvement_percent(int old_val, int new_val) {
+long double improvement_percent(int old_val, int new_val) {
     if (old_val == new_val)
         return 0;
-    return ceil((old_val - new_val) * 100 / old_val);
+    return ceil((old_val - new_val) * 100.0 / old_val);
 }
 
-int main() {
+uint64_t timeSinceEpochMillisec() {
+  using namespace std::chrono;
+  return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
+std::vector<long double> run_algorithms(bool debug = false) {
     std::ifstream fin("inputs/formulas.txt");
     std::string formula;
     
-    fin >> formula;
-    Tree *tree2 = &Logic::to_tree(formula);
-    tree2->trim();
-    std::cout << tree2->formula << '\n';
-    simulated_annealing(tree2);
-    int after_sa = tree2->get_cost();
-    std::cout << "Cost after sa: " << after_sa << "\n\n";
+    int total_formulas = 0;
+    long double trim_improvement_sum = 0, hc_improvement_sum = 0, hc_trim_improvement_sum = 0;
+    long double iterated_hc_improvement_sum = 0;
+    // int sa_improvement_sum = 0;
 
-    return 0;
-    
-    int total_formulas = 0, trim_improvement_sum = 0, hc_improvement_sum = 0, hc_trim_improvement_sum = 0;
-    int iterated_hc_improvement_sum = 0, sa_improvement_sum = 0;
+    uint64_t ihc_duration_sum = 0, hc_duration_sum = 0;
     while (fin >> formula) {
         total_formulas++;
         Tree *tree = &Logic::to_tree(formula);
 
-        std::cout << formula << '\n';
+        if (debug) std::cout << formula << '\n';
         int before_trim = tree->get_cost();
-        std::cout << "Cost before trim: " << before_trim << '\n';
+        if (debug) std::cout << "Cost before trim: " << before_trim << '\n';
         
         tree->trim();
-        std::cout << "Trimmed formula: " << tree->formula << '\n';
+        if (debug) std::cout << "Trimmed formula: " << tree->formula << '\n';
         int after_trim = tree->get_cost();
-        std::cout << "Cost after trim: " << after_trim << '\n';
+        if (debug) std::cout << "Cost after trim: " << after_trim << '\n';
 
+        uint64_t before_hc = timeSinceEpochMillisec();
         hill_climbing(tree);
-        std::cout << tree->formula << "\n";
-        int after_hc = tree->get_cost();
-        std::cout << "Cost after hc: " << after_hc << "\n\n";
+        uint64_t after_hc = timeSinceEpochMillisec();
+        if (debug) std::cout << tree->formula << "\n";
+        int after_hc_cost = tree->get_cost();
+        // dbg("Z");
+        // dbg(after_hc_cost);
+        if (debug) std::cout << "Cost after hc: " << after_hc << "\n";
 
+
+        uint64_t before_ihc = timeSinceEpochMillisec();
         Tree* iterated_hc_tree = iterated_hc(formula);
-        std::cout << iterated_hc_tree->formula << "\n";
-        int after_ihc = iterated_hc_tree->get_cost();
-        std::cout << "Cost after ihc: " << after_ihc << "\n\n";
+        uint64_t after_ihc = timeSinceEpochMillisec();
+        if (debug) std::cout << iterated_hc_tree->formula << "\n";
+        int after_ihc_cost = iterated_hc_tree->get_cost();
+        // dbg("B");
+        // dbg(after_ihc_cost);
+        if (debug) std::cout << "Cost after ihc: " << after_ihc_cost << "\n\n";
 
-        Tree *tree2 = &Logic::to_tree(formula);
-        tree2->trim();
-        simulated_annealing(tree2);
-        int after_sa = tree2->get_cost();
-        std::cout << "Cost after sa: " << after_sa << "\n\n";
+        // Tree *tree2 = &Logic::to_tree(formula);
+        // tree2->trim();
+        // simulated_annealing(tree2);
+        // int after_sa = tree2->get_cost();
+        // std::cout << "Cost after sa: " << after_sa << "\n\n";
 
         trim_improvement_sum += improvement_percent(before_trim, after_trim);
-        hc_improvement_sum += improvement_percent(after_trim, after_hc);
-        hc_trim_improvement_sum += improvement_percent(before_trim, after_hc);
-        iterated_hc_improvement_sum += improvement_percent(after_trim, after_ihc);
-        sa_improvement_sum += improvement_percent(after_trim, after_sa);
-    }
+        hc_improvement_sum += improvement_percent(after_trim, after_hc_cost);
+        hc_trim_improvement_sum += improvement_percent(before_trim, after_hc_cost);
+        iterated_hc_improvement_sum += improvement_percent(before_trim, after_ihc_cost);
+        // sa_improvement_sum += improvement_percent(after_trim, after_sa);
 
-    std::cout << "Trim improvement average: " << 1.0 * trim_improvement_sum / total_formulas << '\n';
-    std::cout << "Hc improvement average: " << 1.0 * hc_improvement_sum / total_formulas << '\n';
-    std::cout << "Hc + trim improvement average: " << 1.0 * hc_trim_improvement_sum / total_formulas << '\n';
-    std::cout << "Ihc improvement average: " << 1.0 * iterated_hc_improvement_sum / total_formulas << '\n';
-    std::cout << "Sa improvement average: " << 1.0 * sa_improvement_sum / total_formulas << '\n';
+        hc_duration_sum = after_hc - before_hc;
+        ihc_duration_sum = after_ihc - before_ihc;
+    }    
+    fin.close();
+
+    // std::cout << "Hc improvement average: " << 1.0 * hc_improvement_sum / total_formulas << '\n';
     
+
+    long double trim_average = 1.0 * trim_improvement_sum / total_formulas;
+    long double hc_trim_average = 1.0 * hc_trim_improvement_sum / total_formulas;
+    long double ihc_trim_average = 1.0 * iterated_hc_improvement_sum / total_formulas;
+    long double hc_duration_average_s = 1000.0 * hc_duration_sum / total_formulas;
+    long double ihc_duration_average_s = 1000.0 * ihc_duration_sum / total_formulas;
+
+    // dbg("END");
+    // dbg(hc_trim_average);
+    // dbg(ihc_trim_average);
+
+    return std::vector<long double>({trim_average, hc_trim_average, ihc_trim_average, hc_duration_average_s, ihc_duration_average_s});
+}
+
+int main() {
+
+    int iterations = 30;
+    long double trim_average_sum = 0;
+    long double hc_trim_average_sum = 0;
+    long double ihc_trim_average_sum = 0;
+    long double hc_duration_average_sum = 0;
+    long double ihc_duration_average_sum = 0;
+
+    for (int i=1;i<=iterations;i++) {
+        std::cout << "Iteration #" << i << '\n';
+
+        std::vector<long double> ans = run_algorithms();
+        long double trim_average = ans[0];
+        long double hc_trim_average = ans[1];
+        long double ihc_trim_average = ans[2];
+        long double hc_duration_average_s = ans[3];
+        long double ihc_duration_average_s = ans[4];
+
+        trim_average_sum += trim_average;
+        hc_trim_average_sum += hc_trim_average;
+        ihc_trim_average_sum += ihc_trim_average;
+        hc_duration_average_sum += hc_duration_average_s;
+        ihc_duration_average_sum += ihc_duration_average_s;
+    }
+    
+    std::cout << "Trim improvement average: " << trim_average_sum / iterations << '\n';
+    std::cout << "Hc + trim improvement average: " << hc_trim_average_sum / iterations << '\n';
+    std::cout << "Ihc + trim improvement average: " << ihc_trim_average_sum / iterations << '\n';
+    // std::cout << "Sa improvement average: " << 1.0 * sa_improvement_sum / total_formulas << '\n';
+
+    std::cout << "\n\n" << "Hc duration: " << std::fixed << std::setprecision(3) << hc_duration_average_sum / iterations << "s\n";
+    std::cout << "Ihc duration: " << ihc_duration_average_sum / iterations << "s\n";
     
     return 0;
 }
