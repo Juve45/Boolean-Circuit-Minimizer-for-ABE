@@ -87,7 +87,7 @@ uint64_t timeSinceEpochMillisec() {
 }
 
 std::vector<long double> run_algorithms(bool debug = false) {
-    std::ifstream fin("inputs/formulas.txt");
+    std::ifstream fin("inputs/formulas_small.txt");
     std::string formula;
     
     int total_formulas = 0;
@@ -140,8 +140,8 @@ std::vector<long double> run_algorithms(bool debug = false) {
         iterated_hc_improvement_sum += improvement_percent(before_trim, after_ihc_cost);
         // sa_improvement_sum += improvement_percent(after_trim, after_sa);
 
-        hc_duration_sum = after_hc - before_hc;
-        ihc_duration_sum = after_ihc - before_ihc;
+        hc_duration_sum += after_hc - before_hc;
+        ihc_duration_sum += after_ihc - before_ihc;
     }    
     fin.close();
 
@@ -151,14 +151,25 @@ std::vector<long double> run_algorithms(bool debug = false) {
     long double trim_average = 1.0 * trim_improvement_sum / total_formulas;
     long double hc_trim_average = 1.0 * hc_trim_improvement_sum / total_formulas;
     long double ihc_trim_average = 1.0 * iterated_hc_improvement_sum / total_formulas;
-    long double hc_duration_average_s = 1000.0 * hc_duration_sum / total_formulas;
-    long double ihc_duration_average_s = 1000.0 * ihc_duration_sum / total_formulas;
+    long double hc_duration_average_s = (long double)hc_duration_sum / total_formulas / 1000;
+    long double ihc_duration_average_s = (long double)ihc_duration_sum / total_formulas / 1000;
 
     // dbg("END");
     // dbg(hc_trim_average);
     // dbg(ihc_trim_average);
 
     return std::vector<long double>({trim_average, hc_trim_average, ihc_trim_average, hc_duration_average_s, ihc_duration_average_s});
+}
+
+void get_formula_size() {
+    std::ifstream fin("inputs/formulas.txt");
+    std::string formula;
+    
+    while (fin >> formula) {
+        Tree *tree = &Logic::to_tree(formula);
+        std::cout << formula << "\n";
+        std::cout << tree->get_cost() << "\n\n";
+    }
 }
 
 int main() {
