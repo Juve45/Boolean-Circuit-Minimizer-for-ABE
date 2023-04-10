@@ -1,6 +1,5 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
-#include <chrono>
 
 void hill_climbing(Tree* t) {
     while (true) {
@@ -75,15 +74,16 @@ void simulated_annealing(Tree* root, int k_max = 100) {
     }
 }
 
+// ==========================================================================================
+// ==========================================================================================
+// ==========================================================================================
+
 long double improvement_percent(int old_val, int new_val) {
-    if (old_val == new_val)
-        return 0;
-    return ceil((old_val - new_val) * 100.0 / old_val);
+    return old_val == new_val ? 0 : ceil((old_val - new_val) * 100.0 / old_val);
 }
 
-uint64_t timeSinceEpochMillisec() {
-  using namespace std::chrono;
-  return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+uint64_t current_time_ms() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
 std::vector<Subcircuit> patterns;
@@ -117,8 +117,7 @@ void load_patterns() {
     }
 }
 
-int test_replace(const std::string& formula) {
-    Circuit circuit = Logic::to_circuit(formula);
+void replace(Circuit& circuit) {
     std::vector<int> values(1, circuit.eval());
     int not_found_count = 0, index = 0;
     while (not_found_count < 2 * int(patterns.size())) {
@@ -132,145 +131,79 @@ int test_replace(const std::string& formula) {
         }
         index = (index + 1) % patterns.size();
     }
-    return circuit.eval();
-}
-
-std::vector<long double> run_algorithms(bool debug = false) {
-    std::ifstream fin("inputs/formulas_big.txt");
-    std::string formula;
-
-    int total_formulas = 0;
-    long double replace_improvement_sum = 0, trim_improvement_sum = 0, hc_improvement_sum = 0, hc_trim_improvement_sum = 0;
-    long double iterated_hc_improvement_sum = 0;
-    // int sa_improvement_sum = 0;
-
-    uint64_t ihc_duration_sum = 0, hc_duration_sum = 0, replace_duration_sum = 0;
-    while (fin >> formula) {
-        total_formulas++;
-        Tree *tree = &Logic::to_tree(formula);
-
-        if (debug) std::cout << formula << '\n';
-        int before_trim = tree->get_cost();
-        if (debug) std::cout << "Cost before trim: " << before_trim << '\n';
-
-        tree->trim();
-        if (debug) std::cout << "Trimmed formula: " << tree->formula << '\n';
-        int after_trim = tree->get_cost();
-        if (debug) std::cout << "Cost after trim: " << after_trim << '\n';
-
-        uint64_t before_replace = timeSinceEpochMillisec();
-        int after_replace_cost = test_replace(Logic::to_formula(*tree));
-        uint64_t after_replace = timeSinceEpochMillisec();
-
-        uint64_t before_hc = timeSinceEpochMillisec();
-        hill_climbing(tree);
-        uint64_t after_hc = timeSinceEpochMillisec();
-        if (debug) std::cout << tree->formula << "\n";
-        int after_hc_cost = tree->get_cost();
-        // dbg("Z");
-        // dbg(after_hc_cost);
-        if (debug) std::cout << "Cost after hc: " << after_hc << "\n";
-
-
-        uint64_t before_ihc = timeSinceEpochMillisec();
-        Tree* iterated_hc_tree = iterated_hc(formula);
-        uint64_t after_ihc = timeSinceEpochMillisec();
-        if (debug) std::cout << iterated_hc_tree->formula << "\n";
-        int after_ihc_cost = iterated_hc_tree->get_cost();
-        // dbg("B");
-        // dbg(after_ihc_cost);
-        if (debug) std::cout << "Cost after ihc: " << after_ihc_cost << "\n\n";
-
-        // Tree *tree2 = &Logic::to_tree(formula);
-        // tree2->trim();
-        // simulated_annealing(tree2);
-        // int after_sa = tree2->get_cost();
-        // std::cout << "Cost after sa: " << after_sa << "\n\n";
-
-        trim_improvement_sum += improvement_percent(before_trim, after_trim);
-        replace_improvement_sum += improvement_percent(before_trim, after_replace_cost);
-        hc_improvement_sum += improvement_percent(after_trim, after_hc_cost);
-        hc_trim_improvement_sum += improvement_percent(before_trim, after_hc_cost);
-        iterated_hc_improvement_sum += improvement_percent(before_trim, after_ihc_cost);
-        // sa_improvement_sum += improvement_percent(after_trim, after_sa);
-
-        replace_duration_sum += after_replace - before_replace;
-        hc_duration_sum += after_hc - before_hc;
-        ihc_duration_sum += after_ihc - before_ihc;
-    }
-    fin.close();
-
-    // std::cout << "Hc improvement average: " << 1.0 * hc_improvement_sum / total_formulas << '\n';
-
-
-    long double trim_average = 1.0 * trim_improvement_sum / total_formulas;
-    long double replace_average = 1.0 * replace_improvement_sum / total_formulas;
-    long double hc_trim_average = 1.0 * hc_trim_improvement_sum / total_formulas;
-    long double ihc_trim_average = 1.0 * iterated_hc_improvement_sum / total_formulas;
-    long double hc_duration_average_s = (long double)hc_duration_sum / total_formulas / 1000;
-    long double replace_duration_average_s = (long double)replace_duration_sum / total_formulas / 1000;
-    long double ihc_duration_average_s = (long double)ihc_duration_sum / total_formulas / 1000;
-
-    // dbg("END");
-    // dbg(hc_trim_average);
-    // dbg(ihc_trim_average);
-
-    return std::vector<long double>({trim_average, hc_trim_average, ihc_trim_average, hc_duration_average_s, ihc_duration_average_s, replace_average, replace_duration_average_s});
-}
-
-void get_formula_size() {
-    std::ifstream fin("inputs/formulas.txt");
-    std::string formula;
-
-    while (fin >> formula) {
-        Tree *tree = &Logic::to_tree(formula);
-        std::cout << formula << "\n";
-        std::cout << tree->get_cost() << "\n\n";
-    }
 }
 
 int main() {
-
     load_patterns();
-    int iterations = 30;
-    long double trim_average_sum = 0;
-    long double hc_trim_average_sum = 0;
-    long double ihc_trim_average_sum = 0;
-    long double replace_average_sum = 0;
-    long double hc_duration_average_sum = 0;
-    long double ihc_duration_average_sum = 0;
-    long double replace_duration_average_sum = 0;
+    const int ITERATION_COUNT = 5;
 
-    for (int i=1;i<=iterations;i++) {
-        std::cout << "Iteration #" << i << '\n';
+    std::vector<long double> time(3);
+    std::vector<long double> score(3);
 
-        std::vector<long double> ans = run_algorithms();
-        long double trim_average = ans[0];
-        long double hc_trim_average = ans[1];
-        long double ihc_trim_average = ans[2];
-        long double hc_duration_average_s = ans[3];
-        long double ihc_duration_average_s = ans[4];
-        long double replace_average = ans[5];
-        long double replace_duration_average_s = ans[6];
+    int formula_count;
+    for (int i = 0; i < ITERATION_COUNT; i++) {
+        std::ifstream fin("inputs/formulas_small.txt");
+        std::cout << "started iteration #" << i << '\n';
 
-        trim_average_sum += trim_average;
-        hc_trim_average_sum += hc_trim_average;
-        ihc_trim_average_sum += ihc_trim_average;
-        replace_average_sum += replace_average;
-        hc_duration_average_sum += hc_duration_average_s;
-        ihc_duration_average_sum += ihc_duration_average_s;
-        replace_duration_average_sum += replace_duration_average_s;
+        formula_count = 0;
+        std::string formula;
+        while (fin >> formula) {
+            if (i == 0) {
+                Circuit circuit = Logic::to_circuit(formula);
+                long double t01 = current_time_ms();
+                long double s01 = circuit.eval();
+                std::string f01 = Logic::to_formula(circuit);
+                replace(circuit);
+                long double t02 = current_time_ms();
+                long double s02 = circuit.eval();
+                std::string f02 = Logic::to_formula(circuit);
+                time[0] = t02 - t01;
+                score[0] = improvement_percent(s01, s02);
+            }
+
+            Tree *tree1 = &Logic::to_tree(formula);
+            long double t11 = current_time_ms();
+            long double s11 = tree1->get_cost();
+            // std::string f11 = Logic::to_formula(*tree1);
+            hill_climbing(tree1);
+            long double t12 = current_time_ms();
+            long double s12 = tree1->get_cost();
+            // std::string f12 = Logic::to_formula(*tree1);
+
+            Tree *tree2 = &Logic::to_tree(formula);
+            long double t21 = current_time_ms();
+            long double s21 = tree2->get_cost();
+            // std::string f21 = Logic::to_formula(*tree2);
+            tree2 = iterated_hc(formula);
+            long double t22 = current_time_ms();
+            long double s22 = tree2->get_cost();
+            // std::string f22 = Logic::to_formula(*tree2);
+
+            std::cout << "finished formula #" << formula_count << '\n';
+            formula_count++;
+            // time[0] += t02 - t01; score[0] += improvement_percent(s01, s02);
+            time[1] += t12 - t11; score[1] += improvement_percent(s11, s12);
+            time[2] += t22 - t21; score[2] += improvement_percent(s21, s22);
+            // putem afișa pe aici f01/f02/f11/f12/f21/f22 pentru debugging
+        }
     }
 
-    std::cout << "Trim improvement average: " << trim_average_sum / iterations << '\n';
-    std::cout << "Hc + trim improvement average: " << hc_trim_average_sum / iterations << '\n';
-    std::cout << "Ihc + trim improvement average: " << ihc_trim_average_sum / iterations << '\n';
-    std::cout << "Replace + trim improvement average: " << replace_average_sum / iterations << '\n';
-    // std::cout << "Sa improvement average: " << 1.0 * sa_improvement_sum / total_formulas << '\n';
+    time[0] /= 1000;
+    // time[0] /= ITERATION_COUNT * formula_count * 1000;
+    time[1] /= ITERATION_COUNT * formula_count * 1000;
+    time[2] /= ITERATION_COUNT * formula_count * 1000;
 
-    std::cout << "\n\n" << "Hc duration: " << std::fixed << std::setprecision(3) << hc_duration_average_sum / iterations << "s\n";
-    std::cout << "Ihc duration: " << ihc_duration_average_sum / iterations << "s\n";
-    std::cout << "Replace duration: " << replace_duration_average_sum / iterations << "s\n";
+    // score[0] /= ITERATION_COUNT * formula_count;
+    score[1] /= ITERATION_COUNT * formula_count;
+    score[2] /= ITERATION_COUNT * formula_count;
 
+    std::cout << "replace time: " << time[0] << '\n';
+    std::cout << "     hc time: " << time[1] << '\n';
+    std::cout << "    ihc time: " << time[2] << '\n';
+    std::cout << '\n';
+
+    std::cout << "replace score: " << score[0] << '\n';
+    std::cout << "     hc score: " << score[1] << '\n';
+    std::cout << "    ihc score: " << score[2] << '\n';
     return 0;
 }
