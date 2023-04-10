@@ -172,7 +172,7 @@ Tree& Logic::to_tree(const std::string& formula) {
 }
 
 std::string Logic::to_formula(const Tree& tree) {
-    return tree.formula;
+    return Logic::to_tree(tree.formula).formula;
 }
 
 Subcircuit& Logic::flipped(const Subcircuit& pattern1) {
