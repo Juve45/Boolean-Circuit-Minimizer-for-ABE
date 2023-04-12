@@ -90,6 +90,7 @@ struct Logic {
     static std::string to_formula(const Circuit& circuit);
     static Tree& to_tree(const std::string& formula);
     static std::string to_formula(const Tree& tree);
+    static std::string normalize(const std::string& formula);
     static Subcircuit& flipped(const Subcircuit& pattern1);
 };
 

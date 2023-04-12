@@ -136,9 +136,9 @@ void replace(Circuit& circuit) {
 void test_first_formula() {
     std::ifstream fin("inputs/formulas_small.txt");
     std::string formula;
-    
+
     fin >> formula;
-    
+
     Tree *tree = &Logic::to_tree(formula);
     std::cout << formula << "\n";
     std::cout << tree->get_cost() << "\n\n";
@@ -161,7 +161,7 @@ int main() {
 
     int formula_count;
     for (int i = 0; i < ITERATION_COUNT; i++) {
-        std::ifstream fin("inputs/formulas_real.txt");
+        std::ifstream fin("inputs/formulas_small.txt");
         std::cout << "started iteration #" << i << '\n';
 
         formula_count = 0;

@@ -2,14 +2,20 @@
 #include "../headers/debug.h"
 
 Circuit& Logic::to_circuit(const std::string& formula) {
+    std::string new_formula = normalize(formula);
     std::vector<Node*> leaves;
     std::vector<std::string> stack;
     std::map<std::string, Node*> mapping;
-    for (const char chr : formula) {
+    for (int i = 0; i < int(new_formula.size()); i++) {
+        const char chr = new_formula[i];
         stack.emplace_back(1, chr);
-        if (isalpha(chr) && !mapping.count(stack.back())) {
-            mapping[stack.back()] = new Node(INPUT);
-            leaves.push_back(mapping[stack.back()]);
+        if (isalpha(chr)) {
+            while (i + 1 < int(new_formula.size()) && isdigit(new_formula[i + 1]))
+                stack.back() += new_formula[++i];
+            if (!mapping.count(stack.back())) {
+                mapping[stack.back()] = new Node(INPUT);
+                leaves.push_back(mapping[stack.back()]);
+            }
         }
         else if (chr == ')') {
             std::string operation;
@@ -69,8 +75,10 @@ std::string Logic::to_formula(const Circuit& circuit) {
             }
             else if (node->type == FAN_OUT)
                 mapping[node] = dfs(*(node->lower.begin()));
-            else
-                mapping[node] = 'a' + variable_count++;
+            else {
+                mapping[node] = variable_count < 26 ? std::string(1, 'a' + variable_count) : 'x' + std::to_string(variable_count - 25);
+                variable_count++;
+            }
         }
         return mapping[node];
     };
@@ -78,14 +86,7 @@ std::string Logic::to_formula(const Circuit& circuit) {
 }
 
 Tree& Logic::to_tree(const std::string& formula) {
-    std::string new_formula = "(";
-    for (const char chr : formula) {
-        if ((isalnum(new_formula.back()) && isalpha(chr)) || (new_formula.back() == ')' && chr == '(') || (new_formula.back() == ')' && isalpha(chr)) || (isalpha(new_formula.back()) && chr == '('))
-            new_formula += '*';
-        new_formula += chr;
-    }
-    new_formula += ')';
-
+    std::string new_formula = normalize(formula);
     std::stack<char> operatorStack;
     std::stack<Tree*> operandStack;
     for (int i = 0; i < int(new_formula.size()); i++) {
@@ -172,7 +173,18 @@ Tree& Logic::to_tree(const std::string& formula) {
 }
 
 std::string Logic::to_formula(const Tree& tree) {
-    return Logic::to_tree(tree.formula).formula;
+    return normalize(tree.formula);
+}
+
+std::string Logic::normalize(const std::string& formula) {
+    std::string new_formula = "(";
+    for (const char chr : formula) {
+        if ((isalnum(new_formula.back()) && isalpha(chr)) || (new_formula.back() == ')' && chr == '(') || (new_formula.back() == ')' && isalpha(chr)) || (isalnum(new_formula.back()) && chr == '('))
+            new_formula += '*';
+        new_formula += chr;
+    }
+    new_formula += ')';
+    return new_formula;
 }
 
 Subcircuit& Logic::flipped(const Subcircuit& pattern1) {
