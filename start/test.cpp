@@ -154,14 +154,14 @@ void test_first_formula() {
 
 int main() {
     load_patterns();
-    const int ITERATION_COUNT = 5;
+    const int ITERATION_COUNT = 3;
 
     std::vector<long double> time(3);
     std::vector<long double> score(3);
 
     int formula_count;
     for (int i = 0; i < ITERATION_COUNT; i++) {
-        std::ifstream fin("inputs/formulas_small.txt");
+        std::ifstream fin("inputs/formulas_real.txt");
         std::cout << "started iteration #" << i << '\n';
 
         formula_count = 0;
@@ -171,11 +171,11 @@ int main() {
                 Circuit circuit = Logic::to_circuit(formula);
                 long double t01 = current_time_ms();
                 long double s01 = circuit.eval();
-                std::string f01 = Logic::to_formula(circuit);
+                // std::string f01 = Logic::to_formula(circuit);
                 replace(circuit);
                 long double t02 = current_time_ms();
                 long double s02 = circuit.eval();
-                std::string f02 = Logic::to_formula(circuit);
+                // std::string f02 = Logic::to_formula(circuit);
                 time[0] = t02 - t01;
                 score[0] = improvement_percent(s01, s02);
             }
@@ -200,7 +200,6 @@ int main() {
 
             std::cout << "finished formula #" << formula_count << '\n';
             formula_count++;
-            // time[0] += t02 - t01; score[0] += improvement_percent(s01, s02);
             time[1] += t12 - t11; score[1] += improvement_percent(s11, s12);
             time[2] += t22 - t21; score[2] += improvement_percent(s21, s22);
             // putem afișa pe aici f01/f02/f11/f12/f21/f22 pentru debugging
@@ -208,11 +207,9 @@ int main() {
     }
 
     time[0] /= 1000;
-    // time[0] /= ITERATION_COUNT * formula_count * 1000;
     time[1] /= ITERATION_COUNT * formula_count * 1000;
     time[2] /= ITERATION_COUNT * formula_count * 1000;
 
-    // score[0] /= ITERATION_COUNT * formula_count;
     score[1] /= ITERATION_COUNT * formula_count;
     score[2] /= ITERATION_COUNT * formula_count;
 
