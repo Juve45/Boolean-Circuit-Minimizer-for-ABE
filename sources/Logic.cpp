@@ -80,7 +80,7 @@ std::string Logic::to_formula(const Circuit& circuit) {
 Tree& Logic::to_tree(const std::string& formula) {
     std::string new_formula = "(";
     for (const char chr : formula) {
-        if (isalnum(new_formula.back()) && isalpha(chr))
+        if ((isalnum(new_formula.back()) && isalpha(chr)) || (new_formula.back() == ')' && chr == '(') || (new_formula.back() == ')' && isalpha(chr)) || (isalpha(new_formula.back()) && chr == '('))
             new_formula += '*';
         new_formula += chr;
     }
@@ -172,7 +172,7 @@ Tree& Logic::to_tree(const std::string& formula) {
 }
 
 std::string Logic::to_formula(const Tree& tree) {
-    return tree.formula;
+    return Logic::to_tree(tree.formula).formula;
 }
 
 Subcircuit& Logic::flipped(const Subcircuit& pattern1) {
