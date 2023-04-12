@@ -142,7 +142,7 @@ int main() {
 
     int formula_count;
     for (int i = 0; i < ITERATION_COUNT; i++) {
-        std::ifstream fin("inputs/formulas_small.txt");
+        std::ifstream fin("inputs/formulas_real.txt");
         std::cout << "started iteration #" << i << '\n';
 
         formula_count = 0;
