@@ -172,6 +172,25 @@ void get_formula_size() {
     }
 }
 
+void test_first_formula() {
+    std::ifstream fin("inputs/formulas_small.txt");
+    std::string formula;
+    
+    fin >> formula;
+    
+    Tree *tree = &Logic::to_tree(formula);
+    std::cout << formula << "\n";
+    std::cout << tree->get_cost() << "\n\n";
+
+    tree->trim();
+
+    std::cout << "After trim: " << tree->formula << "\n\n";
+
+    hill_climbing(tree);
+
+    std::cout << "After hc: " << tree->formula << '\n';
+}
+
 int main() {
 
     int iterations = 30;
