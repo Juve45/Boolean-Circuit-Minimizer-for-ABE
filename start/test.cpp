@@ -156,12 +156,12 @@ int main() {
     load_patterns();
     const int ITERATION_COUNT = 3;
 
-    std::vector<long double> time(3);
-    std::vector<long double> score(3);
+    std::vector<long double> time(4);
+    std::vector<long double> score(4);
 
     int formula_count;
     for (int i = 0; i < ITERATION_COUNT; i++) {
-        std::ifstream fin("inputs/formulas_real.txt");
+        std::ifstream fin("inputs/formulas_small.txt");
         std::cout << "started iteration #" << i << '\n';
 
         formula_count = 0;
@@ -198,28 +198,42 @@ int main() {
             long double s22 = tree2->get_cost();
             // std::string f22 = Logic::to_formula(*tree2);
 
+            Tree *tree3 = &Logic::to_tree(formula);
+            long double t31 = current_time_ms();
+            long double s31 = tree3->get_cost();
+            // std::string f31 = Logic::to_formula(*tree3);
+            simulated_annealing(tree3);
+            long double t32 = current_time_ms();
+            long double s32 = tree3->get_cost();
+            // std::string f32 = Logic::to_formula(*tree3);
+
             std::cout << "finished formula #" << formula_count << '\n';
             formula_count++;
             time[1] += t12 - t11; score[1] += improvement_percent(s11, s12);
             time[2] += t22 - t21; score[2] += improvement_percent(s21, s22);
-            // putem afișa pe aici f01/f02/f11/f12/f21/f22 pentru debugging
+            time[3] += t32 - t31; score[3] += improvement_percent(s31, s32);
+            // putem afișa pe aici f01/f02/f11/f12/f21/f22/f31/f32 pentru debugging
         }
     }
 
     time[0] /= 1000;
     time[1] /= ITERATION_COUNT * formula_count * 1000;
     time[2] /= ITERATION_COUNT * formula_count * 1000;
+    time[3] /= ITERATION_COUNT * formula_count * 1000;
 
     score[1] /= ITERATION_COUNT * formula_count;
     score[2] /= ITERATION_COUNT * formula_count;
+    score[3] /= ITERATION_COUNT * formula_count;
 
     std::cout << "replace time: " << time[0] << '\n';
     std::cout << "     hc time: " << time[1] << '\n';
     std::cout << "    ihc time: " << time[2] << '\n';
+    std::cout << "     sa time: " << time[3] << '\n';
     std::cout << '\n';
 
     std::cout << "replace score: " << score[0] << '\n';
     std::cout << "     hc score: " << score[1] << '\n';
     std::cout << "    ihc score: " << score[2] << '\n';
+    std::cout << "     sa score: " << score[3] << '\n';
     return 0;
 }
