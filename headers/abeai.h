@@ -72,16 +72,13 @@ struct Tree {
     int get_cost() const;
     bool has_child(const std::string& formula) const;
     Tree* deep_copy() const;
-    // Each input node needs to have an and parent in order to be correctly 
-    // factorized
-    // E.g.: ((e*i)+i) => i
-    void add_and_for_input_nodes();
-    bool is_and_for_input_node();
 };
 
 struct Factorizer {
     static std::vector<std::vector<Tree*>> reduce(Tree* t);
     static void factorize(Tree* t1, Tree* t2);
+    // t1 should be the absorbing element
+    static void factorize_absorption(Tree *t1, Tree *t2);
     static void defactorize(Tree* t1, Tree* t2);
 };
 

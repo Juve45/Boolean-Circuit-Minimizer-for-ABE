@@ -5,20 +5,40 @@ std::vector<std::vector<Tree*>> Factorizer::reduce(Tree* t) {
     std::vector<std::vector<Tree*>> ans;
     if (t->type == OR) {
         std::map<std::string, std::vector<Tree*>> similar;
-        for (Tree* i : t->children)
+        for (Tree* i : t->children) {
             for (Tree* j : i->children) {
                 if (similar.count(j->formula)) {
-                    assert(j->parent->parent == similar[j->formula].back()->parent->parent);
-                    if (similar[j->formula].back()->parent == j->parent){
-                        assert(j != similar[j->formula].back());
-                        dbg(j->formula);
-                        throw std::runtime_error("Two siblings with same parent! Please implement absorbtion");
-                    }
+                    if (similar[j->formula].back()->parent->type == OR)
+                        assert(j->parent->parent == similar[j->formula].back()->parent);
+                    else 
+                        assert(j->parent->parent == similar[j->formula].back()->parent->parent);
+                    // if (similar[j->formula].back()->parent == j->parent){
+                    //     assert(j != similar[j->formula].back());
+                    //     dbg(j->formula);
+                    //     throw std::runtime_error("Two siblings with same parent! Please implement absorbtion");
+                    // }
                 }
                 else
                     similar[j->formula] = std::vector<Tree*>();
                 similar[j->formula].push_back(j);
             }
+            if (i->type == INPUT) {
+                if (similar.count(i->formula)) {
+                    if (similar[i->formula].back()->parent->type == OR)
+                        assert(i->parent == similar[i->formula].back()->parent);
+                    else 
+                        assert(i->parent == similar[i->formula].back()->parent->parent);
+                    // if (similar[i->formula].back()->parent == i){
+                    //     assert(j != similar[j->formula].back());
+                    //     dbg(j->formula);
+                    //     throw std::runtime_error("Two siblings with same parent! Please implement absorbtion");
+                    // }
+                }
+                else
+                    similar[i->formula] = std::vector<Tree*>();
+                similar[i->formula].push_back(i);
+            }
+        }
         for (const auto& i : similar)
             if (i.second.size() > 1)
                 ans.push_back(i.second);
@@ -31,9 +51,41 @@ std::vector<std::vector<Tree*>> Factorizer::reduce(Tree* t) {
     return ans;
 }
 
+// t1 is absorbing element
+// (a+ab+cd) = (a+cd)
+void Factorizer::factorize_absorption(Tree* t1, Tree* t2) {
+    assert(t1->parent);
+    assert(t2->parent);
+    assert(t2->parent->parent);
+    assert(t1->parent == t2->parent->parent);
+
+    Tree *old2 = t2->parent;
+    Tree *parent = t1->parent;
+
+    parent->erase_child(old2);
+    // TO DO remove old2
+    
+    Tree *temp = parent;
+    while (temp) {
+        temp->update_formula();
+        temp = temp->parent;
+    }
+    parent->trim();
+}
+
 void Factorizer::factorize(Tree* t1, Tree* t2) {
     assert(t1->parent);
     assert(t2->parent);
+
+    // absorption case
+    if (t1->parent->type == OR) {
+        factorize_absorption(t1, t2);
+        return;
+    } else if (t2->parent->type == OR) {
+        factorize_absorption(t2, t1);
+        return;
+    }
+
     assert(t1->parent->parent);
     assert(t2->parent->parent);
     assert(t1->parent->parent == t2->parent->parent);
@@ -63,6 +115,7 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
         temp->update_formula();
         temp = temp->parent;
     }
+
     parent->trim();
 }
 

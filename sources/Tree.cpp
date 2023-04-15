@@ -56,8 +56,9 @@ void Tree::trim() {
     if (parent && type != INPUT) {
         if (children.empty())
             parent->erase_child(this);
-        if (children.size() == 1 && !is_and_for_input_node()) {
+        if (children.size() == 1) {
             Tree *child = children.front();
+            parent->erase_child(this);
             if (child->type != INPUT) {
                 assert(parent->type == child->type);
                 for (Tree* child_child : child->children)
@@ -67,7 +68,6 @@ void Tree::trim() {
             else
                 if (!parent->has_child(child->formula))
                     parent->add_child(child);
-            parent->erase_child(this);
             // to do: remove this node
         }
         else if (parent->type == type) {
@@ -98,24 +98,4 @@ int Tree::get_cost() const {
         }
     }
     return cost;
-}
-
-void Tree::add_and_for_input_nodes() {
-    for (Tree* child : children) {
-        child->add_and_for_input_nodes();
-    }
-    if (type == OR) {
-        for (Tree *child : children) {
-            if (child->type == INPUT) {
-                Tree *and_node = new Tree(AND);
-                parent->erase_child(child);
-                and_node->add_child(child);
-                parent->add_child(and_node);
-            }
-        }
-    }
-}
-
-bool Tree::is_and_for_input_node() {
-    return this->type == AND && this->children.size() == 1 && this->children[0]->type == INPUT;
 }

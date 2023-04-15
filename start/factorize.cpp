@@ -29,8 +29,6 @@ Tree* iterated_hc(std::string formula, int runs = 100) {
         }
     }
 
-    // dbg("A");
-    // dbg(best_cost);
     return best_tree;
 }
 
@@ -50,26 +48,40 @@ Tree* get_random_and(Tree* root) {
     return and_nodes[i];
 }
 
+void defactorize(Tree* root) {
+    // dbg("DEFACT");
+    Tree *and_node = get_random_and(root);
+    std::vector<Tree*> or_nodes;
+    for (Tree* i : and_node->children)
+        if (i->type == OR)
+            or_nodes.push_back(i);
+    if (or_nodes.size() >= 2) {
+        const auto [f1, f2] = Random::two_integers(or_nodes.size());
+        Factorizer::defactorize(or_nodes[f1], or_nodes[f2]);
+    }
+}
+
+// Return true if we could factorize
+bool factorize(Tree* root) {
+    // dbg("FACT");
+    std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(root);
+    if (factorizable.empty()) return false; // we can't optimize further
+    const int c = Random::integer(factorizable.size());
+    assert(factorizable[c].size() > 1);
+    const auto [f1, f2] = Random::two_integers(factorizable[c].size());
+    Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
+    return true;
+}
+
 void simulated_annealing(Tree* root, int k_max = 100) {
     for (int k = 0; k < k_max; k++) {
         if (Random::integer(2 * k_max) < k_max - k) { // defactorize
-            Tree *and_node = get_random_and(root);
-            std::vector<Tree*> or_nodes;
-            for (Tree* i : and_node->children)
-                if (i->type == OR)
-                    or_nodes.push_back(i);
-            if (or_nodes.size() >= 2) {
-                const auto [f1, f2] = Random::two_integers(or_nodes.size());
-                Factorizer::defactorize(or_nodes[f1], or_nodes[f2]);
-            }
+            defactorize(root);
         }
         else { // factorize
-            std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(root);
-            if (factorizable.empty()) continue; // we can't optimize further
-            const int c = Random::integer(factorizable.size());
-            assert(factorizable[c].size() > 1);
-            const auto [f1, f2] = Random::two_integers(factorizable[c].size());
-            Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
+            if (!factorize(root)) {
+                continue;
+            }
         }
     }
 }
@@ -141,33 +153,51 @@ void test_first_formula() {
     
     Tree *tree = &Logic::to_tree(formula);
     std::cout << formula << "\n";
+    // dbg(*tree);
     std::cout << tree->get_cost() << "\n\n";
 
     tree->trim();
+    // dbg(*tree);
+
+    // defactorize(tree);
+
+    // dbg(*tree);
+
+    // factorize(tree);
+
+    // dbg(*tree);
+
+    // return;
 
     std::cout << "After trim: " << tree->formula << "\n\n";
 
-    hill_climbing(tree);
+    simulated_annealing(tree);
 
-    std::cout << "After hc: " << tree->formula << '\n';
+    std::cout << "After sa: " << tree->formula << '\n';
 }
 
 int main() {
+
+    // for (int i=1;i<=1000;i++)
+    //     test_first_formula();
+    // return 0;
+
     load_patterns();
-    const int ITERATION_COUNT = 5;
+    const int ITERATION_COUNT = 30;
 
     std::vector<long double> time(3);
     std::vector<long double> score(3);
 
     int formula_count;
     for (int i = 0; i < ITERATION_COUNT; i++) {
-        std::ifstream fin("inputs/formulas_real.txt");
+        std::ifstream fin("inputs/formulas_small.txt");
         std::cout << "started iteration #" << i << '\n';
 
         formula_count = 0;
         std::string formula;
         while (fin >> formula) {
-            if (i == 0) {
+            dbg(formula);
+            if (i == 0 && false) {
                 Circuit circuit = Logic::to_circuit(formula);
                 long double t01 = current_time_ms();
                 long double s01 = circuit.eval();
@@ -198,11 +228,21 @@ int main() {
             long double s22 = tree2->get_cost();
             // std::string f22 = Logic::to_formula(*tree2);
 
+            Tree *tree3 = &Logic::to_tree(formula);
+            long double t31 = current_time_ms();
+            long double s31 = tree3->get_cost();
+            // std::string f31 = Logic::to_formula(*tree3);
+            simulated_annealing(tree3);
+            long double t32 = current_time_ms();
+            long double s32 = tree3->get_cost();
+            // std::string f32 = Logic::to_formula(*tree3);
+
             std::cout << "finished formula #" << formula_count << '\n';
             formula_count++;
             // time[0] += t02 - t01; score[0] += improvement_percent(s01, s02);
             time[1] += t12 - t11; score[1] += improvement_percent(s11, s12);
             time[2] += t22 - t21; score[2] += improvement_percent(s21, s22);
+            time[3] += t32 - t31; score[3] += improvement_percent(s31, s32);
             // putem afișa pe aici f01/f02/f11/f12/f21/f22 pentru debugging
         }
     }
@@ -211,18 +251,22 @@ int main() {
     // time[0] /= ITERATION_COUNT * formula_count * 1000;
     time[1] /= ITERATION_COUNT * formula_count * 1000;
     time[2] /= ITERATION_COUNT * formula_count * 1000;
+    time[3] /= ITERATION_COUNT * formula_count * 1000;
 
     // score[0] /= ITERATION_COUNT * formula_count;
     score[1] /= ITERATION_COUNT * formula_count;
     score[2] /= ITERATION_COUNT * formula_count;
+    score[3] /= ITERATION_COUNT * formula_count;
 
     std::cout << "replace time: " << time[0] << '\n';
     std::cout << "     hc time: " << time[1] << '\n';
     std::cout << "    ihc time: " << time[2] << '\n';
+    std::cout << "     sa time: " << time[3] << '\n';
     std::cout << '\n';
 
     std::cout << "replace score: " << score[0] << '\n';
     std::cout << "     hc score: " << score[1] << '\n';
     std::cout << "    ihc score: " << score[2] << '\n';
+    std::cout << "     sa score: " << score[3] << '\n';
     return 0;
 }
