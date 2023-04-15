@@ -79,6 +79,7 @@ struct Factorizer {
     static void factorize(Tree* t1, Tree* t2);
     // t1 should be the absorbing element
     static void factorize_absorption(Tree *t1, Tree *t2);
+    // t1 should be OR node
     static void defactorize(Tree* t1, Tree* t2);
 };
 

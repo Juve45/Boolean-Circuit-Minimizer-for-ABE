@@ -123,23 +123,38 @@ void Factorizer::defactorize(Tree* t1, Tree* t2) {
     assert(t1->parent == t2->parent);
     assert(t1 != t2);
     assert(t1->type == OR);
-    assert(t2->type == OR);
+    assert(t2->type == OR || t2->type == INPUT);
 
     Tree *parent = t1->parent;
     Tree *or_node = new Tree(OR);
     parent->add_child(or_node);
 
-    for (Tree* i : t1->children)
-        for (Tree* j : t2->children) {
+    if (t2->type == OR) {
+        for (Tree* i : t1->children)
+            for (Tree* j : t2->children) {
+                Tree *temp = new Tree(AND);
+                if (!temp->has_child(i->formula))
+                    temp->add_child(i->deep_copy());
+                if (!temp->has_child(j->formula))
+                    temp->add_child(j->deep_copy());
+                temp->update_formula();
+                if (!or_node->has_child(temp->formula))
+                    or_node->add_child(temp);
+            }
+    }
+    else {
+        // t2->type == INPUT
+        for (Tree* i : t1->children) {
             Tree *temp = new Tree(AND);
             if (!temp->has_child(i->formula))
                 temp->add_child(i->deep_copy());
-            if (!temp->has_child(j->formula))
-                temp->add_child(j->deep_copy());
+            if (!temp->has_child(t2->formula))
+                temp->add_child(t2->deep_copy());
             temp->update_formula();
             if (!or_node->has_child(temp->formula))
                 or_node->add_child(temp);
         }
+    }
     parent->erase_child(t1);
     parent->erase_child(t2);
 
