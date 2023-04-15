@@ -98,6 +98,9 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
 
     parent->erase_child(old1);
     parent->erase_child(old2);
+    old1->erase_child(t1);
+    old2->erase_child(t2);
+
 
     or_node->add_child(old1);
     or_node->add_child(old2);
@@ -105,8 +108,6 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
     and_node->add_child(t1);
     parent->add_child(and_node);
 
-    old1->erase_child(t1);
-    old2->erase_child(t2);
     old1->update_formula();
     old2->update_formula();
 
