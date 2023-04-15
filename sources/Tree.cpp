@@ -59,7 +59,7 @@ void Tree::erase_child(Tree* child) {
 Tree* Tree::deep_copy() const {
     Tree* res = new Tree(type);
     res->formula = formula;
-    res->parent = nullptr;
+    res->parent = parent;
     res->children = std::vector<Tree*>();
 
     for (auto child : children) {
