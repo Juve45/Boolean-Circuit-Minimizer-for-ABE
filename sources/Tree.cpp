@@ -1,14 +1,35 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
+
+bool has_or_child(const std::string &subformula) {
+    int nested_level = 0;
+    for (const char& c : subformula) {
+        if (c == '(') nested_level++;
+        else if (c == '+' && nested_level == 0) {
+            return true;
+        } 
+        else if (c == ')') nested_level--;
+    }
+    return false;
+}
+
 void Tree::update_formula() {
     std::set<std::string> subformulas;
     formula = "";
     for (Tree* child : children)
         subformulas.insert(child->formula);
     if (type == AND)
-        for (const auto& subformula : subformulas)
+        for (const auto& subformula : subformulas) {
+            bool _has_or_child = has_or_child(subformula);
+            if (_has_or_child) {
+                formula += "(";
+            }
             formula += subformula;
+            if (_has_or_child) {
+                formula += ")";
+            }
+        }
     else if (type == OR) {
         formula = "";
         if (parent && subformulas.size() > 1)
