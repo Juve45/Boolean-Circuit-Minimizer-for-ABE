@@ -93,7 +93,7 @@ bool Tree::has_child(const std::string& formula) const {
 int Tree::get_cost() const {
     int cost = 0;
     for (auto c : formula) {
-        if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')) {
+        if (isalpha(c)) {
             cost++;
         }
     }
