@@ -73,14 +73,20 @@ Tree* Tree::deep_copy() const {
     return res;
 }
 
-void Tree::trim() {
+bool Tree::trim() {
+    dbg(this->formula);
+    
     std::vector<Tree*> children_copy = children;
-    for (Tree* child : children_copy)
-        child->trim();
+    for (Tree* child : children_copy) {
+        if(child->trim())
+            delete(child);
+    }
 
     if (parent && type != INPUT) {
-        if (children.empty())
+        if (children.empty()) {
             parent->erase_child(this);
+            // return true;
+        }
         if (children.size() == 1) {
             Tree *child = children.front();
             parent->erase_child(this);
@@ -94,6 +100,7 @@ void Tree::trim() {
                 if (!parent->has_child(child->formula))
                     parent->add_child(child);
             }
+            // return true;
             // to do: remove this node
         }
         else if (parent->type == type) {
@@ -103,11 +110,13 @@ void Tree::trim() {
                 if (!parent->has_child(child->formula))
                     parent->add_child(child);
             }
+            // return true;
             // to do: remove this node
         }
     }
     if (!children.empty())
         update_formula();
+    return false;
 }
 
 bool Tree::has_child(const std::string& formula) const {

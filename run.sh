@@ -9,5 +9,8 @@ then
   echo 'too many arguments'
   exit 2
 else
-  g++ -std=c++17 -Wall -Wextra sources/*.cpp start/$1.cpp -o main && ./main
+  echo 'compiling'
+  g++ -std=c++17 -Wall -Wextra sources/*.cpp start/$1.cpp -o main 
+  echo 'running'
+  ./main
 fi

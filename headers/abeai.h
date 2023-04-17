@@ -68,7 +68,7 @@ struct Tree {
     void update_formula();
     void add_child(Tree* child);
     void erase_child(Tree* child);
-    void trim();
+    bool trim();
     int get_cost() const;
     bool has_child(const std::string& formula) const;
     Tree* deep_copy() const;
