@@ -84,7 +84,7 @@ bool Tree::trim() {
     if (parent && type != INPUT) {
         if (children.empty()) {
             parent->erase_child(this);
-            // return true;
+            return true;
         }
         if (children.size() == 1) {
             Tree *child = children.front();
@@ -99,7 +99,7 @@ bool Tree::trim() {
                 if (!parent->has_child(child->formula))
                     parent->add_child(child);
             }
-            // return true;
+            return true;
             // to do: remove this node
         }
         else if (parent->type == type) {
@@ -109,7 +109,7 @@ bool Tree::trim() {
                 if (!parent->has_child(child->formula))
                     parent->add_child(child);
             }
-            // return true;
+            return true;
             // to do: remove this node
         }
     }
