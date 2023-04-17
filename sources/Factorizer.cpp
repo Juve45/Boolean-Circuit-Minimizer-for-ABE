@@ -76,6 +76,7 @@ void Factorizer::factorize_absorption(Tree* t1, Tree* t2) {
 void Factorizer::factorize(Tree* t1, Tree* t2) {
     assert(t1->parent);
     assert(t2->parent);
+    assert(t1->parent != t2->parent);
 
     // absorption case
     if (t1->parent->type == OR) {
@@ -101,15 +102,11 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
     old1->erase_child(t1);
     old2->erase_child(t2);
 
-
     or_node->add_child(old1);
     or_node->add_child(old2);
     and_node->add_child(or_node);
     and_node->add_child(t1);
     parent->add_child(and_node);
-
-    old1->update_formula();
-    old2->update_formula();
 
     Tree *temp = old2;
     while (temp) {
@@ -128,8 +125,9 @@ void Factorizer::defactorize(Tree* t1, Tree* t2) {
 
     Tree *parent = t1->parent;
     Tree *or_node = new Tree(OR);
-    parent->add_child(or_node);
-
+    parent->erase_child(t1);
+    parent->erase_child(t2);
+    
     if (t2->type == OR) {
         for (Tree* i : t1->children)
             for (Tree* j : t2->children) {
@@ -147,17 +145,23 @@ void Factorizer::defactorize(Tree* t1, Tree* t2) {
         // t2->type == INPUT
         for (Tree* i : t1->children) {
             Tree *temp = new Tree(AND);
-            if (!temp->has_child(i->formula))
+            if (!temp->has_child(i->formula)){
                 temp->add_child(i->deep_copy());
-            if (!temp->has_child(t2->formula))
+            }
+            if (!temp->has_child(t2->formula)) {
                 temp->add_child(t2->deep_copy());
+            }
             temp->update_formula();
-            if (!or_node->has_child(temp->formula))
+            if (!or_node->has_child(temp->formula)) {
                 or_node->add_child(temp);
+            }
         }
     }
-    parent->erase_child(t1);
-    parent->erase_child(t2);
+
+    or_node->update_formula();
+    if (!parent->has_child(or_node->formula)){
+        parent->add_child(or_node);
+    }
 
     Tree *temp = or_node;
     while (temp) {

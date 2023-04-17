@@ -46,12 +46,15 @@ void Tree::add_child(Tree* child) {
     assert(child);
     children.push_back(child);
     child->parent = this;
+    update_formula();
 }
 
 void Tree::erase_child(Tree* child) {
     const auto it = std::find(children.begin(), children.end(), child);
-    if (it != children.end())
+    if (it != children.end()) {
         children.erase(it);
+        update_formula();
+    }
     else
         assert(false);
 }
@@ -84,20 +87,22 @@ void Tree::trim() {
             if (child->type != INPUT) {
                 assert(parent->type == child->type);
                 for (Tree* child_child : child->children)
-                    if (!parent->has_child(child->formula))
+                    if (!parent->has_child(child_child->formula))
                         parent->add_child(child_child);
             }
-            else
+            else {
                 if (!parent->has_child(child->formula))
                     parent->add_child(child);
+            }
             // to do: remove this node
         }
         else if (parent->type == type) {
+            parent->erase_child(this);
+
             for (Tree* child : children) {
                 if (!parent->has_child(child->formula))
                     parent->add_child(child);
             }
-            parent->erase_child(this);
             // to do: remove this node
         }
     }
