@@ -10,7 +10,7 @@ then
   exit 2
 else
   echo 'compiling'
-  g++ -std=c++17 -Wall -Wextra sources/*.cpp start/$1.cpp -o main 
+  g++ -std=c++17 -Wall -Wextra sources/*.cpp start/$1.cpp -o main  -ggdb
   echo 'running'
   ./main
 fi

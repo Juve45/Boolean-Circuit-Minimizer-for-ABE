@@ -2,10 +2,7 @@
 #include "../headers/debug.h"
 
 void hill_climbing(Tree* t) {
-    dbg("HC");
-    int i = 0;
     while (true) {
-        dbg(i++);
         std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t);
         if (factorizable.empty()) break; // we can't optimize further
         const int c = Random::integer(factorizable.size());
@@ -13,27 +10,20 @@ void hill_climbing(Tree* t) {
         const auto [f1, f2] = Random::two_integers(factorizable[c].size());
         Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
     }
-    dbg("HC over");
 }
 
 // TO DO: instead of sending the initial formula send the tree and make a deep copy function
 // to copy the three for each iteration
 Tree* iterated_hc(std::string formula, int runs = 100) {
-    dbg("IHC");
-
+    
     int best_cost = 1e9;
     Tree *best_tree;
 
     for (int i=1;i<=runs;i++){
         Tree *tree = &Logic::to_tree(formula);
-        dbg("trim");
         tree->trim();
-        dbg("end trim");
         hill_climbing(tree);
-        dbg(tree);
-        dbg(tree->formula);
         int cost = tree->get_cost();
-        dbg(cost);
         if (cost < best_cost) {
             best_cost = cost;
             best_tree = tree;
@@ -81,8 +71,6 @@ void defactorize(Tree* root) {
         return;
     }
 
-    // dbg("DEFACT");
-    // dbg(*root);
     std::vector<Tree*> or_nodes;
     for (Tree* i : and_node->children)
         if (i->type == OR)
@@ -101,8 +89,6 @@ void defactorize(Tree* root) {
 
 // Return true if we could factorize
 bool factorize(Tree* root) {
-    // dbg("FACT");
-    // dbg(*root);
     std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(root);
     if (factorizable.empty()) return false; // we can't optimize further
     const int c = Random::integer(factorizable.size());
@@ -113,7 +99,7 @@ bool factorize(Tree* root) {
 }
 
 void simulated_annealing(Tree* root, int k_max = 100) {
-    dbg("Simulated annealing");
+
     for (int k = 0; k < k_max; k++) {
         if (Random::integer(2 * k_max) < k_max - k) { // defactorize
             defactorize(root);
@@ -223,7 +209,7 @@ int main() {
     // return 0;
 
     load_patterns();
-    const int ITERATION_COUNT = 30;
+    const int ITERATION_COUNT = 4;
 
     std::vector<long double> time(4);
     std::vector<long double> score(4);
@@ -231,7 +217,7 @@ int main() {
     int formula_count;
     for (int i = 0; i < ITERATION_COUNT; i++) {
         std::ifstream fin("inputs/formulas_small.txt");
-        std::cout << "started formula #" << i << '\n';
+        std::cout << "started iteration #" << i << '\n';
 
         formula_count = 0;
         std::string formula;

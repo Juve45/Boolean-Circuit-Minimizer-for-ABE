@@ -74,7 +74,6 @@ Tree* Tree::deep_copy() const {
 }
 
 bool Tree::trim() {
-    dbg(this->formula);
     
     std::vector<Tree*> children_copy = children;
     for (Tree* child : children_copy) {

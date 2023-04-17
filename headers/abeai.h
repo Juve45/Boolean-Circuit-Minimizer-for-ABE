@@ -62,7 +62,7 @@ struct Build {
 struct Tree {
     NodeType type;
     std::string formula;
-    Tree *parent;
+    Tree *parent = nullptr;
     std::vector<Tree*> children;
     Tree(NodeType type) : type(type) { }
     void update_formula();

@@ -78,9 +78,6 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
     assert(t2->parent);
     assert(t1->parent != t2->parent);
 
-    dbg(t1->formula);
-    dbg(t2->formula);
-
     // absorption case
     if (t1->parent->type == OR) {
         factorize_absorption(t1, t2);
@@ -99,9 +96,6 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
     Tree *old1 = t1->parent;
     Tree *old2 = t2->parent;
     Tree *parent = old1->parent;
-    dbg(parent->formula);
-    dbg(old1->formula);
-    dbg(old2->formula);
 
     parent->erase_child(old1);
     parent->erase_child(old2);
