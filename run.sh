@@ -12,5 +12,5 @@ else
   echo 'compiling'
   g++ -std=c++17 -Wall -Wextra sources/*.cpp start/$1.cpp -o main  -ggdb
   echo 'running'
-  ./main
+  ./main inputs/formulas_small.txt
 fi

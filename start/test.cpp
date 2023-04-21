@@ -1,6 +1,7 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
+
 void hill_climbing(Tree* t) {
     while (true) {
         std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t);
@@ -11,6 +12,37 @@ void hill_climbing(Tree* t) {
         Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
     }
 }
+
+
+Tree* real_hill_climbing(Tree * t, int d = 0) {
+    if(d == 6) {
+        hill_climbing(t);
+        return t;
+    }
+    Tree * cand = t;
+    for(int i = 0; i < 5; i++) {
+        Tree * t2 = t->deep_copy();
+
+        std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t2);
+        
+        if (factorizable.empty()) 
+            break; // we can't optimize further
+        
+        const int c = Random::integer(factorizable.size());
+        
+        assert(factorizable[c].size() > 1);
+        
+        const auto [f1, f2] = Random::two_integers(factorizable[c].size());
+
+        Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
+
+        if(t2->get_cost() < cand->get_cost())
+            cand = t2;
+        // else t2->deep_erase();
+    }
+    return real_hill_climbing(cand, d + 1);
+}
+
 
 // TO DO: instead of sending the initial formula send the tree and make a deep copy function
 // to copy the three for each iteration
@@ -98,10 +130,10 @@ bool factorize(Tree* root) {
     return true;
 }
 
-void simulated_annealing(Tree* root, int k_max = 100) {
+void simulated_annealing(Tree* root, int k_max = 50) {
 
     for (int k = 0; k < k_max; k++) {
-        if (Random::integer(2 * k_max) < k_max - k) { // defactorize
+        if (Random::integer(7 * k_max) < k_max - k) { // defactorize
             defactorize(root);
         }
         else { // factorize
@@ -110,6 +142,7 @@ void simulated_annealing(Tree* root, int k_max = 100) {
             }
         }
     }
+    while(factorize(root));
 }
 
 // ==========================================================================================
@@ -172,7 +205,7 @@ void replace(Circuit& circuit) {
 }
 
 void test_first_formula() {
-    std::ifstream fin("inputs/formulas_small.txt");
+    std::ifstream fin("inputs/formulas_real.txt");
     std::string formula;
 
     fin >> formula;
@@ -202,21 +235,21 @@ void test_first_formula() {
     std::cout << "After sa: " << tree->formula << '\n';
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 
     // for (int i=1;i<=1000;i++)
     //     test_first_formula();
     // return 0;
 
     load_patterns();
-    const int ITERATION_COUNT = 4;
+    const int ITERATION_COUNT = 3;
 
-    std::vector<long double> time(4);
-    std::vector<long double> score(4);
+    std::vector<long double> time(5);
+    std::vector<long double> score(5);
 
     int formula_count;
     for (int i = 0; i < ITERATION_COUNT; i++) {
-        std::ifstream fin("inputs/formulas_small.txt");
+        std::ifstream fin(argv[1]);
         std::cout << "started iteration #" << i << '\n';
 
         formula_count = 0;
@@ -263,11 +296,22 @@ int main() {
             long double s32 = tree3->get_cost();
             // std::string f32 = Logic::to_formula(*tree3);
 
+/*
+            Tree *tree4 = &Logic::to_tree(formula);
+            long double t41 = current_time_ms();
+            long double s41 = tree4->get_cost();
+            // std::string f11 = Logic::to_formula(*tree1);
+            tree4 = real_hill_climbing(tree4);
+            long double t42 = current_time_ms();
+            long double s42 = tree4->get_cost();
+            // std::string f12 = Logic::to_formula(*tree1);
+*/
             std::cout << "finished formula #" << formula_count << '\n';
             formula_count++;
             time[1] += t12 - t11; score[1] += improvement_percent(s11, s12);
             time[2] += t22 - t21; score[2] += improvement_percent(s21, s22);
             time[3] += t32 - t31; score[3] += improvement_percent(s31, s32);
+            // time[4] += t42 - t41; score[4] += improvement_percent(s41, s42);
             // putem afișa pe aici f01/f02/f11/f12/f21/f22/f31/f32 pentru debugging
         }
     }
@@ -280,16 +324,19 @@ int main() {
     score[1] /= ITERATION_COUNT * formula_count;
     score[2] /= ITERATION_COUNT * formula_count;
     score[3] /= ITERATION_COUNT * formula_count;
+    // score[4] /= ITERATION_COUNT * formula_count;
 
     std::cout << "replace time: " << time[0] << '\n';
     std::cout << "     hc time: " << time[1] << '\n';
     std::cout << "    ihc time: " << time[2] << '\n';
     std::cout << "     sa time: " << time[3] << '\n';
+    // std::cout << "    rhc time: " << time[4] << '\n';
     std::cout << '\n';
 
     std::cout << "replace score: " << score[0] << '\n';
     std::cout << "     hc score: " << score[1] << '\n';
     std::cout << "    ihc score: " << score[2] << '\n';
     std::cout << "     sa score: " << score[3] << '\n';
+    // std::cout << "    rhc score: " << score[4] << '\n';
     return 0;
 }
