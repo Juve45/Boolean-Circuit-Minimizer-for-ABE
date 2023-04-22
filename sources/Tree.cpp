@@ -44,19 +44,18 @@ void Tree::update_formula() {
 
 void Tree::add_child(Tree* child) {
     assert(child);
+    assert(std::find(children.begin(), children.end(), child) == children.end());
     children.push_back(child);
     child->parent = this;
     update_formula();
 }
 
 void Tree::erase_child(Tree* child) {
-    const auto it = std::find(children.begin(), children.end(), child);
-    if (it != children.end()) {
-        children.erase(it);
-        update_formula();
-    }
-    else
-        assert(false);
+    auto it = std::find(children.begin(), children.end(), child);
+    assert(it != children.end());
+
+    children.erase(it);
+    update_formula();
 }
 
 Tree* Tree::deep_copy() const {
@@ -77,8 +76,21 @@ bool Tree::trim() {
     
     std::vector<Tree*> children_copy = children;
     for (Tree* child : children_copy) {
-        if(child->trim())
+        if(child->trim()) 
             delete(child);
+    }
+
+    std::set<std::string> child_formulas;
+    // dbg(this->children);
+    for(int i = 0; i < children.size(); i++) {
+        Tree* child = children[i];
+        if (child_formulas.count(child->formula)) {
+            // dbg(child);
+            this->erase_child(child);
+            delete child;
+            i--;
+        } else 
+            child_formulas.insert(child->formula);
     }
 
     if (parent && type != INPUT) {
@@ -134,3 +146,19 @@ int Tree::get_cost() const {
     }
     return cost;
 }
+
+
+void Tree::clean() {
+    for (Tree* child : this->children)
+        child->clean();
+    
+    if (this->children.size() == 1) {
+        Tree *child = this->children.back();
+        this->children.pop_back();
+        for (Tree* grand : child->children)
+            this->children.push_back(grand);
+        this->type = child->type;
+        this->formula = child->formula;
+        delete child;
+    }
+};

@@ -4,6 +4,7 @@
 
 void hill_climbing(Tree* t) {
     while (true) {
+        t->trim();
         std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t);
         if (factorizable.empty()) break; // we can't optimize further
         const int c = Random::integer(factorizable.size());
@@ -133,6 +134,7 @@ bool factorize(Tree* root) {
 void simulated_annealing(Tree* root, int k_max = 50) {
 
     for (int k = 0; k < k_max; k++) {
+        root->trim();
         if (Random::integer(7 * k_max) < k_max - k) { // defactorize
             defactorize(root);
         }
@@ -142,7 +144,9 @@ void simulated_annealing(Tree* root, int k_max = 50) {
             }
         }
     }
-    while(factorize(root));
+    root->trim();
+    while(factorize(root))
+        root->trim();
 }
 
 // ==========================================================================================
@@ -277,6 +281,8 @@ int main(int argc, char* argv[]) {
             long double t12 = current_time_ms();
             long double s12 = tree1->get_cost();
             // std::string f12 = Logic::to_formula(*tree1);
+            tree1->clean();
+            delete tree1;
 
             Tree *tree2 = &Logic::to_tree(formula);
             long double t21 = current_time_ms();
@@ -286,6 +292,8 @@ int main(int argc, char* argv[]) {
             long double t22 = current_time_ms();
             long double s22 = tree2->get_cost();
             // std::string f22 = Logic::to_formula(*tree2);
+            tree2->clean();
+            delete tree2;
 
             Tree *tree3 = &Logic::to_tree(formula);
             long double t31 = current_time_ms();
@@ -295,6 +303,8 @@ int main(int argc, char* argv[]) {
             long double t32 = current_time_ms();
             long double s32 = tree3->get_cost();
             // std::string f32 = Logic::to_formula(*tree3);
+            tree3->clean();
+            delete tree3;
 
 /*
             Tree *tree4 = &Logic::to_tree(formula);

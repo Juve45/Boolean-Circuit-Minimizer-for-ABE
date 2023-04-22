@@ -142,20 +142,9 @@ Tree& Logic::to_tree(const std::string& formula) {
     }
 
     Tree *tree = operandStack.top();
-    std::function<void(Tree*)> clean = [&](Tree* tree) {
-        for (Tree* child : tree->children)
-            clean(child);
-        if (tree->children.size() == 1) {
-            Tree *child = tree->children.back();
-            tree->children.pop_back();
-            for (Tree* grand : child->children)
-                tree->children.push_back(grand);
-            tree->type = child->type;
-            tree->formula = child->formula;
-            delete child;
-        }
-    };
-    clean(tree);
+    
+    tree->clean();
+    // clean(tree);
 
     std::function<void(Tree*)> make_formula = [&](Tree* tree) {
         for (Tree* child : tree->children) {
