@@ -258,8 +258,8 @@ int main(int argc, char* argv[]) {
     load_patterns();
     const int ITERATION_COUNT = 30;
 
-    std::vector<long double> time(5);
-    std::vector<long double> score(5);
+    std::vector<long double> time(6);
+    std::vector<long double> score(6);
 
     int formula_count;
     for (int i = 0; i < ITERATION_COUNT; i++) {
