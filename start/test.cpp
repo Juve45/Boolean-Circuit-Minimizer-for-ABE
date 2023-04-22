@@ -131,11 +131,10 @@ bool factorize(Tree* root) {
     return true;
 }
 
-void simulated_annealing(Tree* root, int k_max = 50) {
-
+void simulated_annealing(Tree* root, int k_max = 1000) {
     for (int k = 0; k < k_max; k++) {
         root->trim();
-        if (Random::integer(7 * k_max) < k_max - k) { // defactorize
+        if (Random::integer(50 * k_max) < k_max - k && k > 200) { // defactorize
             defactorize(root);
         }
         else { // factorize
@@ -149,12 +148,23 @@ void simulated_annealing(Tree* root, int k_max = 50) {
         root->trim();
 }
 
+int iterated_simulated_annealing(std::string &formula) {    
+    int mn = 1e9;
+    for (int i=1;i<=100;i++) {
+        Tree *tree = &Logic::to_tree(formula);
+        tree->trim();
+        simulated_annealing(tree);
+        mn = std::min(mn, tree->get_cost());
+    }
+    return mn;
+}
+
 // ==========================================================================================
 // ==========================================================================================
 // ==========================================================================================
 
 long double improvement_percent(int old_val, int new_val) {
-    return old_val == new_val ? 0 : ceil((old_val - new_val) * 100.0 / old_val);
+    return std::max((long double)0, old_val == new_val ? (long double)0 : ceil((old_val - new_val) * (long double)100 / old_val));
 }
 
 uint64_t current_time_ms() {
@@ -246,7 +256,7 @@ int main(int argc, char* argv[]) {
     // return 0;
 
     load_patterns();
-    const int ITERATION_COUNT = 3;
+    const int ITERATION_COUNT = 30;
 
     std::vector<long double> time(5);
     std::vector<long double> score(5);
@@ -316,12 +326,23 @@ int main(int argc, char* argv[]) {
             long double s42 = tree4->get_cost();
             // std::string f12 = Logic::to_formula(*tree1);
 */
+
+            Tree *tree5 = &Logic::to_tree(formula);
+            long double t51 = current_time_ms();
+            long double s51 = tree5->get_cost();
+            // std::string f51 = Logic::to_formula(*tree5);
+            long double s52 = iterated_simulated_annealing(formula);
+            long double t52 = current_time_ms();
+            // std::string f52 = Logic::to_formula(*tree5);
+            tree5->clean();
+
             std::cout << "finished formula #" << formula_count << '\n';
             formula_count++;
             time[1] += t12 - t11; score[1] += improvement_percent(s11, s12);
             time[2] += t22 - t21; score[2] += improvement_percent(s21, s22);
             time[3] += t32 - t31; score[3] += improvement_percent(s31, s32);
             // time[4] += t42 - t41; score[4] += improvement_percent(s41, s42);
+            time[5] += t52 - t51; score[5] += improvement_percent(s51, s52);
             // putem afișa pe aici f01/f02/f11/f12/f21/f22/f31/f32 pentru debugging
         }
     }
@@ -330,17 +351,20 @@ int main(int argc, char* argv[]) {
     time[1] /= ITERATION_COUNT * formula_count * 1000;
     time[2] /= ITERATION_COUNT * formula_count * 1000;
     time[3] /= ITERATION_COUNT * formula_count * 1000;
+    time[5] /= ITERATION_COUNT * formula_count * 1000;
 
     score[1] /= ITERATION_COUNT * formula_count;
     score[2] /= ITERATION_COUNT * formula_count;
     score[3] /= ITERATION_COUNT * formula_count;
     // score[4] /= ITERATION_COUNT * formula_count;
+    score[5] /= ITERATION_COUNT * formula_count;
 
     std::cout << "replace time: " << time[0] << '\n';
     std::cout << "     hc time: " << time[1] << '\n';
     std::cout << "    ihc time: " << time[2] << '\n';
     std::cout << "     sa time: " << time[3] << '\n';
     // std::cout << "    rhc time: " << time[4] << '\n';
+    std::cout << "    isa time: " << time[5] << '\n';
     std::cout << '\n';
 
     std::cout << "replace score: " << score[0] << '\n';
@@ -348,5 +372,6 @@ int main(int argc, char* argv[]) {
     std::cout << "    ihc score: " << score[2] << '\n';
     std::cout << "     sa score: " << score[3] << '\n';
     // std::cout << "    rhc score: " << score[4] << '\n';
+    std::cout << "    isa score: " << score[5] << '\n';
     return 0;
 }
