@@ -82,7 +82,7 @@ bool Tree::trim() {
 
     std::set<std::string> child_formulas;
     // dbg(this->children);
-    for(int i = 0; i < children.size(); i++) {
+    for(int i = 0; i < (int)children.size(); i++) {
         Tree* child = children[i];
         if (child_formulas.count(child->formula)) {
             // dbg(child);

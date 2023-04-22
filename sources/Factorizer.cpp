@@ -4,25 +4,26 @@
 std::vector<std::vector<Tree*>> Factorizer::reduce(Tree* t) {
     std::vector<std::vector<Tree*>> ans;
     if (t->type == OR) {
+        dbg(*t);
         std::map<std::string, std::vector<Tree*>> similar;
         for (Tree* i : t->children) {
             for (Tree* j : i->children) {
-                if (similar.count(j->formula)) {
-                    if (similar[j->formula].back()->parent->type == OR)
-                        assert(j->parent->parent == similar[j->formula].back()->parent);
-                    else 
-                        assert(j->parent->parent == similar[j->formula].back()->parent->parent);
-                    // if (similar[j->formula].back()->parent == j->parent){
-                    //     assert(j != similar[j->formula].back());
-                    //     dbg(j->formula);
-                    //     throw std::runtime_error("Two siblings with same parent! Please implement absorbtion");
-                    // }
-                }
-                else
+                // if (similar.count(j->formula)) {
+                //     if (similar[j->formula].back()->parent->type == OR)
+                //         assert(j->parent->parent == similar[j->formula].back()->parent);
+                //     else 
+                //         assert(j->parent->parent == similar[j->formula].back()->parent->parent);
+                //     // if (similar[j->formula].back()->parent == j->parent){
+                //     //     assert(j != similar[j->formula].back());
+                //     //     dbg(j->formula);
+                //     //     throw std::runtime_error("Two siblings with same parent! Please implement absorbtion");
+                //     // }
+                // }
+                if (!similar.count(j->formula))
                     similar[j->formula] = std::vector<Tree*>();
                 similar[j->formula].push_back(j);
             }
-            if (i->type == INPUT) {
+            if (i->type == INPUT && false) {
                 if (similar.count(i->formula)) {
                     if (similar[i->formula].back()->parent->type == OR)
                         assert(i->parent == similar[i->formula].back()->parent);
@@ -42,6 +43,7 @@ std::vector<std::vector<Tree*>> Factorizer::reduce(Tree* t) {
         for (const auto& i : similar)
             if (i.second.size() > 1)
                 ans.push_back(i.second);
+        dbg("done");
     }
     for (Tree* i : t->children) {
         const auto ans_child = reduce(i);

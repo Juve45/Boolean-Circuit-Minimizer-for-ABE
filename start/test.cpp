@@ -122,7 +122,9 @@ void defactorize(Tree* root) {
 
 // Return true if we could factorize
 bool factorize(Tree* root) {
+    // dbg(root->formula);
     std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(root);
+    // dbg("REDUCE DONE");
     if (factorizable.empty()) return false; // we can't optimize further
     const int c = Random::integer(factorizable.size());
     assert(factorizable[c].size() > 1);
@@ -131,22 +133,38 @@ bool factorize(Tree* root) {
     return true;
 }
 
-void simulated_annealing(Tree* root, int k_max = 50) {
+void simulated_annealing(Tree* root, int k_max = 1000) {
 
+    // dbg(-1, root->get_cost());
     for (int k = 0; k < k_max; k++) {
-        root->trim();
-        if (Random::integer(7 * k_max) < k_max - k) { // defactorize
+        if (Random::integer(50 * k_max) < k_max - k && k > 200) { // defactorize
+            // dbg(k);
+            dbg("DEFACT");
             defactorize(root);
         }
         else { // factorize
+            // dbg("FACTORIZE");
             if (!factorize(root)) {
                 continue;
             }
         }
+        // dbg(k, root->get_cost());
+        // dbg(root->formula);
     }
     root->trim();
     while(factorize(root))
         root->trim();
+}
+
+int iterated_simulated_annealing(std::string &formula) {    
+    int mn = 1e9;
+    for (int i=1;i<=100;i++) {
+        Tree *tree = &Logic::to_tree(formula);
+        tree->trim();
+        simulated_annealing(tree);
+        mn = std::min(mn, tree->get_cost());
+    }
+    return mn;
 }
 
 // ==========================================================================================
@@ -154,7 +172,7 @@ void simulated_annealing(Tree* root, int k_max = 50) {
 // ==========================================================================================
 
 long double improvement_percent(int old_val, int new_val) {
-    return old_val == new_val ? 0 : ceil((old_val - new_val) * 100.0 / old_val);
+    return std::max((long double)0, old_val == new_val ? (long double)0 : ceil((old_val - new_val) * (long double)100 / old_val));
 }
 
 uint64_t current_time_ms() {
@@ -209,41 +227,43 @@ void replace(Circuit& circuit) {
 }
 
 void test_first_formula() {
-    std::ifstream fin("inputs/formulas_real.txt");
+    std::ifstream fin("inputs/formulas_big.txt");
     std::string formula;
 
     fin >> formula;
 
     Tree *tree = &Logic::to_tree(formula);
-    std::cout << formula << "\n";
+    // std::cout << formula << "\n";
     // dbg(*tree);
     // std::cout << tree->get_cost() << "\n\n";
 
     tree->trim();
-    // dbg(*tree);
 
-    // defactorize(tree);
-
-    // dbg(*tree);
-
-    // factorize(tree);
-
-    // dbg(*tree);
-
+    // for (int i=1;i<=100;i++)
+    //     auto ans = Factorizer::reduce(tree);
     // return;
 
-    std::cout << "After trim: " << tree->formula << "\n\n";
+    // std::cout << "After trim: " << tree->formula << "\n\n";
 
-    simulated_annealing(tree);
+    int ans = iterated_simulated_annealing(formula);
+    // Tree* ans = iterated_hc(formula, 1000);
+    // dbg(ans->get_cost());
 
-    std::cout << "After sa: " << tree->formula << '\n';
+    // std::cout << "After sa: " << tree->formula << '\n';
+    std::cout << "Cost: " << ans << '\n';
 }
 
 int main(int argc, char* argv[]) {
 
-    // for (int i=1;i<=1000;i++)
-    //     test_first_formula();
-    // return 0;
+    dbg(argc);
+    test_first_formula();
+
+    // int mn = 1e9;
+    // for (int i=1;i<=1000;i++) {
+    //     mn = std::min(mn, test_first_formula());
+    // }
+    // dbg(mn);
+    return 0;
 
     load_patterns();
     const int ITERATION_COUNT = 3;
