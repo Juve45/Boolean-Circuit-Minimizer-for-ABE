@@ -176,11 +176,11 @@ Tree* real_sa(Tree* root) {
     root->trim();
 
     // Parameters which can be changed
-    long double cooling_rate = 0.1;
-    long double t_max = 10000;
-    long double t_min = 1;
-    int defactorzie_percent = 50;
-    int L = 20; // number of iterations per sa epoch
+    long double cooling_rate = 0.04;
+    long double t_max = 100;
+    long double t_min = 10;
+    int defactorzie_percent = 25;
+    int L = 25; // number of iterations per sa epoch
     // 
         
     // Tree* bst_tree = nullptr;
@@ -191,6 +191,7 @@ Tree* real_sa(Tree* root) {
         for (int i=0;i<L;i++) {
             Tree* neighbour = root->deep_copy();
 
+            neighbour->trim();
             if (Random::integer(101) <= defactorzie_percent) {
                 defactorize(neighbour);
             }
@@ -395,7 +396,7 @@ int main(int argc, char* argv[]) {
     // return 0;
 
     load_patterns();
-    const int ITERATION_COUNT = 30;
+    const int ITERATION_COUNT = 15;
 
     std::vector <Tree*(*)(Tree *)> alg;
     // alg.push_back(&hill_climbing);
