@@ -51,7 +51,7 @@ Tree* real_hill_climbing(Tree * t, int d = 0) {
 Tree* iterated_hc(Tree * original) {
     int runs = 100;
     int best_cost = 1e9;
-    Tree *best_tree;
+    Tree *best_tree = nullptr;
 
     for (int i=1;i<=runs;i++){
         Tree *tree = original->deep_copy();
@@ -60,7 +60,14 @@ Tree* iterated_hc(Tree * original) {
         int cost = tree->get_cost();
         if (cost < best_cost) {
             best_cost = cost;
+            if (best_tree) {
+                best_tree->erase();
+                delete(best_tree);
+            }
             best_tree = tree;
+        } else {
+            tree->erase();
+            delete(tree);
         }
     }
 
@@ -153,15 +160,22 @@ Tree* simulated_annealing(Tree* root) {
 
 Tree* iterated_simulated_annealing(Tree * original) {    
     int mn = 1e9;
-    Tree * tmn;
+    Tree * tmn = nullptr;
     for (int i=1;i<=20;i++) {
         Tree *tree = original->deep_copy();
         tree->trim();
         simulated_annealing(tree);
         int tt = tree->get_cost();
         if(mn > tt) {
+            if (tmn) {
+                tmn->erase();
+                delete(tmn);
+            }
             tmn = tree;
             mn = tt;
+        } else {
+            tree->erase();
+            delete(tree);
         }
     }
     return tmn;
@@ -272,7 +286,7 @@ void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double
     ttime += t_end - t_start;
     score += improvement_percent(s_start, s_end);
 
-    tree1->clean();
+    tree1->erase();
     delete tree1;
 }
 

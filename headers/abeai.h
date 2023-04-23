@@ -73,6 +73,7 @@ struct Tree {
     bool has_child(const std::string& formula) const;
     Tree* deep_copy() const;
     void clean();
+    void erase();
 };
 
 struct Factorizer {

@@ -162,3 +162,10 @@ void Tree::clean() {
         delete child;
     }
 };
+
+void Tree::erase() {
+    for (Tree* child : this->children) {
+        child->erase();
+        delete child;
+    }
+}
