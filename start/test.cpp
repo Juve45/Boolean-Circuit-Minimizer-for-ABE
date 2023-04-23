@@ -317,7 +317,7 @@ void iteration(std::vector<std::string> formulas, std::vector <long double> &tim
     for(int i = 0; i < (int)alg.size(); i++) {
         time[i] += itime[i];
         score[i] += iscore[i];
-        for (int f = 0; f < (int)formulas.size(); i++) {
+        for (int f = 0; f < (int)formulas.size(); f++) {
             bst_score[f][i] = std::max(bst_score[f][i], ibst_score[f][i]);
         }
     }
