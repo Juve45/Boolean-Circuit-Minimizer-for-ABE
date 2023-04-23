@@ -8,3 +8,6 @@ main: $(OBJS) start/test.cpp
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	mkdir -p ${OBJDIR}
 	g++ -c $< -std=c++17 -Wall -Wextra -o $@  -ggdb
+
+clean:
+	rm -rf obj/ main

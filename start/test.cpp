@@ -176,11 +176,11 @@ Tree* real_sa(Tree* root) {
     root->trim();
 
     // Parameters which can be changed
-    long double cooling_rate = 0.04;
+    long double cooling_rate = 0.1;
     long double t_max = 100;
     long double t_min = 10;
     int defactorzie_percent = 25;
-    int L = 25; // number of iterations per sa epoch
+    int L = 15; // number of iterations per sa epoch
     // 
         
     // Tree* bst_tree = nullptr;
@@ -227,7 +227,7 @@ Tree* real_sa(Tree* root) {
 Tree* iterated_simulated_annealing(Tree * original) {    
     int mn = 1e9;
     Tree * tmn = nullptr;
-    for (int i=1;i<=20;i++) {
+    for (int i=1;i<=14;i++) {
         Tree *tree = original->deep_copy();
         tree->trim();
         tree = simulated_annealing(tree);
