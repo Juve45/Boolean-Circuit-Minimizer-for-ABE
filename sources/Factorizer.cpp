@@ -172,4 +172,9 @@ void Factorizer::defactorize(Tree* t1, Tree* t2) {
         parent->parent->trim();
     else
         parent->trim();
+    
+    t1->erase();
+    delete t1;
+    t2->erase();
+    delete t2;
 }
