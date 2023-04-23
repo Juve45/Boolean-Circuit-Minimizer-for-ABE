@@ -363,7 +363,7 @@ int main(int argc, char* argv[]) {
         thread.join();
 
     for (int i = 0; i < 6; i++)
-        for (int f = 0; f < (int)formulas.size(); i++) {
+        for (int f = 0; f < (int)formulas.size(); f++) {
             alg_best_score[i] += bst_score[f][i];
         }
 
