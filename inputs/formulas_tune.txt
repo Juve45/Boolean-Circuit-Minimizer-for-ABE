@@ -1,0 +1,3 @@
+((((d+j)*g*h*i*k*l)+((e+f)*a*b*c*d))*(((d+j)*g*h*i*k*l)+((r+s)*o*p*q)+m+n+(o*p*q))*(((e+f)*a*b*c*d)+((i+t)*(r+s))))
+((((b+n)*(c+o)*(p+q+r))+((d+e)*(s+t+u)))*(((d+e)*(s+t+u))+((k+o)*a*b*c)+(u*v)+(w*x))*(((d+e)*a*b*c)+((f+g)*(h+i+j+k)*g*l*m)))
+(((d+e+f+g)*(h+i)*(j*k*l+o*p)*a*b*c*j*k*l*m*n+(d+e+f+g)*(h+i)*a*b*c*j*k*l*m*n+(i+x)*(j*k*l+o*p)*(r+y)*t*u+(i+x)*(r+y)*t*u+(q+r+s)*t*u+(r+y)*(x1+x2)+(u+x4)*x3*z+h+i+m*n+n*p*v*w+s+z)*((d+e+f+g)*(h+i)*a*b*c*j*k*l*m*n+(i+x)*(j*k*l+o*p)*(r+y)*t*u+(i+x)*(r+y)*t*u+(r+y)*(x1+x2)+(u+x4)*x3*z+m*n+s+z)*((d+e+f+g)*(h+i)*a*b*c*j*k*l*m*n+(i+x)*(r+y)*t*u+(i*x5+n*p*v*w+x1+x2+x6+x7)*(u+x4)*x3*z+(r+y)*(x1+x2)+(u+x4)*x3*z+m*n+s+z))

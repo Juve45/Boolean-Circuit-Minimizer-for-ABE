@@ -1,0 +1,33 @@
+
+    const int ITERATION_COUNT = 16;
+ihc: 100 runs
+sa: kmax - 300
+rsa: t - 100, rate = 0.1, dp=25, l = 15 
+isa : 14 runs
+irsa: 20 runs
+
+
+
+formulas_big_2
+       hc time: 0.0196875
+      ihc time: 2.02816
+       sa time: 0.382862
+      isa time: 4.34583
+      rsa time: 0.164256
+     irsa time: 1.94855
+
+       hc score: 42.6688
+      ihc score: 56.5
+       sa score: 43.1188
+      isa score: 57.7
+      rsa score: 38.8812
+     irsa score: 55.2687
+
+  hc best score: 54.8
+ ihc best score: 56.5
+  sa best score: 58.7
+ isa best score: 62.8
+ rsa best score: 56.8
+irsa best score: 60.9
+
+

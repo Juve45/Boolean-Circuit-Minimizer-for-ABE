@@ -49,7 +49,7 @@ Tree* real_hill_climbing(Tree * t, int d = 0) {
 // TO DO: instead of sending the initial formula send the tree and make a deep copy function
 // to copy the three for each iteration
 Tree* iterated_hc(Tree * original) {
-    int runs = 100;
+    int runs = 60;
     int best_cost = 1e9;
     Tree *best_tree = nullptr;
 
@@ -143,7 +143,7 @@ bool factorize(Tree* root) {
 Tree* simulated_annealing(Tree* root) {
     Tree* bst_tree = nullptr;
     int bst_cst = 1e9;
-    int k_max = 300;
+    int k_max = 160;
     int can_factorize = true;
     for (int k = 0; k < k_max; k++) {
         root->trim();
@@ -179,11 +179,11 @@ Tree* real_sa(Tree* root) {
     root->trim();
 
     // Parameters which can be changed
-    long double cooling_rate = 0.1;
-    long double t_max = 100;
+    long double cooling_rate = 0.2;
+    long double t_max = 150;
     long double t_min = 10;
     int defactorzie_percent = 25;
-    int L = 15; // number of iterations per sa epoch
+    int L = 10; // number of iterations per sa epoch
     // 
         
     // Tree* bst_tree = nullptr;
@@ -233,7 +233,7 @@ Tree* real_sa(Tree* root) {
 Tree* iterated_simulated_annealing(Tree * original) {    
     int mn = 1e9;
     Tree * tmn = nullptr;
-    for (int i=1;i<=14;i++) {
+    for (int i=1;i<=8;i++) {
         Tree *tree = original->deep_copy();
         tree->trim();
         tree = simulated_annealing(tree);
@@ -258,7 +258,7 @@ Tree* iterated_simulated_annealing(Tree * original) {
 Tree* iterated_rsa(Tree * original) {    
     int mn = 1e9;
     Tree * tmn = nullptr;
-    for (int i=1;i<=20;i++) {
+    for (int i=1;i<=8;i++) {
         Tree *tree = original->deep_copy();
         tree->trim();
         tree = real_sa(tree);
@@ -391,13 +391,15 @@ void iteration(std::vector <Tree*(*)(Tree *)> alg, std::vector<std::string> form
 int main(int argc, char* argv[]) {
  
     // load_patterns();
-    const int ITERATION_COUNT = 16;
+    const int ITERATION_COUNT = 32;
 
     std::vector <Tree*(*)(Tree *)> alg;
     alg.push_back(&hill_climbing);
+    alg.push_back(&hill_climbing);
+    alg.push_back(&hill_climbing);
     alg.push_back(&iterated_hc);
-    alg.push_back(&simulated_annealing);
-    alg.push_back(&iterated_simulated_annealing);
+    // alg.push_back(&simulated_annealing);
+    // alg.push_back(&iterated_simulated_annealing);
     alg.push_back(&real_sa);
     alg.push_back(&iterated_rsa);
 
