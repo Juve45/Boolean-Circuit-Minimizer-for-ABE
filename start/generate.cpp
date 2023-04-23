@@ -16,18 +16,32 @@ int main() {
     //         if (++count1 == 50) break;
     //     }
     // }
-    std::ofstream fout2("inputs/formulas_big.txt");
-    int count2 = 0;
+    // std::ofstream fout2("inputs/formulas_big.txt");
+    // int count2 = 0;
+    // while (true) {
+    //     const Circuit circuit = Build::random(Random::integer(20, 50), Random::integer(2, 4));
+    //     std::string formula = Logic::to_formula(circuit);
+    //     Tree *tree = &Logic::to_tree(formula);
+    //     tree->trim();
+    //     formula = Logic::to_formula(*tree);
+    //     const int size = tree->get_cost();
+    //     if (size >= 50) {
+    //         fout2 << formula << '\n';
+    //         if (++count2 == 50) break;
+    //     }
+    // }
+    std::ofstream fout3("inputs/formulas_small_2.txt");
+    int count3 = 0;
     while (true) {
-        const Circuit circuit = Build::random(Random::integer(20, 50), Random::integer(2, 4));
+        const Circuit circuit = Build::random(20, Random::integer(2, 4));
         std::string formula = Logic::to_formula(circuit);
         Tree *tree = &Logic::to_tree(formula);
         tree->trim();
         formula = Logic::to_formula(*tree);
         const int size = tree->get_cost();
-        if (size >= 50) {
-            fout2 << formula << '\n';
-            if (++count2 == 50) break;
+        if (60 <= size && size <= 90) {
+            fout3 << formula << '\n';
+            if (++count3 == 50) break;
         }
     }
     return 0;
