@@ -269,7 +269,7 @@ void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double
     long double s_end = tree1->get_cost();
     
 
-    ttime += t_start - t_end;
+    ttime += t_end - t_start;
     score += improvement_percent(s_start, s_end);
 
     tree1->clean();
