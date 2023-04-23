@@ -285,6 +285,8 @@ void iteration(std::string formula, std::vector <long double> &time, std::vector
     std::vector <Tree*(*)(Tree *)> alg;
     alg.push_back(&hill_climbing);
     alg.push_back(&iterated_hc);
+    alg.push_back(&simulated_annealing);
+    alg.push_back(&iterated_simulated_annealing);
 
     for(int i = 0; i < alg.size(); i++) 
         run_algorithm(formula, alg[i], itime[i], iscore[i]);
