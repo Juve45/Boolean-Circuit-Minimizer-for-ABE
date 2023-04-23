@@ -20,3 +20,54 @@ formulas_small.txt
  isa best score: 46.98
  rsa best score: 44.08
 irsa best score: 47.8
+
+
+
+
+formulas_real.txt
+       hc time: 0.0009125
+      ihc time: 0.117512
+       sa time: 0.101175
+      isa time: 1.44415
+      rsa time: 0.148563
+     irsa time: 2.94244
+
+       hc score: 4.8375
+      ihc score: 7.2
+       sa score: 32.3
+      isa score: 48.5375
+      rsa score: 20.8375
+     irsa score: 48.525
+
+  hc best score: 7.2
+ ihc best score: 7.2
+  sa best score: 50
+ isa best score: 50.4
+ rsa best score: 47.8
+irsa best score: 50.4
+
+       hc time: 0.008355
+      ihc time: 0.879046
+       sa time: 0.858042
+      isa time: 11.4796
+      rsa time: 0.349645
+     irsa time: 6.87733
+
+       hc score: 28.7887
+      ihc score: 35.5112
+       sa score: 31.9713
+      isa score: 44.645
+      rsa score: 28.655
+     irsa score: 47.0262
+
+  hc best score: 35.4
+ ihc best score: 35.54
+  sa best score: 44.6
+ isa best score: 55.38
+ rsa best score: 46
+irsa best score: 56.6
+
+real	17m38,332s
+user	270m41,734s
+sys	0m2,943s
+andreea@ThinkPadL1
