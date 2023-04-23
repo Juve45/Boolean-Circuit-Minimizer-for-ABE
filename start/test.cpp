@@ -48,8 +48,8 @@ Tree* real_hill_climbing(Tree * t, int d = 0) {
 
 // TO DO: instead of sending the initial formula send the tree and make a deep copy function
 // to copy the three for each iteration
-Tree* iterated_hc(Tree * original, int runs = 100) {
-    
+Tree* iterated_hc(Tree * original) {
+    int runs = 100;
     int best_cost = 1e9;
     Tree *best_tree;
 
@@ -132,7 +132,8 @@ bool factorize(Tree* root) {
     return true;
 }
 
-Tree* simulated_annealing(Tree* root, int k_max = 200) {
+Tree* simulated_annealing(Tree* root) {
+    int k_max = 200;
     for (int k = 0; k < k_max; k++) {
         root->trim();
         if (Random::integer(20 * k_max) < k_max - k && k > 40) { // defactorize
@@ -281,8 +282,9 @@ void iteration(std::string formula, std::vector <long double> &time, std::vector
     std::vector<long double> itime(6);
     std::vector<long double> iscore(6);
 
-    std::vector <Tree(*)(Tree *)> alg = {
-        hill_climbing, iterated_hc, simulated_annealing, iterated_simulated_annealing};
+    std::vector <Tree*(*)(Tree *)> alg;
+    alg.push_back(&hill_climbing);
+    alg.push_back(&iterated_hc);
 
     for(int i = 0; i < alg.size(); i++) 
         run_algorithm(formula, alg[i], itime[i], iscore[i]);
@@ -311,6 +313,7 @@ int main(int argc, char* argv[]) {
 
     std::vector<long double> time(6);
     std::vector<long double> score(6);
+    std::vector<std::thread> threads;
 
     int formula_count;
     for (int i = 0; i < ITERATION_COUNT; i++) {
@@ -334,8 +337,9 @@ int main(int argc, char* argv[]) {
                 score[0] = improvement_percent(s01, s02);
             }*/
 
-            
-            iteration(formula, time, score);
+            std::thread t(iteration, formula, std::ref(time), std::ref(score));
+            threads.push_back(std::move(t));
+            // iteration(formula, time, score);
 
             std::cout << "finished formula #" << formula_count << '\n';
             formula_count++;
@@ -344,31 +348,35 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    time[0] /= 1000;
+    for(auto& thread : threads)
+        thread.join();
+
+    time[0] /= ITERATION_COUNT * formula_count * 1000;
     time[1] /= ITERATION_COUNT * formula_count * 1000;
     time[2] /= ITERATION_COUNT * formula_count * 1000;
     time[3] /= ITERATION_COUNT * formula_count * 1000;
     time[5] /= ITERATION_COUNT * formula_count * 1000;
 
+    score[0] /= ITERATION_COUNT * formula_count;
     score[1] /= ITERATION_COUNT * formula_count;
     score[2] /= ITERATION_COUNT * formula_count;
     score[3] /= ITERATION_COUNT * formula_count;
     // score[4] /= ITERATION_COUNT * formula_count;
     score[5] /= ITERATION_COUNT * formula_count;
 
-    std::cout << "replace time: " << time[0] << '\n';
-    std::cout << "     hc time: " << time[1] << '\n';
-    std::cout << "    ihc time: " << time[2] << '\n';
-    std::cout << "     sa time: " << time[3] << '\n';
+    // std::cout << "replace time: " << time[0] << '\n';
+    std::cout << "     hc time: " << time[0] << '\n';
+    std::cout << "    ihc time: " << time[1] << '\n';
+    std::cout << "     sa time: " << time[2] << '\n';
     // std::cout << "    rhc time: " << time[4] << '\n';
-    std::cout << "    isa time: " << time[5] << '\n';
+    std::cout << "    isa time: " << time[3] << '\n';
     std::cout << '\n';
 
-    std::cout << "replace score: " << score[0] << '\n';
-    std::cout << "     hc score: " << score[1] << '\n';
-    std::cout << "    ihc score: " << score[2] << '\n';
-    std::cout << "     sa score: " << score[3] << '\n';
+    // std::cout << "replace score: " << score[0] << '\n';
+    std::cout << "     hc score: " << score[0] << '\n';
+    std::cout << "    ihc score: " << score[1] << '\n';
+    std::cout << "     sa score: " << score[2] << '\n';
     // std::cout << "    rhc score: " << score[4] << '\n';
-    std::cout << "    isa score: " << score[5] << '\n';
+    std::cout << "    isa score: " << score[3] << '\n';
     return 0;
 }
