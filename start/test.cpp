@@ -273,7 +273,7 @@ void test_first_formula() {
 
 std::mutex st_lock;
 
-void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double& ttime, long double& score) {
+void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double& ttime, long double& score, long double& bst_score) {
     Tree *tree1 = &Logic::to_tree(formula);
     long double t_start = current_time_ms();
     long double s_start = tree1->get_cost();
@@ -284,34 +284,42 @@ void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double
     
 
     ttime += t_end - t_start;
-    score += improvement_percent(s_start, s_end);
+    bst_score = improvement_percent(s_start, s_end);
+    score += bst_score;
 
     tree1->erase();
     delete tree1;
 }
 
 
-void iteration(std::vector<std::string> formulas, std::vector <long double> &time, std::vector <long double> &score) {
+void iteration(std::vector<std::string> formulas, std::vector <long double> &time, std::vector <long double> &score,
+     std::vector<std::vector<long double> > &bst_score) {
 
     std::vector<long double> itime(6);
     std::vector<long double> iscore(6);
+    std::vector<std::vector<long double> > ibst_score(formulas.size(), std::vector<long double>(6));
     std::vector <Tree*(*)(Tree *)> alg;
     alg.push_back(&hill_climbing);
     alg.push_back(&iterated_hc);
     alg.push_back(&simulated_annealing);
     alg.push_back(&iterated_simulated_annealing);
 
+    int formula_count = 0;
     for (auto &formula : formulas) {
-        for(int i = 0; i < alg.size(); i++) 
-            run_algorithm(formula, alg[i], itime[i], iscore[i]);   
-        std::cout << "finished formula #" << formula << '\n';
+        for(int i = 0; i < (int)alg.size(); i++) 
+            run_algorithm(formula, alg[i], itime[i], iscore[i], ibst_score[formula_count][i]);   
+        std::cout << "finished formula #" << formula_count << '\n';
+        formula_count++;
     }
 
     st_lock.lock();
 
-    for(int i = 0; i < alg.size(); i++) {
+    for(int i = 0; i < (int)alg.size(); i++) {
         time[i] += itime[i];
         score[i] += iscore[i];
+        for (int f = 0; f < (int)formulas.size(); i++) {
+            bst_score[f][i] = std::max(bst_score[f][i], ibst_score[f][i]);
+        }
     }
 
     st_lock.unlock();
@@ -330,8 +338,8 @@ int main(int argc, char* argv[]) {
 
     std::vector<long double> time(6);
     std::vector<long double> score(6);
+    std::vector<long double> alg_best_score(6);
     std::vector<std::thread> threads;
-
     std::vector<std::string> formulas;
     
     std::string formula;
@@ -341,29 +349,29 @@ int main(int argc, char* argv[]) {
     }
     int formula_count = formulas.size();
 
+    std::vector<std::vector<long double> > bst_score(formula_count, std::vector<long double>(6));
+
 
     for (int i = 0; i < ITERATION_COUNT; i++) {
         std::cout << "started iteration #" << i << '\n';
 
-        std::thread t(iteration, formulas, std::ref(time), std::ref(score));
+        std::thread t(iteration, formulas, std::ref(time), std::ref(score), std::ref(bst_score));
         threads.push_back(std::move(t));
     }
 
     for(auto& thread : threads)
         thread.join();
 
-    time[0] /= ITERATION_COUNT * formula_count * 1000;
-    time[1] /= ITERATION_COUNT * formula_count * 1000;
-    time[2] /= ITERATION_COUNT * formula_count * 1000;
-    time[3] /= ITERATION_COUNT * formula_count * 1000;
-    time[5] /= ITERATION_COUNT * formula_count * 1000;
+    for (int i = 0; i < 6; i++)
+        for (int f = 0; f < (int)formulas.size(); i++) {
+            alg_best_score[i] += bst_score[f][i];
+        }
 
-    score[0] /= ITERATION_COUNT * formula_count;
-    score[1] /= ITERATION_COUNT * formula_count;
-    score[2] /= ITERATION_COUNT * formula_count;
-    score[3] /= ITERATION_COUNT * formula_count;
-    // score[4] /= ITERATION_COUNT * formula_count;
-    score[5] /= ITERATION_COUNT * formula_count;
+    for (int i=0;i<6;i++) {
+        time[i] /= ITERATION_COUNT * formula_count * 1000;
+        score[i] /= ITERATION_COUNT * formula_count;
+        alg_best_score[i] /= formula_count;
+    }
 
     // std::cout << "replace time: " << time[0] << '\n';
     std::cout << "     hc time: " << time[0] << '\n';
@@ -379,5 +387,13 @@ int main(int argc, char* argv[]) {
     std::cout << "     sa score: " << score[2] << '\n';
     // std::cout << "    rhc score: " << score[4] << '\n';
     std::cout << "    isa score: " << score[3] << '\n';
+
+
+    // std::cout << "replace score: " << score[0] << '\n';
+    std::cout << "     hc best score: " << alg_best_score[0] << '\n';
+    std::cout << "    ihc best score: " << alg_best_score[1] << '\n';
+    std::cout << "     sa best score: " << alg_best_score[2] << '\n';
+    // std::cout << "    rhc score: " << score[4] << '\n';
+    std::cout << "    isa best score: " << alg_best_score[3] << '\n';
     return 0;
 }
