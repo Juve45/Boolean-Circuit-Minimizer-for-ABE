@@ -247,6 +247,29 @@ Tree* iterated_simulated_annealing(Tree * original) {
     return tmn;
 }
 
+Tree* iterated_rsa(Tree * original) {    
+    int mn = 1e9;
+    Tree * tmn = nullptr;
+    for (int i=1;i<=20;i++) {
+        Tree *tree = original->deep_copy();
+        tree->trim();
+        real_sa(tree);
+        int tt = tree->get_cost();
+        if(mn > tt) {
+            if (tmn) {
+                tmn->erase();
+                delete(tmn);
+            }
+            tmn = tree;
+            mn = tt;
+        } else {
+            tree->erase();
+            delete(tree);
+        }
+    }
+    return tmn;
+}
+
 // ==========================================================================================
 // ==========================================================================================
 // ==========================================================================================
@@ -364,7 +387,7 @@ void iteration(std::vector <Tree*(*)(Tree *)> alg, std::vector<std::string> form
 
     std::vector<long double> itime(alg.size());
     std::vector<long double> iscore(alg.size());
-    std::vector<std::vector<long double> > ibst_score(formulas.size(), std::vector<long double>(6));
+    std::vector<std::vector<long double> > ibst_score(formulas.size(), std::vector<long double>(alg.size()));
 
     int formula_count = 0;
     for (auto &formula : formulas) {
@@ -396,7 +419,7 @@ int main(int argc, char* argv[]) {
     // return 0;
 
     load_patterns();
-    const int ITERATION_COUNT = 15;
+    const int ITERATION_COUNT = 4;
 
     std::vector <Tree*(*)(Tree *)> alg;
     // alg.push_back(&hill_climbing);
@@ -404,6 +427,7 @@ int main(int argc, char* argv[]) {
     alg.push_back(&simulated_annealing);
     // alg.push_back(&iterated_simulated_annealing);
     alg.push_back(&real_sa);
+    alg.push_back(&iterated_rsa);
 
     std::vector<long double> time(alg.size());
     std::vector<long double> score(alg.size());
@@ -418,7 +442,7 @@ int main(int argc, char* argv[]) {
     }
     int formula_count = formulas.size();
 
-    std::vector<std::vector<long double> > bst_score(formula_count, std::vector<long double>(6));
+    std::vector<std::vector<long double> > bst_score(formula_count, std::vector<long double>(alg.size()));
 
 
     for (int i = 0; i < ITERATION_COUNT; i++) {
@@ -442,31 +466,34 @@ int main(int argc, char* argv[]) {
         alg_best_score[i] /= formula_count;
     }
 
-    // std::cout << "replace time: " << time[0] << '\n';
-    // std::cout << "      hc time: " << time[0] << '\n';
-    // std::cout << "     ihc time: " << time[1] << '\n';
-    std::cout << "      sa time: " << time[0] << '\n';
-    // std::cout << "    rhc time: " << time[4] << '\n';
-    // std::cout << "     isa time: " << time[3] << '\n';
-    std::cout << "     rsa time: " << time[1] << '\n';
+    // std::cout << " replace time: " << time[0] << '\n';
+    // std::cout << "       hc time: " << time[0] << '\n';
+    // std::cout << "      ihc time: " << time[1] << '\n';
+    std::cout << "       sa time: " << time[0] << '\n';
+    // std::cout << "     rhc time: " << time[4] << '\n';
+    // std::cout << "      isa time: " << time[3] << '\n';
+    std::cout << "      rsa time: " << time[1] << '\n';
+    std::cout << "     irsa time: " << time[2] << '\n';
     std::cout << '\n';
 
-    // std::cout << "replace score: " << score[0] << '\n';
-    // std::cout << "      hc score: " << score[0] << '\n';
-    // std::cout << "     ihc score: " << score[1] << '\n';
-    std::cout << "      sa score: " << score[0] << '\n';
-    // std::cout << "    rhc score: " << score[4] << '\n';
-    // std::cout << "     isa score: " << score[3] << '\n';
-    std::cout << "     rsa score: " << score[1] << '\n';
+    // std::cout << " replace score: " << score[0] << '\n';
+    // std::cout << "       hc score: " << score[0] << '\n';
+    // std::cout << "      ihc score: " << score[1] << '\n';
+    std::cout << "       sa score: " << score[0] << '\n';
+    // std::cout << "     rhc score: " << score[4] << '\n';
+    // std::cout << "      isa score: " << score[3] << '\n';
+    std::cout << "      rsa score: " << score[1] << '\n';
+    std::cout << "     irsa score: " << score[2] << '\n';
     std::cout << '\n';
 
 
-    // std::cout << "replace score: " << score[0] << '\n';
-    // std::cout << " hc best score: " << alg_best_score[0] << '\n';
-    // std::cout << "ihc best score: " << alg_best_score[1] << '\n';
-    std::cout << " sa best score: " << alg_best_score[0] << '\n';
-    // std::cout << "    rhc score: " << score[4] << '\n';
-    // std::cout << "isa best score: " << alg_best_score[3] << '\n';
-    std::cout << "rsa best score: " << alg_best_score[1] << '\n';
+    // std::cout << " replace score: " << score[0] << '\n';
+    // std::cout << "  hc best score: " << alg_best_score[0] << '\n';
+    // std::cout << " ihc best score: " << alg_best_score[1] << '\n';
+    std::cout << "  sa best score: " << alg_best_score[0] << '\n';
+    // std::cout << "     rhc score: " << score[4] << '\n';
+    // std::cout << " isa best score: " << alg_best_score[3] << '\n';
+    std::cout << " rsa best score: " << alg_best_score[1] << '\n';
+    std::cout << "irsa best score: " << alg_best_score[2] << '\n';
     return 0;
 }
