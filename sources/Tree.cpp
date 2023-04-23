@@ -87,16 +87,19 @@ bool Tree::trim() {
         if (child_formulas.count(child->formula)) {
             // dbg(child);
             this->erase_child(child);
+            child->erase();
             delete child;
             i--;
         } else 
             child_formulas.insert(child->formula);
     }
 
+    bool erase_this = false;
+
     if (parent && type != INPUT) {
         if (children.empty()) {
             parent->erase_child(this);
-            return true;
+            erase_this = true;
         }
         if (children.size() == 1) {
             Tree *child = children.front();
@@ -111,7 +114,7 @@ bool Tree::trim() {
                 if (!parent->has_child(child->formula))
                     parent->add_child(child);
             }
-            return true;
+            erase_this = true;
             // to do: remove this node
         }
         else if (parent->type == type) {
@@ -121,13 +124,13 @@ bool Tree::trim() {
                 if (!parent->has_child(child->formula))
                     parent->add_child(child);
             }
-            return true;
+            erase_this = true;
             // to do: remove this node
         }
     }
     if (!children.empty())
         update_formula();
-    return false;
+    return erase_this;
 }
 
 bool Tree::has_child(const std::string& formula) const {
