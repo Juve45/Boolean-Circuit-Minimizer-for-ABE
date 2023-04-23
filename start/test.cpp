@@ -277,19 +277,21 @@ void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double
 }
 
 
-void iteration(std::string formula, std::vector <long double> &time, std::vector <long double> &score) {
+void iteration(std::vector<std::string> formulas, std::vector <long double> &time, std::vector <long double> &score) {
 
     std::vector<long double> itime(6);
     std::vector<long double> iscore(6);
-
     std::vector <Tree*(*)(Tree *)> alg;
     alg.push_back(&hill_climbing);
     alg.push_back(&iterated_hc);
     alg.push_back(&simulated_annealing);
     alg.push_back(&iterated_simulated_annealing);
 
-    for(int i = 0; i < alg.size(); i++) 
-        run_algorithm(formula, alg[i], itime[i], iscore[i]);
+    for (auto &formula : formulas) {
+        for(int i = 0; i < alg.size(); i++) 
+            run_algorithm(formula, alg[i], itime[i], iscore[i]);   
+        std::cout << "finished formula #" << formula << '\n';
+    }
 
     st_lock.lock();
 
@@ -299,7 +301,6 @@ void iteration(std::string formula, std::vector <long double> &time, std::vector
     }
 
     st_lock.unlock();
-
 }
 
 
@@ -317,37 +318,21 @@ int main(int argc, char* argv[]) {
     std::vector<long double> score(6);
     std::vector<std::thread> threads;
 
-    int formula_count;
+    std::vector<std::string> formulas;
+    
+    std::string formula;
+    std::ifstream fin(argv[1]);
+    while (fin >> formula) {
+        formulas.push_back(formula);
+    }
+    int formula_count = formulas.size();
+
+
     for (int i = 0; i < ITERATION_COUNT; i++) {
-        std::ifstream fin(argv[1]);
         std::cout << "started iteration #" << i << '\n';
 
-        formula_count = 0;
-        std::string formula;
-        while (fin >> formula) {
-            dbg(formula);
-            /*if (i == 0 && false) {
-                Circuit circuit = Logic::to_circuit(formula);
-                long double t01 = current_time_ms();
-                long double s01 = circuit.eval();
-                // std::string f01 = Logic::to_formula(circuit);
-                replace(circuit);
-                long double t02 = current_time_ms();
-                long double s02 = circuit.eval();
-                // std::string f02 = Logic::to_formula(circuit);
-                time[0] = t02 - t01;
-                score[0] = improvement_percent(s01, s02);
-            }*/
-
-            std::thread t(iteration, formula, std::ref(time), std::ref(score));
-            threads.push_back(std::move(t));
-            // iteration(formula, time, score);
-
-            std::cout << "finished formula #" << formula_count << '\n';
-            formula_count++;
-
-            // putem afișa pe aici f01/f02/f11/f12/f21/f22/f31/f32 pentru debugging
-        }
+        std::thread t(iteration, formulas, std::ref(time), std::ref(score));
+        threads.push_back(std::move(t));
     }
 
     for(auto& thread : threads)
