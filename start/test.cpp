@@ -338,38 +338,6 @@ void replace(Circuit& circuit) {
         index = (index + 1) % patterns.size();
     }
 }
-
-void test_first_formula() {
-    std::ifstream fin("inputs/formulas_real.txt");
-    std::string formula;
-
-    fin >> formula;
-
-    Tree *tree = &Logic::to_tree(formula);
-    std::cout << formula << "\n";
-    // dbg(*tree);
-    // std::cout << tree->get_cost() << "\n\n";
-
-    tree->trim();
-    // dbg(*tree);
-
-    // defactorize(tree);
-
-    // dbg(*tree);
-
-    // factorize(tree);
-
-    // dbg(*tree);
-
-    // return;
-
-    std::cout << "After trim: " << tree->formula << "\n\n";
-
-    simulated_annealing(tree);
-
-    std::cout << "After sa: " << tree->formula << '\n';
-}
-
 std::mutex st_lock;
 
 void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double& ttime, long double& score, long double& bst_score) {
@@ -420,15 +388,9 @@ void iteration(std::vector <Tree*(*)(Tree *)> alg, std::vector<std::string> form
     st_lock.unlock();
 }
 
-
-
 int main(int argc, char* argv[]) {
-
-    // for (int i=1;i<=1000;i++)
-    //     test_first_formula();
-    // return 0;
-
-    load_patterns();
+ 
+    // load_patterns();
     const int ITERATION_COUNT = 16;
 
     std::vector <Tree*(*)(Tree *)> alg;
