@@ -391,15 +391,15 @@ void iteration(std::vector <Tree*(*)(Tree *)> alg, std::vector<std::string> form
 int main(int argc, char* argv[]) {
  
     // load_patterns();
-    const int ITERATION_COUNT = 32;
+    const int ITERATION_COUNT = 16;
 
     std::vector <Tree*(*)(Tree *)> alg;
     alg.push_back(&hill_climbing);
-    alg.push_back(&hill_climbing);
-    alg.push_back(&hill_climbing);
+    // alg.push_back(&hill_climbing);
+    // alg.push_back(&hill_climbing);
     alg.push_back(&iterated_hc);
-    // alg.push_back(&simulated_annealing);
-    // alg.push_back(&iterated_simulated_annealing);
+    alg.push_back(&simulated_annealing);
+    alg.push_back(&iterated_simulated_annealing);
     alg.push_back(&real_sa);
     alg.push_back(&iterated_rsa);
 

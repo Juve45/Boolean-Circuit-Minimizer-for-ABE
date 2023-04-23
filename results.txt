@@ -126,3 +126,26 @@ formulas_big_2
  isa best score: 63.1
  rsa best score: 59.4
 irsa best score: 64.9
+
+
+formulas_really_big
+       hc time: 0.0559588
+      ihc time: 3.42556
+       sa time: 1.93317
+      isa time: 13.3484
+      rsa time: 0.486278
+     irsa time: 4.07251
+
+       hc score: 32.955
+      ihc score: 45.7863
+       sa score: 31.17
+      isa score: 43.6825
+      rsa score: 27.8337
+     irsa score: 41.5513
+
+  hc best score: 44.06
+ ihc best score: 46
+  sa best score: 46.22
+ isa best score: 48.44
+ rsa best score: 45.18
+irsa best score: 48.16
