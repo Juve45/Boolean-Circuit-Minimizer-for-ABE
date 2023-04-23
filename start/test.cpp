@@ -2,7 +2,7 @@
 #include "../headers/debug.h"
 
 
-void hill_climbing(Tree* t) {
+Tree* hill_climbing(Tree* t) {
     while (true) {
         t->trim();
         std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t);
@@ -12,6 +12,7 @@ void hill_climbing(Tree* t) {
         const auto [f1, f2] = Random::two_integers(factorizable[c].size());
         Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
     }
+    return t;
 }
 
 
@@ -47,13 +48,13 @@ Tree* real_hill_climbing(Tree * t, int d = 0) {
 
 // TO DO: instead of sending the initial formula send the tree and make a deep copy function
 // to copy the three for each iteration
-Tree* iterated_hc(std::string formula, int runs = 100) {
+Tree* iterated_hc(Tree * original, int runs = 100) {
     
     int best_cost = 1e9;
     Tree *best_tree;
 
     for (int i=1;i<=runs;i++){
-        Tree *tree = &Logic::to_tree(formula);
+        Tree *tree = original->deep_copy();
         tree->trim();
         hill_climbing(tree);
         int cost = tree->get_cost();
@@ -131,10 +132,10 @@ bool factorize(Tree* root) {
     return true;
 }
 
-void simulated_annealing(Tree* root, int k_max = 1000) {
+Tree* simulated_annealing(Tree* root, int k_max = 200) {
     for (int k = 0; k < k_max; k++) {
         root->trim();
-        if (Random::integer(50 * k_max) < k_max - k && k > 200) { // defactorize
+        if (Random::integer(20 * k_max) < k_max - k && k > 40) { // defactorize
             defactorize(root);
         }
         else { // factorize
@@ -146,17 +147,23 @@ void simulated_annealing(Tree* root, int k_max = 1000) {
     root->trim();
     while(factorize(root))
         root->trim();
+    return root;
 }
 
-int iterated_simulated_annealing(std::string &formula) {    
+Tree* iterated_simulated_annealing(Tree * original) {    
     int mn = 1e9;
-    for (int i=1;i<=100;i++) {
-        Tree *tree = &Logic::to_tree(formula);
+    Tree * tmn;
+    for (int i=1;i<=20;i++) {
+        Tree *tree = original->deep_copy();
         tree->trim();
         simulated_annealing(tree);
-        mn = std::min(mn, tree->get_cost());
+        int tt = tree->get_cost();
+        if(mn > tt) {
+            tmn = tree;
+            mn = tt;
+        }
     }
-    return mn;
+    return tmn;
 }
 
 // ==========================================================================================
@@ -249,6 +256,50 @@ void test_first_formula() {
     std::cout << "After sa: " << tree->formula << '\n';
 }
 
+std::mutex st_lock;
+
+void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double& ttime, long double& score) {
+    Tree *tree1 = &Logic::to_tree(formula);
+    long double t_start = current_time_ms();
+    long double s_start = tree1->get_cost();
+    
+    tree1 = algorithm(tree1);
+    long double t_end = current_time_ms();
+    long double s_end = tree1->get_cost();
+    
+
+    ttime += t_start - t_end;
+    score += improvement_percent(s_start, s_end);
+
+    tree1->clean();
+    delete tree1;
+}
+
+
+void iteration(std::string formula, std::vector <long double> &time, std::vector <long double> &score) {
+
+    std::vector<long double> itime(6);
+    std::vector<long double> iscore(6);
+
+    std::vector <Tree(*)(Tree *)> alg = {
+        hill_climbing, iterated_hc, simulated_annealing, iterated_simulated_annealing};
+
+    for(int i = 0; i < alg.size(); i++) 
+        run_algorithm(formula, alg[i], itime[i], iscore[i]);
+
+    st_lock.lock();
+
+    for(int i = 0; i < alg.size(); i++) {
+        time[i] += itime[i];
+        score[i] += iscore[i];
+    }
+
+    st_lock.unlock();
+
+}
+
+
+
 int main(int argc, char* argv[]) {
 
     // for (int i=1;i<=1000;i++)
@@ -270,7 +321,7 @@ int main(int argc, char* argv[]) {
         std::string formula;
         while (fin >> formula) {
             dbg(formula);
-            if (i == 0 && false) {
+            /*if (i == 0 && false) {
                 Circuit circuit = Logic::to_circuit(formula);
                 long double t01 = current_time_ms();
                 long double s01 = circuit.eval();
@@ -281,68 +332,14 @@ int main(int argc, char* argv[]) {
                 // std::string f02 = Logic::to_formula(circuit);
                 time[0] = t02 - t01;
                 score[0] = improvement_percent(s01, s02);
-            }
+            }*/
 
-            Tree *tree1 = &Logic::to_tree(formula);
-            long double t11 = current_time_ms();
-            long double s11 = tree1->get_cost();
-            // std::string f11 = Logic::to_formula(*tree1);
-            hill_climbing(tree1);
-            long double t12 = current_time_ms();
-            long double s12 = tree1->get_cost();
-            // std::string f12 = Logic::to_formula(*tree1);
-            tree1->clean();
-            delete tree1;
-
-            Tree *tree2 = &Logic::to_tree(formula);
-            long double t21 = current_time_ms();
-            long double s21 = tree2->get_cost();
-            // std::string f21 = Logic::to_formula(*tree2);
-            tree2 = iterated_hc(formula);
-            long double t22 = current_time_ms();
-            long double s22 = tree2->get_cost();
-            // std::string f22 = Logic::to_formula(*tree2);
-            tree2->clean();
-            delete tree2;
-
-            Tree *tree3 = &Logic::to_tree(formula);
-            long double t31 = current_time_ms();
-            long double s31 = tree3->get_cost();
-            // std::string f31 = Logic::to_formula(*tree3);
-            simulated_annealing(tree3);
-            long double t32 = current_time_ms();
-            long double s32 = tree3->get_cost();
-            // std::string f32 = Logic::to_formula(*tree3);
-            tree3->clean();
-            delete tree3;
-
-/*
-            Tree *tree4 = &Logic::to_tree(formula);
-            long double t41 = current_time_ms();
-            long double s41 = tree4->get_cost();
-            // std::string f11 = Logic::to_formula(*tree1);
-            tree4 = real_hill_climbing(tree4);
-            long double t42 = current_time_ms();
-            long double s42 = tree4->get_cost();
-            // std::string f12 = Logic::to_formula(*tree1);
-*/
-
-            Tree *tree5 = &Logic::to_tree(formula);
-            long double t51 = current_time_ms();
-            long double s51 = tree5->get_cost();
-            // std::string f51 = Logic::to_formula(*tree5);
-            long double s52 = iterated_simulated_annealing(formula);
-            long double t52 = current_time_ms();
-            // std::string f52 = Logic::to_formula(*tree5);
-            tree5->clean();
+            
+            iteration(formula, time, score);
 
             std::cout << "finished formula #" << formula_count << '\n';
             formula_count++;
-            time[1] += t12 - t11; score[1] += improvement_percent(s11, s12);
-            time[2] += t22 - t21; score[2] += improvement_percent(s21, s22);
-            time[3] += t32 - t31; score[3] += improvement_percent(s31, s32);
-            // time[4] += t42 - t41; score[4] += improvement_percent(s41, s42);
-            time[5] += t52 - t51; score[5] += improvement_percent(s51, s52);
+
             // putem afișa pe aici f01/f02/f11/f12/f21/f22/f31/f32 pentru debugging
         }
     }
