@@ -401,7 +401,7 @@ void iteration(std::vector <Tree*(*)(Tree *)> alg, std::vector<std::string> form
 
     for(int i = 0; i < (int)alg.size(); i++) {
         time[i] += itime[i];
-        score[i] += iscore[i];
+        score[i] += iscore[i]; 
         for (int f = 0; f < (int)formulas.size(); f++) {
             bst_score[f][i] = std::max(bst_score[f][i], ibst_score[f][i]);
         }
@@ -419,13 +419,13 @@ int main(int argc, char* argv[]) {
     // return 0;
 
     load_patterns();
-    const int ITERATION_COUNT = 4;
+    const int ITERATION_COUNT = 32;
 
     std::vector <Tree*(*)(Tree *)> alg;
-    // alg.push_back(&hill_climbing);
-    // alg.push_back(&iterated_hc);
+    alg.push_back(&hill_climbing);
+    alg.push_back(&iterated_hc);
     alg.push_back(&simulated_annealing);
-    // alg.push_back(&iterated_simulated_annealing);
+    alg.push_back(&iterated_simulated_annealing);
     alg.push_back(&real_sa);
     alg.push_back(&iterated_rsa);
 
@@ -450,10 +450,13 @@ int main(int argc, char* argv[]) {
 
         std::thread t(iteration, alg, formulas, std::ref(time), std::ref(score), std::ref(bst_score));
         threads.push_back(std::move(t));
+
+        if (i==15 || i == 31)
+            for(auto& thread : threads)
+                thread.join();
     }
 
-    for(auto& thread : threads)
-        thread.join();
+    
 
     for (int i = 0; i < (int)alg.size(); i++)
         for (int f = 0; f < (int)formulas.size(); f++) {
@@ -467,33 +470,33 @@ int main(int argc, char* argv[]) {
     }
 
     // std::cout << " replace time: " << time[0] << '\n';
-    // std::cout << "       hc time: " << time[0] << '\n';
-    // std::cout << "      ihc time: " << time[1] << '\n';
-    std::cout << "       sa time: " << time[0] << '\n';
-    // std::cout << "     rhc time: " << time[4] << '\n';
-    // std::cout << "      isa time: " << time[3] << '\n';
-    std::cout << "      rsa time: " << time[1] << '\n';
-    std::cout << "     irsa time: " << time[2] << '\n';
+    std::cout << "       hc time: " << time[0] << '\n';
+    std::cout << "      ihc time: " << time[1] << '\n';
+    std::cout << "       sa time: " << time[2] << '\n';
+    // std::cout << "      rhc time: " << time[4] << '\n';
+    std::cout << "      isa time: " << time[3] << '\n';
+    std::cout << "      rsa time: " << time[4] << '\n';
+    std::cout << "     irsa time: " << time[5] << '\n';
     std::cout << '\n';
 
     // std::cout << " replace score: " << score[0] << '\n';
-    // std::cout << "       hc score: " << score[0] << '\n';
-    // std::cout << "      ihc score: " << score[1] << '\n';
-    std::cout << "       sa score: " << score[0] << '\n';
+    std::cout << "       hc score: " << score[0] << '\n';
+    std::cout << "      ihc score: " << score[1] << '\n';
+    std::cout << "       sa score: " << score[2] << '\n';
     // std::cout << "     rhc score: " << score[4] << '\n';
-    // std::cout << "      isa score: " << score[3] << '\n';
-    std::cout << "      rsa score: " << score[1] << '\n';
-    std::cout << "     irsa score: " << score[2] << '\n';
+    std::cout << "      isa score: " << score[3] << '\n';
+    std::cout << "      rsa score: " << score[4] << '\n';
+    std::cout << "     irsa score: " << score[5] << '\n';
     std::cout << '\n';
 
 
     // std::cout << " replace score: " << score[0] << '\n';
-    // std::cout << "  hc best score: " << alg_best_score[0] << '\n';
-    // std::cout << " ihc best score: " << alg_best_score[1] << '\n';
-    std::cout << "  sa best score: " << alg_best_score[0] << '\n';
+    std::cout << "  hc best score: " << alg_best_score[0] << '\n';
+    std::cout << " ihc best score: " << alg_best_score[1] << '\n';
+    std::cout << "  sa best score: " << alg_best_score[2] << '\n';
     // std::cout << "     rhc score: " << score[4] << '\n';
-    // std::cout << " isa best score: " << alg_best_score[3] << '\n';
-    std::cout << " rsa best score: " << alg_best_score[1] << '\n';
-    std::cout << "irsa best score: " << alg_best_score[2] << '\n';
+    std::cout << " isa best score: " << alg_best_score[3] << '\n';
+    std::cout << " rsa best score: " << alg_best_score[4] << '\n';
+    std::cout << "irsa best score: " << alg_best_score[5] << '\n';
     return 0;
 }
