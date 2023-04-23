@@ -230,7 +230,7 @@ Tree* iterated_simulated_annealing(Tree * original) {
     for (int i=1;i<=20;i++) {
         Tree *tree = original->deep_copy();
         tree->trim();
-        simulated_annealing(tree);
+        tree = simulated_annealing(tree);
         int tt = tree->get_cost();
         if(mn > tt) {
             if (tmn) {
@@ -253,7 +253,7 @@ Tree* iterated_rsa(Tree * original) {
     for (int i=1;i<=20;i++) {
         Tree *tree = original->deep_copy();
         tree->trim();
-        real_sa(tree);
+        tree = real_sa(tree);
         int tt = tree->get_cost();
         if(mn > tt) {
             if (tmn) {
