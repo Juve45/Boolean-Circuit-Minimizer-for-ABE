@@ -46,6 +46,8 @@ formulas_real.txt
  rsa best score: 47.8
 irsa best score: 50.4
 
+
+formulas_big.txt
        hc time: 0.008355
       ihc time: 0.879046
        sa time: 0.858042
@@ -71,3 +73,26 @@ real	17m38,332s
 user	270m41,734s
 sys	0m2,943s
 andreea@ThinkPadL1
+
+
+small_2
+       hc time: 0.003185
+      ihc time: 0.340637
+       sa time: 0.863021
+      isa time: 13.1259
+      rsa time: 0.38626
+     irsa time: 7.50474
+
+       hc score: 35.135
+      ihc score: 42.0975
+       sa score: 41.0312
+      isa score: 57.8862
+      rsa score: 35.815
+     irsa score: 61.3937
+
+  hc best score: 41.9
+ ihc best score: 42.1
+  sa best score: 59.14
+ isa best score: 66.02
+ rsa best score: 61.88
+irsa best score: 68.62
