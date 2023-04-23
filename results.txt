@@ -1,0 +1,22 @@
+formulas_small.txt  
+
+       hc time: 0.000713125
+      ihc time: 0.0816431
+       sa time: 0.167078
+      isa time: 2.39966
+      rsa time: 0.138354
+     irsa time: 2.74878
+
+       hc score: 15.05
+      ihc score: 16.34
+       sa score: 26.975
+      isa score: 40.1769
+      rsa score: 24.8412
+     irsa score: 43.0606
+
+  hc best score: 16.34
+ ihc best score: 16.34
+  sa best score: 43.12
+ isa best score: 46.98
+ rsa best score: 44.08
+irsa best score: 47.8

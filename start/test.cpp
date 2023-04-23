@@ -70,7 +70,8 @@ Tree* iterated_hc(Tree * original) {
             delete(tree);
         }
     }
-
+    original->erase();
+    delete original;
     return best_tree;
 }
 
@@ -166,6 +167,8 @@ Tree* simulated_annealing(Tree* root) {
             bst_tree = root->deep_copy();
         }
     }
+    root->erase();
+    delete root;
     bst_tree->trim();
     while(factorize(bst_tree))
         bst_tree->trim();
@@ -214,6 +217,9 @@ Tree* real_sa(Tree* root) {
                     root->erase();
                     delete root;
                     root = neighbour;
+                } else {
+                    neighbour->erase();
+                    delete neighbour;
                 }
             }
         }
@@ -244,6 +250,8 @@ Tree* iterated_simulated_annealing(Tree * original) {
             delete(tree);
         }
     }
+    original->erase();
+    delete original;
     return tmn;
 }
 
@@ -267,6 +275,8 @@ Tree* iterated_rsa(Tree * original) {
             delete(tree);
         }
     }
+    original->erase();
+    delete original;
     return tmn;
 }
 
@@ -419,7 +429,7 @@ int main(int argc, char* argv[]) {
     // return 0;
 
     load_patterns();
-    const int ITERATION_COUNT = 32;
+    const int ITERATION_COUNT = 16;
 
     std::vector <Tree*(*)(Tree *)> alg;
     alg.push_back(&hill_climbing);
@@ -451,9 +461,11 @@ int main(int argc, char* argv[]) {
         std::thread t(iteration, alg, formulas, std::ref(time), std::ref(score), std::ref(bst_score));
         threads.push_back(std::move(t));
 
-        if (i==15 || i == 31)
+        if (i==15 || i == 31) {
             for(auto& thread : threads)
                 thread.join();
+            threads.clear();
+        }
     }
 
     
