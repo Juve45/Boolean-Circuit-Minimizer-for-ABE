@@ -1,4 +1,5 @@
 main
 .vscode
 .DS_Store
-obj/*
+obj
+main.dSYM

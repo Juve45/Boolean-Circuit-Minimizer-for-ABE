@@ -1,3 +1,11 @@
+
+    const int ITERATION_COUNT = 16;
+ihc: 100 runs
+sa: kmax - 150
+rsa: t - 150, rate = 0.2, dp=25, l = 10 
+isa : 12 runs
+irsa: 12 runs
+
 formulas_small.txt  
 
        hc time: 0.000713125
@@ -46,6 +54,8 @@ formulas_real.txt
  rsa best score: 47.8
 irsa best score: 50.4
 
+
+formulas_big.txt
        hc time: 0.008355
       ihc time: 0.879046
        sa time: 0.858042
@@ -71,3 +81,71 @@ real	17m38,332s
 user	270m41,734s
 sys	0m2,943s
 andreea@ThinkPadL1
+
+
+small_2
+       hc time: 0.003185
+      ihc time: 0.340637
+       sa time: 0.863021
+      isa time: 13.1259
+      rsa time: 0.38626
+     irsa time: 7.50474
+
+       hc score: 35.135
+      ihc score: 42.0975
+       sa score: 41.0312
+      isa score: 57.8862
+      rsa score: 35.815
+     irsa score: 61.3937
+
+  hc best score: 41.9
+ ihc best score: 42.1
+  sa best score: 59.14
+ isa best score: 66.02
+ rsa best score: 61.88
+irsa best score: 68.62
+
+formulas_big_2
+       hc time: 0.0197938
+      ihc time: 2.03397
+       sa time: 0.764875
+      isa time: 13.6914
+      rsa time: 0.424919
+     irsa time: 7.82954
+
+       hc score: 42.6625
+      ihc score: 56.5
+       sa score: 43.0563
+      isa score: 59.35
+      rsa score: 39.825
+     irsa score: 60.6625
+
+  hc best score: 56.5
+ ihc best score: 56.5
+  sa best score: 58.6
+ isa best score: 63.1
+ rsa best score: 59.4
+irsa best score: 64.9
+
+
+formulas_really_big
+       hc time: 0.0559588
+      ihc time: 3.42556
+       sa time: 1.93317
+      isa time: 13.3484
+      rsa time: 0.486278
+     irsa time: 4.07251
+
+       hc score: 32.955
+      ihc score: 45.7863
+       sa score: 31.17
+      isa score: 43.6825
+      rsa score: 27.8337
+     irsa score: 41.5513
+
+  hc best score: 44.06
+ ihc best score: 46
+  sa best score: 46.22
+ isa best score: 48.44
+ rsa best score: 45.18
+irsa best score: 48.16
