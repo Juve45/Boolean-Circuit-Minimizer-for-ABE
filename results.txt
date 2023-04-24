@@ -6,7 +6,7 @@ rsa: t - 150, rate = 0.2, dp = 25, l = 10
 isa : 12 runs
 irsa: 12 runs
 
-formulas_small.txt
+DATASET 1 formulas_small.txt
 variables: 20-25 | literals: 20-40
        hc time: 0.000713125
       ihc time: 0.0816431
@@ -31,7 +31,7 @@ irsa best score: 47.8
 
 
 
-formulas_real.txt
+DATASET 4 formulas_real.txt
 variables: ??? | literals: ???
        hc time: 0.0009125
       ihc time: 0.117512
@@ -86,7 +86,7 @@ andreea@ThinkPadL1
 
 
 
-formulas_small_2
+DATASET 2 formulas_small_2
 variables: 20 | literals: 60-90
        hc time: 0.003185
       ihc time: 0.340637
@@ -111,7 +111,7 @@ irsa best score: 68.62
 
 
 
-formulas_big_2
+DATASET 3 formulas_big_2
 variables: 25-35 | literals: 160-200
        hc time: 0.0197938
       ihc time: 2.03397
