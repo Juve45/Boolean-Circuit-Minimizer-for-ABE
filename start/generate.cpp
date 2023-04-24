@@ -19,7 +19,7 @@ int main() {
     // std::ofstream fout2("inputs/formulas_big.txt");
     // int count2 = 0;
     // while (true) {
-    //     const Circuit circuit = Build::random(Random::integer(20, 50), Random::integer(2, 4));
+    //     const Circuit circuit = Build::random(Random::integer(20, 51), Random::integer(2, 4));
     //     std::string formula = Logic::to_formula(circuit);
     //     Tree *tree = &Logic::to_tree(formula);
     //     tree->trim();
@@ -47,7 +47,7 @@ int main() {
     // std::ofstream fout4("inputs/formulas_big_2.txt");
     // int count4 = 0;
     // while (true) {
-    //     const Circuit circuit = Build::random(Random::integer(25, 35), Random::integer(2, 4));
+    //     const Circuit circuit = Build::random(Random::integer(25, 36), Random::integer(2, 4));
     //     std::string formula = Logic::to_formula(circuit);
     //     Tree *tree = &Logic::to_tree(formula);
     //     tree->trim();

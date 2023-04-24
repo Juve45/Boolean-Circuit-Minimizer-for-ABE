@@ -1,13 +1,13 @@
+const int ITERATION_COUNT = 16;
 
-    const int ITERATION_COUNT = 16;
 ihc: 100 runs
 sa: kmax - 150
-rsa: t - 150, rate = 0.2, dp=25, l = 10 
+rsa: t - 150, rate = 0.2, dp = 25, l = 10
 isa : 12 runs
 irsa: 12 runs
 
-formulas_small.txt  
-
+formulas_small.txt
+variables: 20-25 | literals: 20-40
        hc time: 0.000713125
       ihc time: 0.0816431
        sa time: 0.167078
@@ -31,8 +31,8 @@ irsa best score: 47.8
 
 
 
-
 formulas_real.txt
+variables: ??? | literals: ???
        hc time: 0.0009125
       ihc time: 0.117512
        sa time: 0.101175
@@ -55,7 +55,9 @@ formulas_real.txt
 irsa best score: 50.4
 
 
+
 formulas_big.txt
+variables: 20-50 | literals: 50-100
        hc time: 0.008355
       ihc time: 0.879046
        sa time: 0.858042
@@ -83,7 +85,9 @@ sys	0m2,943s
 andreea@ThinkPadL1
 
 
-small_2
+
+formulas_small_2
+variables: 20 | literals: 60-90
        hc time: 0.003185
       ihc time: 0.340637
        sa time: 0.863021
@@ -105,7 +109,10 @@ small_2
  rsa best score: 61.88
 irsa best score: 68.62
 
+
+
 formulas_big_2
+variables: 25-35 | literals: 160-200
        hc time: 0.0197938
       ihc time: 2.03397
        sa time: 0.764875
@@ -128,7 +135,9 @@ formulas_big_2
 irsa best score: 64.9
 
 
+
 formulas_really_big
+variables: 50-100 | literals: 350-450
        hc time: 0.0559588
       ihc time: 3.42556
        sa time: 1.93317
