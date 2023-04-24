@@ -179,11 +179,11 @@ Tree* real_sa(Tree* root) {
     root->trim();
 
     // Parameters which can be changed
-    long double cooling_rate = 0.2;
-    long double t_max = 150;
+    long double cooling_rate = 0.15;
+    long double t_max = 200;
     long double t_min = 10;
-    int defactorzie_percent = 25;
-    int L = 10; // number of iterations per sa epoch
+    int defactorzie_percent = 30;
+    int L = 15; // number of iterations per sa epoch
     // 
         
     // Tree* bst_tree = nullptr;
