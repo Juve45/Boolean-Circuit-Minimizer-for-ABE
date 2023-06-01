@@ -27,7 +27,7 @@ Then you can run it in the following way:
 ./optimize [hc|ihc|sa|isa|ch|ich] "<formula>"
 ```
 
-The Boolean formula should be written as a string made up of lowercase English letters (possibly followed by one or more digits) representing literals, `*`s representing `AND` nodes, `+`s representing `OR` nodes, and parentheses.
+The Boolean formula should be written as a string made up of lowercase English letters (possibly followed by one or more digits) representing literals, `*`s representing `AND` nodes, `+`s representing `OR` nodes and parentheses.
 
 ## Example
 
