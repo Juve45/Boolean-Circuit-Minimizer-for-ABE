@@ -14,41 +14,12 @@ Tree* hill_climbing(Tree* t) {
     return t;
 }
 
-
-Tree* real_hill_climbing(Tree * t, int d = 0) {
-    if(d == 6) {
-        hill_climbing(t);
-        return t;
-    }
-    Tree * cand = t;
-    for(int i = 0; i < 5; i++) {
-        Tree * t2 = t->deep_copy();
-
-        std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t2);
-        
-        if (factorizable.empty()) 
-            break; // we can't optimize further
-        
-        const int c = Random::integer(factorizable.size());
-        
-        assert(factorizable[c].size() > 1);
-        
-        const auto [f1, f2] = Random::two_integers(factorizable[c].size());
-
-        Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
-
-        if(t2->get_cost() < cand->get_cost())
-            cand = t2;
-        // else t2->deep_erase();
-    }
-    return real_hill_climbing(cand, d + 1);
-}
-
+int ihc_iterations = 60;
 
 // TO DO: instead of sending the initial formula send the tree and make a deep copy function
 // to copy the three for each iteration
 Tree* iterated_hc(Tree * original) {
-    int runs = 60;
+    int runs = ihc_iterations;
     int best_cost = 1e9;
     Tree *best_tree = nullptr;
 
@@ -174,16 +145,16 @@ Tree* simulated_annealing(Tree* root) {
     return bst_tree;
 }
 
+// Parameters which can be changed
+long double cooling_rate = 0.10;
+long double t_max = 100;
+long double t_min = 10;
+int defactorzie_percent = 30;
+int L = 25; // number of iterations per sa epoch
+// 
+
 Tree* real_sa(Tree* root) {
     root->trim();
-
-    // Parameters which can be changed
-    long double cooling_rate = 0.15;
-    long double t_max = 200;
-    long double t_min = 10;
-    int defactorzie_percent = 30;
-    int L = 15; // number of iterations per sa epoch
-    // 
         
     // Tree* bst_tree = nullptr;
     // int bst_cst = 1e9;
@@ -229,10 +200,12 @@ Tree* real_sa(Tree* root) {
     return root;
 }
 
+int ich_iterations = 15;
+
 Tree* iterated_simulated_annealing(Tree * original) {    
     int mn = 1e9;
     Tree * tmn = nullptr;
-    for (int i=1;i<=8;i++) {
+    for (int i=1;i<=ich_iterations;i++) {
         Tree *tree = original->deep_copy();
         tree->trim();
         tree = simulated_annealing(tree);
@@ -254,10 +227,12 @@ Tree* iterated_simulated_annealing(Tree * original) {
     return tmn;
 }
 
+int isa_iterations = 15;
+
 Tree* iterated_rsa(Tree * original) {    
     int mn = 1e9;
     Tree * tmn = nullptr;
-    for (int i=1;i<=8;i++) {
+    for (int i=1;i<=isa_iterations;i++) {
         Tree *tree = original->deep_copy();
         tree->trim();
         tree = real_sa(tree);
@@ -339,7 +314,7 @@ void replace(Circuit& circuit) {
 }
 std::mutex st_lock;
 
-void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double& ttime, long double& score, long double& bst_score) {
+void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double& ttime, long double& score) {
     Tree *tree1 = &Logic::to_tree(formula);
     long double t_start = current_time_ms();
     long double s_start = tree1->get_cost();
@@ -348,41 +323,34 @@ void run_algorithm(std::string formula, Tree * (*algorithm)(Tree *), long double
     long double t_end = current_time_ms();
     long double s_end = tree1->get_cost();
     
-
-    ttime += t_end - t_start;
-    bst_score = improvement_percent(s_start, s_end);
-    score += bst_score;
+    ttime = t_end - t_start;
+    score = improvement_percent(s_start, s_end);
 
     tree1->erase();
     delete tree1;
 }
 
 
-void iteration(std::vector <Tree*(*)(Tree *)> alg, std::vector<std::string> formulas, 
-     std::vector <long double> &time, std::vector <long double> &score,
-     std::vector<std::vector<long double> > &bst_score) {
-
-    std::vector<long double> itime(alg.size());
-    std::vector<long double> iscore(alg.size());
-    std::vector<std::vector<long double> > ibst_score(formulas.size(), std::vector<long double>(alg.size()));
+void iteration(Tree*(*alg)(Tree *), std::vector<std::string> formulas, 
+     std::vector<long double> &times, std::vector<long double> &scores) {
 
     int formula_count = 0;
+    long double iteration_time = 0, iteration_score = 0;
     for (auto &formula : formulas) {
-        for(int i = 0; i < (int)alg.size(); i++) 
-            run_algorithm(formula, alg[i], itime[i], iscore[i], ibst_score[formula_count][i]);   
-        std::cout << "finished formula #" << formula_count << '\n';
+        long double crt_time = 0, crt_score = 0;
+        run_algorithm(formula, alg, crt_time, crt_score);   
+        iteration_time += crt_time;
+        iteration_score += crt_score;
         formula_count++;
     }
 
+    iteration_time /= formula_count;
+    iteration_score /= formula_count;
+
     st_lock.lock();
 
-    for(int i = 0; i < (int)alg.size(); i++) {
-        time[i] += itime[i];
-        score[i] += iscore[i]; 
-        for (int f = 0; f < (int)formulas.size(); f++) {
-            bst_score[f][i] = std::max(bst_score[f][i], ibst_score[f][i]);
-        }
-    }
+    times.push_back(iteration_time);
+    scores.push_back(iteration_score);
 
     st_lock.unlock();
 }
@@ -391,57 +359,67 @@ struct ALG{
     std::string time_label;
     std::string score_label;
     std::string best_score_label;
+    std::string custom_label;
 };
 
 int main(int argc, char* argv[]) {
     
     // load_patterns();
-    const int ITERATION_COUNT = 300;
-    int thread_count = 1;
+    const int ITERATION_COUNT = 500;
+    int thread_count = 6;
 
     std::vector<ALG> alg_to_test;
 
-    // alg_to_test.push_back({
-    //     "        hc time: ",
-    //     "       hc score: ",
-    //     "  hc best score: "
-    // });
-    // alg_to_test.push_back({
-    //     "       ihc time: ",
-    //     "      ihc score: ",
-    //     " ihc best score: "
-    // });
+    alg_to_test.push_back({
+        "        hc time: ",
+        "       hc score: ",
+        "  hc best score: ",
+        "             hc: "
+    });
+    alg_to_test.push_back({
+        "       ihc time: ",
+        "      ihc score: ",
+        " ihc best score: ",
+        "            ihc: "
+    });
     alg_to_test.push_back({
         "        sa time: ",
         "       sa score: ",
-        "  sa best score: "
+        "  sa best score: ",
+        "             sa: "
     });
-    // alg_to_test.push_back({
-    //     "       isa time: ",
-    //     "      isa score: ",
-    //     " isa best score: "
-    // });
+    alg_to_test.push_back({
+        "       isa time: ",
+        "      isa score: ",
+        " isa best score: ",
+        "            isa: "
+    });
     alg_to_test.push_back({
         "       rsa time: ",
         "      rsa score: ",
-        " rsa best score: "
+        " rsa best score: ",
+        "            rsa: "
     });
-    // alg_to_test.push_back({
-    //     "      irsa time: ",
-    //     "     irsa score: ",
-    //     "irsa best score: "
-    // });
+    alg_to_test.push_back({
+        "      irsa time: ",
+        "     irsa score: ",
+        "irsa best score: ",
+        "           irsa: "
+    });
 
     std::vector <Tree*(*)(Tree *)> alg;
-    // alg.push_back(&hill_climbing);
-    // alg.push_back(&iterated_hc);
+    alg.push_back(&hill_climbing);
+    alg.push_back(&iterated_hc);
     alg.push_back(&simulated_annealing);
-    // alg.push_back(&iterated_simulated_annealing);
+    alg.push_back(&iterated_simulated_annealing);
     alg.push_back(&real_sa);
-    // alg.push_back(&iterated_rsa);
+    alg.push_back(&iterated_rsa);
 
-    std::vector<long double> time(alg.size());
-    std::vector<long double> score(alg.size());
+    std::vector<std::vector<long double> > times(alg.size(), std::vector<long double>());
+    std::vector<std::vector<long double> > scores(alg.size(), std::vector<long double>());
+    std::vector<long double> time_sum(alg.size()), time_mean(alg.size());
+    std::vector<long double> score_sum(alg.size()), score_mean(alg.size()), score_square_sum_dif(alg.size()), 
+        score_trust_interval_min(alg.size()), score_trust_interval_max(alg.size());
     std::vector<long double> alg_best_score(alg.size());
     std::vector<std::thread> threads;
     std::vector<std::string> formulas;
@@ -453,45 +431,122 @@ int main(int argc, char* argv[]) {
     }
     int formula_count = formulas.size();
 
-    std::vector<std::vector<long double> > bst_score(formula_count, std::vector<long double>(alg.size()));
+    for (int a = 0; a < (int)alg.size(); a++) {
+        std::cout << "started algorithm #" << a << '\n';
+        for (int i = 0; i < ITERATION_COUNT; i++) {
+            std::cout << "started iteration #" << i << '\n';
 
-    for (int i = 0; i < ITERATION_COUNT; i++) {
-        std::cout << "started iteration #" << i << '\n';
+            std::thread t(iteration, alg[a], formulas, std::ref(times[a]), std::ref(scores[a]));
+            threads.push_back(std::move(t));
 
-        std::thread t(iteration, alg, formulas, std::ref(time), std::ref(score), std::ref(bst_score));
-        threads.push_back(std::move(t));
+            if (i % thread_count == (thread_count - 1) || i == ITERATION_COUNT - 1) {
+                for(auto& thread : threads)
+                    thread.join();
+                threads.clear();
+            }
+        }
 
-        if (i % thread_count == (thread_count - 1) || i == ITERATION_COUNT - 1) {
-            for(auto& thread : threads)
-                thread.join();
-            threads.clear();
+        for (auto s : scores[a]) {
+            score_sum[a] += s;
+            alg_best_score[a] = std::max(alg_best_score[a], s);
+        }
+
+        for (auto t : times[a]) {
+            time_sum[a] += t;
         }
     }
-
-    for (int i = 0; i < (int)alg.size(); i++)
-        for (int f = 0; f < (int)formulas.size(); f++) {
-            alg_best_score[i] += bst_score[f][i];
-        }
 
     for (int i=0;i<(int)alg.size();i++) {
-        time[i] /= ITERATION_COUNT * formula_count * 1000;
-        score[i] /= ITERATION_COUNT * formula_count;
-        alg_best_score[i] /= formula_count;
+        time_mean[i] = time_sum[i] / ITERATION_COUNT / 1000;
+        score_mean[i] = score_sum[i] / ITERATION_COUNT;
+    }
+
+    int z = 1.96; // 95%
+    for (int a = 0; a < (int)alg.size(); a++) {
+        for (int i = 0; i < ITERATION_COUNT; i++) {
+           score_square_sum_dif[a] += (score_mean[a] - scores[a][i]) * (score_mean[a] - scores[a][i]);
+        }
+        score_square_sum_dif[a] /= ITERATION_COUNT;
+        score_square_sum_dif[a] = sqrt(score_square_sum_dif[a]);
+        score_trust_interval_min[a] = score_mean[a] - z * score_square_sum_dif[a] / sqrt(ITERATION_COUNT);
+        score_trust_interval_max[a] = score_mean[a] + z * score_square_sum_dif[a] / sqrt(ITERATION_COUNT);
+    }
+
+    const auto p1 = std::chrono::system_clock::now();
+    long long timestamp_now = std::chrono::duration_cast<std::chrono::seconds>(p1.time_since_epoch()).count();
+
+    std::ofstream fout("./full_results/full_results" + std::to_string(timestamp_now) + ".txt");
+
+    fout << std::fixed << std::setprecision(6);
+
+    fout << "Dataset: " << argv[1] << '\n';
+
+    fout << "ITERATION_COUNT: " << ITERATION_COUNT << "\n\n";
+    fout << "SA params: \n";
+    fout << "\tcooling_rate: " << cooling_rate << '\n';
+    fout << "\tt_max: " << t_max << '\n';
+    fout << "\tt_min: " << t_min << '\n';
+    fout << "\tdefactorzie_percent: " << defactorzie_percent << '\n';
+    fout << "\tL: " << L << "\n\n";
+
+    fout << "ISA iterations: " << isa_iterations << '\n';
+    fout << "ICH iterations: " << ich_iterations << '\n';
+    fout << "IHC iterations: " << ihc_iterations << '\n';
+
+    for (int a = 0; a < (int)alg_to_test.size(); a++) {
+        fout << alg_to_test[a].custom_label << '\n';
+        for (int i = 0; i < ITERATION_COUNT; i++) {
+            fout << times[a][i] << ' ';
+        }
+        fout << '\n';
+        for (int i = 0; i < ITERATION_COUNT; i++) {
+            fout << scores[a][i] << ' ';
+        }
+        fout << '\n';
+        fout << '\n';
     }
 
     for (int i = 0; i < (int)alg_to_test.size(); i++) {
-        std::cout << alg_to_test[i].time_label << ' ' << time[i] << '\n';
+        fout << alg_to_test[i].time_label << ' ' << time_mean[i] << '\n';
+        std::cout << alg_to_test[i].time_label << ' ' << time_mean[i] << '\n';
     }
+    fout << '\n';
     std::cout << '\n';
 
     for (int i = 0; i < (int)alg_to_test.size(); i++) {
-        std::cout << alg_to_test[i].score_label << ' ' << score[i] << '\n';
+        fout << alg_to_test[i].score_label << ' ' << score_mean[i] << '\n';
+        std::cout << alg_to_test[i].score_label << ' ' << score_mean[i] << '\n';
     }
+    fout << '\n';
     std::cout << '\n';
 
     for (int i = 0; i < (int)alg_to_test.size(); i++) {
+        fout << alg_to_test[i].best_score_label << ' ' << alg_best_score[i] << '\n';
         std::cout << alg_to_test[i].best_score_label << ' ' << alg_best_score[i] << '\n';
     }
+    fout << '\n';
     std::cout << '\n';
+
+
+    fout << "Standard dev:\n";
+    std::cout << "Standard dev:\n";
+    for (int i = 0; i < (int)alg_to_test.size(); i++) {
+        fout << alg_to_test[i].custom_label << ' ' << score_square_sum_dif[i] << '\n';
+        std::cout << alg_to_test[i].custom_label << ' ' << score_square_sum_dif[i] << '\n';
+    }
+    fout << '\n';
+    std::cout << '\n';
+
+    fout << "Trust intervals (c-95):\n";
+    std::cout << "Trust intervals (c-95):\n";
+    for (int i = 0; i < (int)alg_to_test.size(); i++) {
+        fout << alg_to_test[i].custom_label << ' ' << score_trust_interval_min[i] << ' ' << score_trust_interval_max[i] << '\n';
+        std::cout << alg_to_test[i].custom_label << ' ' << score_trust_interval_min[i] << ' ' << score_trust_interval_max[i] << '\n';
+    }
+    fout << '\n';
+    std::cout << '\n';
+
+    fout.close();
+
     return 0;
 }
