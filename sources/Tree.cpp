@@ -76,20 +76,19 @@ bool Tree::trim() {
     
     std::vector<Tree*> children_copy = children;
     for (Tree* child : children_copy) {
-        if(child->trim()) 
+        if(child->trim()) {
             delete(child);
+        }
     }
 
+    children_copy = children;
+
     std::set<std::string> child_formulas;
-    // dbg(this->children);
-    for(int i = 0; i < int(children.size()); i++) {
-        Tree* child = children[i];
+    for(auto child : children_copy) {
         if (child_formulas.count(child->formula)) {
-            // dbg(child);
             this->erase_child(child);
             child->erase();
             delete child;
-            i--;
         } else 
             child_formulas.insert(child->formula);
     }
@@ -106,29 +105,34 @@ bool Tree::trim() {
             parent->erase_child(this);
             if (child->type != INPUT) {
                 assert(parent->type == child->type);
-                for (Tree* child_child : child->children)
-                    if (!parent->has_child(child_child->formula))
-                        parent->add_child(child_child);
+                for (Tree* child_child : child->children) {
+                    if (!parent->has_child(child_child->formula)) {
+                        parent->add_child(child_child->deep_copy());
+                    }
+                }
             }
             else {
-                if (!parent->has_child(child->formula))
-                    parent->add_child(child);
+                if (!parent->has_child(child->formula)) {
+                    parent->add_child(child->deep_copy());
+                }
             }
             erase_this = true;
-            // to do: remove this node
         }
         else if (parent->type == type) {
             parent->erase_child(this);
 
             for (Tree* child : children) {
-                if (!parent->has_child(child->formula))
-                    parent->add_child(child);
+                if (!parent->has_child(child->formula)) {
+                    parent->add_child(child->deep_copy());
+                }
             }
             erase_this = true;
-            // to do: remove this node
         }
     }
-    if (!children.empty())
+    if (erase_this) {
+        erase();
+    }
+    if (!erase_this && !children.empty())
         update_formula();
     return erase_this;
 }

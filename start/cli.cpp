@@ -50,7 +50,7 @@ void defactorize(Tree* root) {
 
 Tree* hill_climbing(Tree* t) {
     while (true) {
-        t->trim();
+        assert(!t->trim());
         std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t, OR);
         if (factorizable.empty()) break;
         const int c = Random::integer(factorizable.size());

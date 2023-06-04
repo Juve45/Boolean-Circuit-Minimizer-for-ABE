@@ -22,7 +22,7 @@ Tree* hill_climbing(Tree* t) {
     return t;
 }
 
-int ihc_iterations = 60;
+int ihc_iterations = 30;
 
 Tree* iterated_hc(Tree * original) {
     int runs = ihc_iterations;
@@ -196,7 +196,7 @@ Tree* real_sa(Tree* root) {
     return root;
 }
 
-int ich_iterations = 15;
+int ich_iterations = 7;
 
 Tree* iterated_simulated_annealing(Tree * original) {    
     int mn = 1e9;
@@ -225,7 +225,8 @@ Tree* iterated_simulated_annealing(Tree * original) {
 
 int isa_iterations = 15;
 
-Tree* iterated_rsa(Tree * original) {    
+Tree* iterated_rsa(Tree * original) { 
+    // original = iterated_hc(original);   
     int mn = 1e9;
     Tree * tmn = nullptr;
     for (int i=1;i<=isa_iterations;i++) {
@@ -361,8 +362,8 @@ struct ALG{
 int main(int argc, char* argv[]) {
     
     // load_patterns();
-    const int ITERATION_COUNT = 200;
-    int thread_count = 6;
+    const int ITERATION_COUNT = 100;
+    int thread_count = 5;
 
     std::vector<ALG> alg_to_test;
 
@@ -372,24 +373,24 @@ int main(int argc, char* argv[]) {
         "  hc best score: ",
         "             hc: "
     });
-    // alg_to_test.push_back({
-    //     "       ihc time: ",
-    //     "      ihc score: ",
-    //     " ihc best score: ",
-    //     "            ihc: "
-    // });
-    // alg_to_test.push_back({
-    //     "        sa time: ",
-    //     "       sa score: ",
-    //     "  sa best score: ",
-    //     "             sa: "
-    // });
-    // alg_to_test.push_back({
-    //     "       isa time: ",
-    //     "      isa score: ",
-    //     " isa best score: ",
-    //     "            isa: "
-    // });
+    alg_to_test.push_back({
+        "       ihc time: ",
+        "      ihc score: ",
+        " ihc best score: ",
+        "            ihc: "
+    });
+    alg_to_test.push_back({
+        "        sa time: ",
+        "       sa score: ",
+        "  sa best score: ",
+        "             sa: "
+    });
+    alg_to_test.push_back({
+        "       isa time: ",
+        "      isa score: ",
+        " isa best score: ",
+        "            isa: "
+    });
     // alg_to_test.push_back({
     //     "       rsa time: ",
     //     "      rsa score: ",
@@ -405,9 +406,9 @@ int main(int argc, char* argv[]) {
 
     std::vector <Tree*(*)(Tree *)> alg;
     alg.push_back(&hill_climbing);
-    // alg.push_back(&iterated_hc);
-    // alg.push_back(&simulated_annealing);
-    // alg.push_back(&iterated_simulated_annealing);
+    alg.push_back(&iterated_hc);
+    alg.push_back(&simulated_annealing);
+    alg.push_back(&iterated_simulated_annealing);
     // alg.push_back(&real_sa);
     // alg.push_back(&iterated_rsa);
 

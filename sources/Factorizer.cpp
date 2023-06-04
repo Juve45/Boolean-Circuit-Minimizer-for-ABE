@@ -74,7 +74,7 @@ void Factorizer::factorize_absorption(Tree* t1, Tree* t2) {
         root = temp;
         temp = temp->parent;
     }
-    root->trim();
+    assert(!root->trim());
 }
 
 void Factorizer::factorize(Tree* t1, Tree* t2) {
@@ -129,7 +129,7 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
         temp = temp->parent;
     }
 
-    root->trim();
+    assert(!root->trim());
 }
 
 void Factorizer::defactorize(Tree* t1, Tree* t2) {
@@ -183,10 +183,16 @@ void Factorizer::defactorize(Tree* t1, Tree* t2) {
         temp->update_formula();
         temp = temp->parent;
     }
-    if (parent->parent)
-        parent->parent->trim();
-    else
-        parent->trim();
+    if (parent->parent) {
+        Tree *node = parent->parent;
+        if (node->trim())
+            delete(node);
+    }
+    else {
+        if (parent->trim()) {
+            delete(parent);
+        }
+    }
     
     t1->erase();
     delete t1;
