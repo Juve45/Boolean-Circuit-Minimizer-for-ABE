@@ -26,7 +26,7 @@ Tree* get_random_and(Tree* root) {
 }
 
 bool factorize(Tree* root) {
-    std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(root);
+    std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(root, OR);
     if (factorizable.empty()) return false;
     const int c = Random::integer(factorizable.size());
     const auto [f1, f2] = Random::two_integers(factorizable[c].size());
@@ -51,7 +51,7 @@ void defactorize(Tree* root) {
 Tree* hill_climbing(Tree* t) {
     while (true) {
         t->trim();
-        std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t);
+        std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t, OR);
         if (factorizable.empty()) break;
         const int c = Random::integer(factorizable.size());
         const auto [f1, f2] = Random::two_integers(factorizable[c].size());

@@ -1,23 +1,29 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
+
+// Apply a random factorization into the given Tree.
+// Return true if we could factorize.
+bool factorize(Tree* root) {
+    std::vector<std::vector<Tree*>> factorizable_OR = Factorizer::reduce(root, OR);
+    std::vector<std::vector<Tree*>> factorizable_AND = Factorizer::reduce(root, AND);
+    std::vector<std::vector<Tree*>> factorizable = factorizable_OR;
+    factorizable.insert(factorizable.end(), factorizable_AND.begin(), factorizable_AND.end());
+    if (factorizable.empty()) return false; // we can't optimize further
+    const int c = Random::integer(factorizable.size());
+    assert(factorizable[c].size() > 1);
+    const auto [f1, f2] = Random::two_integers(factorizable[c].size());
+    Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
+    return true;
+}
+
 Tree* hill_climbing(Tree* t) {
-    while (true) {
-        t->trim();
-        std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(t);
-        if (factorizable.empty()) break; // we can't optimize further
-        const int c = Random::integer(factorizable.size());
-        assert(factorizable[c].size() > 1);
-        const auto [f1, f2] = Random::two_integers(factorizable[c].size());
-        Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
-    }
+    while (factorize(t));
     return t;
 }
 
 int ihc_iterations = 60;
 
-// TO DO: instead of sending the initial formula send the tree and make a deep copy function
-// to copy the three for each iteration
 Tree* iterated_hc(Tree * original) {
     int runs = ihc_iterations;
     int best_cost = 1e9;
@@ -76,6 +82,7 @@ Tree* get_random_and(Tree* root) {
     return and_nodes[i];
 }
 
+// Apply a random defactorization into the given Tree.
 void defactorize(Tree* root) {
     Tree *and_node = get_random_and(root);
     // if and_node is null we can't defactorize
@@ -97,17 +104,6 @@ void defactorize(Tree* root) {
         f2 = Random::integer(and_node->children.size());
     }
     Factorizer::defactorize(or_nodes[f1], and_node->children[f2]);
-}
-
-// Return true if we could factorize
-bool factorize(Tree* root) {
-    std::vector<std::vector<Tree*>> factorizable = Factorizer::reduce(root);
-    if (factorizable.empty()) return false; // we can't optimize further
-    const int c = Random::integer(factorizable.size());
-    assert(factorizable[c].size() > 1);
-    const auto [f1, f2] = Random::two_integers(factorizable[c].size());
-    Factorizer::factorize(factorizable[c][f1], factorizable[c][f2]);
-    return true;
 }
 
 Tree* simulated_annealing(Tree* root) {
@@ -365,7 +361,7 @@ struct ALG{
 int main(int argc, char* argv[]) {
     
     // load_patterns();
-    const int ITERATION_COUNT = 500;
+    const int ITERATION_COUNT = 200;
     int thread_count = 6;
 
     std::vector<ALG> alg_to_test;
@@ -376,44 +372,44 @@ int main(int argc, char* argv[]) {
         "  hc best score: ",
         "             hc: "
     });
-    alg_to_test.push_back({
-        "       ihc time: ",
-        "      ihc score: ",
-        " ihc best score: ",
-        "            ihc: "
-    });
-    alg_to_test.push_back({
-        "        sa time: ",
-        "       sa score: ",
-        "  sa best score: ",
-        "             sa: "
-    });
-    alg_to_test.push_back({
-        "       isa time: ",
-        "      isa score: ",
-        " isa best score: ",
-        "            isa: "
-    });
-    alg_to_test.push_back({
-        "       rsa time: ",
-        "      rsa score: ",
-        " rsa best score: ",
-        "            rsa: "
-    });
-    alg_to_test.push_back({
-        "      irsa time: ",
-        "     irsa score: ",
-        "irsa best score: ",
-        "           irsa: "
-    });
+    // alg_to_test.push_back({
+    //     "       ihc time: ",
+    //     "      ihc score: ",
+    //     " ihc best score: ",
+    //     "            ihc: "
+    // });
+    // alg_to_test.push_back({
+    //     "        sa time: ",
+    //     "       sa score: ",
+    //     "  sa best score: ",
+    //     "             sa: "
+    // });
+    // alg_to_test.push_back({
+    //     "       isa time: ",
+    //     "      isa score: ",
+    //     " isa best score: ",
+    //     "            isa: "
+    // });
+    // alg_to_test.push_back({
+    //     "       rsa time: ",
+    //     "      rsa score: ",
+    //     " rsa best score: ",
+    //     "            rsa: "
+    // });
+    // alg_to_test.push_back({
+    //     "      irsa time: ",
+    //     "     irsa score: ",
+    //     "irsa best score: ",
+    //     "           irsa: "
+    // });
 
     std::vector <Tree*(*)(Tree *)> alg;
     alg.push_back(&hill_climbing);
-    alg.push_back(&iterated_hc);
-    alg.push_back(&simulated_annealing);
-    alg.push_back(&iterated_simulated_annealing);
-    alg.push_back(&real_sa);
-    alg.push_back(&iterated_rsa);
+    // alg.push_back(&iterated_hc);
+    // alg.push_back(&simulated_annealing);
+    // alg.push_back(&iterated_simulated_annealing);
+    // alg.push_back(&real_sa);
+    // alg.push_back(&iterated_rsa);
 
     std::vector<std::vector<long double> > times(alg.size(), std::vector<long double>());
     std::vector<std::vector<long double> > scores(alg.size(), std::vector<long double>());

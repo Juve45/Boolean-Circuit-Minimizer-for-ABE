@@ -1,14 +1,15 @@
 #include "../headers/abeai.h"
 #include "../headers/debug.h"
 
-std::vector<std::vector<Tree*>> Factorizer::reduce(Tree* t) {
+// Search common factors for operation type.
+std::vector<std::vector<Tree*>> Factorizer::reduce(Tree* t, NodeType type) {
     std::vector<std::vector<Tree*>> ans;
-    if (t->type == OR) {
+    if (t->type == type) {
         std::map<std::string, std::vector<Tree*>> similar;
         for (Tree* i : t->children) {
             for (Tree* j : i->children) {
                 if (similar.count(j->formula)) {
-                    if (similar[j->formula].back()->parent->type == OR)
+                    if (similar[j->formula].back()->parent->type == type)
                         assert(j->parent->parent == similar[j->formula].back()->parent);
                     else 
                         assert(j->parent->parent == similar[j->formula].back()->parent->parent);
@@ -24,7 +25,7 @@ std::vector<std::vector<Tree*>> Factorizer::reduce(Tree* t) {
             }
             if (i->type == INPUT) {
                 if (similar.count(i->formula)) {
-                    if (similar[i->formula].back()->parent->type == OR)
+                    if (similar[i->formula].back()->parent->type == type)
                         assert(i->parent == similar[i->formula].back()->parent);
                     else 
                         assert(i->parent == similar[i->formula].back()->parent->parent);
@@ -44,7 +45,7 @@ std::vector<std::vector<Tree*>> Factorizer::reduce(Tree* t) {
                 ans.push_back(i.second);
     }
     for (Tree* i : t->children) {
-        const auto ans_child = reduce(i);
+        const auto ans_child = reduce(i, type);
         for (const auto& i : ans_child)
             ans.push_back(i);
     }
@@ -67,11 +68,13 @@ void Factorizer::factorize_absorption(Tree* t1, Tree* t2) {
     delete old2;
 
     Tree *temp = parent;
+    Tree *root = parent;
     while (temp) {
         temp->update_formula();
+        root = temp;
         temp = temp->parent;
     }
-    parent->trim();
+    root->trim();
 }
 
 void Factorizer::factorize(Tree* t1, Tree* t2) {
@@ -80,10 +83,10 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
     assert(t1->parent != t2->parent);
 
     // absorption case
-    if (t1->parent->type == OR) {
+    if (t1->parent == t2->parent->parent) {
         factorize_absorption(t1, t2);
         return;
-    } else if (t2->parent->type == OR) {
+    } else if (t2->parent == t1->parent->parent) {
         factorize_absorption(t2, t1);
         return;
     }
@@ -92,8 +95,13 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
     assert(t2->parent->parent);
     assert(t1->parent->parent == t2->parent->parent);
 
-    Tree *and_node = new Tree(AND);
-    Tree *or_node = new Tree(OR);
+    // (ab+ac) => a(b+c)
+    // and_node is the node between a and (b+c)
+    // or_node is the or node from b+c
+    // If we factorize (a+b)(a+c) the and and or nodes will actually have 
+    // the opposit operation. 
+    Tree *and_node = new Tree(t1->parent->type);
+    Tree *or_node = new Tree(t1->parent->parent->type);
     Tree *old1 = t1->parent;
     Tree *old2 = t2->parent;
     Tree *parent = old1->parent;
@@ -114,12 +122,14 @@ void Factorizer::factorize(Tree* t1, Tree* t2) {
     parent->add_child(and_node);
 
     Tree *temp = old2;
+    Tree *root = old2;
     while (temp) {
         temp->update_formula();
+        root = temp;
         temp = temp->parent;
     }
 
-    parent->trim();
+    root->trim();
 }
 
 void Factorizer::defactorize(Tree* t1, Tree* t2) {

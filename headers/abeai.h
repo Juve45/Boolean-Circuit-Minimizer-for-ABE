@@ -77,7 +77,7 @@ struct Tree {
 };
 
 struct Factorizer {
-    static std::vector<std::vector<Tree*>> reduce(Tree* t);
+    static std::vector<std::vector<Tree*>> reduce(Tree* t, NodeType type);
     static void factorize(Tree* t1, Tree* t2);
     // t1 should be the absorbing element
     static void factorize_absorption(Tree *t1, Tree *t2);
